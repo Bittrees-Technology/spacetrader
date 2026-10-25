@@ -1,0 +1,12 @@
+{
+  "revision": 9,
+  "source": "approved-catalogue",
+  "sources": {
+    "Source/ShipGraphics/ship-graphics.mjs": "857e7a71b6680f8fc7a4c57bce15f72bea69c1578bb20bef2597864fc510a7c8",
+    "Local/ship-catalogue/ship-designs.js": "7ac6c37355ea3c5b0619040f1d0504678b79015221da4f1f69b6c5afd15a805d",
+    "Local/ship-catalogue/ship-specs.js": "3840718759de75ba9f50f9f2a5dcf43256003eb52826f9373c340382e4d76c96",
+    "Local/ship-catalogue/vendor/three/three.module.js": "e2b5ee6bccd38fd6d8a2428546b83c5f2426d84b152ef82be8055556e3b40eb6",
+    "Local/ship-catalogue/vendor/three/three.core.min.js": "61ba0df005b05991361d040d8ff670e1aadfd0ce7aeebd1fdb0725957a8957de"
+  },
+  "bundleSHA256": "52d3652052ef537d18a051c00cea0ba8ea262339c365bed5aa261cd876a75ab6"
+}

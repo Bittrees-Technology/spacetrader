@@ -1,0 +1,11 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{verify}=require('../Tools/check_balance.cjs');
+const selected=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../Balance/current.json'))).manifest.split('/')[0];
+const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(p),good=verify(root);assert(good.passed);assert.equal(good.counts.rows,7048);assert.equal(good.counts.exchangeGoods,32);
+const changed=verify(root,p=>p===path.join(root,'Browser/engine.js')?Buffer.concat([read(p),Buffer.from('\n// unreviewed mission change')]):read(p));assert(!changed.passed);assert(changed.issues.some(s=>s.includes('Browser/engine.js')));
+const inventoryChanged=verify(root,p=>p===path.join(root,'Browser/world.js')?Buffer.from('new station'):read(p));assert(!inventoryChanged.passed);
+const dataChanged=verify(root,p=>p.endsWith('/'+selected+'/goods.json')?Buffer.from('{}'):read(p));assert(!dataChanged.passed);assert(dataChanged.issues.some(s=>s.includes('goods.json')));
+const traversal=verify(root,p=>p===path.join(root,'Balance/current.json')?Buffer.from('{"revision":"v1","manifest":"../Browser/engine.js"}'):read(p));assert(!traversal.passed);
+for(const file of ['TauriStandalone/scripts/prepare_frontend.py','TauriStandalone/scripts/package_app.py','package-browser.py'])assert(fs.readFileSync(path.join(root,file),'utf8').includes('Tools/check_balance.cjs'),file);
+const manifest=JSON.parse(read(path.join(root,'Balance/'+selected+'/manifest.json'))),data=JSON.parse(read(path.join(root,'Balance/'+selected+'/goods.json'))),audit=JSON.parse(read(path.join(root,'Balance/'+selected+'/audit.json')));assert.equal(data.approval.revision,manifest.revision);assert(audit.passed);assert.equal(audit.stationDayQuotes,30388800);assert.equal(audit.engineSHA256,data.engineSHA256);
+console.log('PASS approved data/source fingerprints, altered quest/station rejection, tamper/path rejection and three packaging gates.');

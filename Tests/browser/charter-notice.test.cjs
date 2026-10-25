@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),E=require('../../Browser/engine.js');
+let s=E.transact(E.fresh(),'create',{name:'Charter review',background:'trader',temperament:'cautious'});
+assert.equal(E.independentCharter(s).pending,false);
+assert.throws(()=>E.transact(s,'charter-notice-dismiss'));
+s.credits=300000;s.visited=['earth','moon','mars','phobos','ceres'];s.bank={deposits:{},loans:[],legacyDebt:s.debt};
+s=E.transact(s,'repay',{amount:s.debt});
+assert.equal(E.independentCharter(s).pending,true);
+assert(s.topics.includes('independent-charter:earned'));
+const before=structuredClone(s);s=E.transact(s,'charter-notice-dismiss');
+assert.equal(E.independentCharter(E.parse(JSON.stringify(s))).pending,false);
+for(const key of ['credits','debt','day','seed','profile','fleet','cargo'])assert.deepEqual(s[key],before[key],key);
+const repeated=E.transact(s,'charter-notice-dismiss'),prior=E.clone(s);assert.equal(repeated.lastJournalEntry.changes.length,0);delete repeated.lastJournalEntry;delete prior.lastJournalEntry;assert.deepEqual(repeated,prior);
+s.debt=100;s.bank.legacyDebt=100;assert.equal(E.independentCharter(s).pending,false);
+const legacy=structuredClone(before);legacy.topics=legacy.topics.filter(t=>!t.startsWith('independent-charter:'));assert.equal(E.independentCharter(legacy).pending,true);
+const app=fs.readFileSync('Browser/app.js','utf8');assert(!app.includes('charter-earned'));assert(app.includes('pendingInspectionNotices.length||!E.independentCharter(state).pending'));
+fs.writeFileSync('Build/CharterNoticeReview/eligible.json',JSON.stringify(before));
+console.log('Charter criteria, milestone persistence, acknowledgement, legacy saves and unchanged gameplay passed.');

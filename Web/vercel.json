@@ -1,0 +1,27 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "python3 Web/build.py",
+  "outputDirectory": "Web/.vercel/output/static",
+  "cleanUrls": false,
+  "redirects": [
+    {"source": "/", "destination": "/play/", "permanent": false},
+    {"source": "/play", "destination": "/play/", "permanent": true},
+    {"source": "/guide", "destination": "/guide/", "permanent": true},
+    {"source": "/characters", "destination": "/characters/", "permanent": true},
+    {"source": "/ships", "destination": "/ships/", "permanent": true},
+    {"source": "/goods", "destination": "/goods/", "permanent": true}
+  ],
+  "rewrites": [
+    {"source": "/goods/curves", "destination": "/goods/curves.html"},
+    {"source": "/goods/formulas", "destination": "/goods/formulas.html"},
+    {"source": "/goods/mechanics", "destination": "/goods/mechanics.html"}
+  ],
+  "headers": [
+    {"source": "/(.*)", "headers": [
+      {"key": "X-Content-Type-Options", "value": "nosniff"},
+      {"key": "Referrer-Policy", "value": "no-referrer"},
+      {"key": "X-Frame-Options", "value": "DENY"}
+    ]}
+  ]
+}

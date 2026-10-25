@@ -1,0 +1,353 @@
+{
+  "mode": "reference",
+  "source": "guide-template.cjs",
+  "inputs": {
+    "template": "a571e9d5c7e25a3903973d04467ab683250440e99fa2b62b54899115845b6e3d",
+    "engine": "85d5b149e0e4773d4dbcefa03d8144117a42ab673734446b655e761b108ff7f1",
+    "helpers": "7a9b7a0981d552961f5c9513892010f54b7a81e109c9d47c4bb57e2188bc37e0",
+    "exporter": "20a1a72edc5fdd3272f871ead00e014cf10f6f8ecc18080aa4c37995c2d01e79",
+    "goodsMechanics": "c1439facc76b9abe0e53f1a01f3764b8772b2175eb47b8af06447c8314cb5fdb",
+    "bankRateRanges": "70a3d8e980400ef7f4695182f96614a3b6234ea199a0e1fd44e31e0865259d6c"
+  },
+  "fragmentSHA256": "75e09f4afbbb1ec0b3fa367ec6455604b113559ab77fb690c5b0d27c812b0e3f",
+  "indexSHA256": "3de7405ca8dcfb25899513b1d98f69fd89ce742a12a730292f1f9a783883ce2d",
+  "builderSHA256": "d3c30bda60054868249f56893f8e4450b9ad8c78bf11e8b1cdf45290a2f6f0a5",
+  "headerSHA256": "96f54354d34a7bbd441d9ee7c19d2367b6667b2f6dde3704a72371a75d6c7e58",
+  "topics": [
+    {
+      "id": "your-first-run",
+      "title": "Your first run",
+      "category": "Getting started"
+    },
+    {
+      "id": "reference-catalogues",
+      "title": "Reference catalogues",
+      "category": "Getting started"
+    },
+    {
+      "id": "station-locations",
+      "title": "Station locations",
+      "category": "Travel & stations"
+    },
+    {
+      "id": "powered-travel",
+      "title": "Powered travel",
+      "category": "Travel & stations"
+    },
+    {
+      "id": "establishments",
+      "title": "Establishments",
+      "category": "Travel & stations"
+    },
+    {
+      "id": "navigation-learning-and-repeated-routes",
+      "title": "Navigation learning and repeated routes",
+      "category": "Travel & stations"
+    },
+    {
+      "id": "orbit-rotation-details",
+      "title": "Orbit & rotation details",
+      "category": "Travel & stations"
+    },
+    {
+      "id": "planning-route-fuel",
+      "title": "Planning route fuel",
+      "category": "Travel & stations"
+    },
+    {
+      "id": "propellant-and-people",
+      "title": "Propellant and people",
+      "category": "Travel & stations"
+    },
+    {
+      "id": "fleet-overview-command",
+      "title": "Fleet overview & command",
+      "category": "Ships & fleet"
+    },
+    {
+      "id": "fleet-registry-ships-upgrades-sales",
+      "title": "Fleet registry: ships, upgrades & sales",
+      "category": "Ships & fleet"
+    },
+    {
+      "id": "ship-upgrade-reference",
+      "title": "Ship upgrade reference",
+      "category": "Ships & fleet"
+    },
+    {
+      "id": "dry-dock-services",
+      "title": "Dry dock services",
+      "category": "Ships & fleet"
+    },
+    {
+      "id": "accounting-lots-packaging-and-holds",
+      "title": "Accounting lots, packaging and holds",
+      "category": "Ships & fleet"
+    },
+    {
+      "id": "hull-batches-and-reservations",
+      "title": "Hull batches and reservations",
+      "category": "Ships & fleet"
+    },
+    {
+      "id": "fleets-upgrades-and-raids",
+      "title": "Fleets, upgrades and raids",
+      "category": "Ships & fleet"
+    },
+    {
+      "id": "live-fleet-command",
+      "title": "Live fleet command",
+      "category": "Ships & fleet"
+    },
+    {
+      "id": "station-inventory-production-chains-and-freight",
+      "title": "Station inventory, production chains and freight",
+      "category": "Trade & freight"
+    },
+    {
+      "id": "trading-seasons-and-cargo-leads",
+      "title": "Trading seasons and cargo leads",
+      "category": "Trade & freight"
+    },
+    {
+      "id": "trading-work-and-progression",
+      "title": "Trading work and progression",
+      "category": "Trade & freight"
+    },
+    {
+      "id": "production-recovery-and-feedstock",
+      "title": "Production recovery and feedstock",
+      "category": "Trade & freight"
+    },
+    {
+      "id": "customs-cargo-preparation",
+      "title": "Customs & cargo preparation",
+      "category": "Trade & freight"
+    },
+    {
+      "id": "freight-payment-and-route-risk",
+      "title": "Freight payment and route risk",
+      "category": "Trade & freight"
+    },
+    {
+      "id": "goods-exchange-mechanics",
+      "title": "Goods & exchange mechanics",
+      "category": "Trade & freight"
+    },
+    {
+      "id": "continuing-personal-and-regional-stories",
+      "title": "Continuing personal and regional stories",
+      "category": "Work & people"
+    },
+    {
+      "id": "correspondence-and-professional-mastery",
+      "title": "Correspondence and professional mastery",
+      "category": "Work & people"
+    },
+    {
+      "id": "bounties",
+      "title": "Bounties",
+      "category": "Work & people"
+    },
+    {
+      "id": "work-fees-and-transport",
+      "title": "Work fees and transport",
+      "category": "Work & people"
+    },
+    {
+      "id": "relics-discovery-and-collectors",
+      "title": "Relics, discovery and collectors",
+      "category": "Work & people"
+    },
+    {
+      "id": "station-liberation",
+      "title": "Station liberation",
+      "category": "Work & people"
+    },
+    {
+      "id": "named-travelling-crew",
+      "title": "Named travelling crew",
+      "category": "Work & people"
+    },
+    {
+      "id": "conversation-introductions-and-agreements",
+      "title": "Conversation introductions and agreements",
+      "category": "Work & people"
+    },
+    {
+      "id": "finite-blockades-and-patrol-relief",
+      "title": "Finite blockades and patrol relief",
+      "category": "Work & people"
+    },
+    {
+      "id": "conversations-and-agreements",
+      "title": "Conversations and agreements",
+      "category": "Work & people"
+    },
+    {
+      "id": "conversations-station-stories-and-different-perspectives",
+      "title": "Conversations: station stories and different perspectives",
+      "category": "Work & people"
+    },
+    {
+      "id": "conversations-returning-discussions-and-questions-before-agreeing",
+      "title": "Conversations: returning discussions and questions before agreeing",
+      "category": "Work & people"
+    },
+    {
+      "id": "station-coordination",
+      "title": "Station coordination",
+      "category": "Work & people"
+    },
+    {
+      "id": "medical-clinics-and-crew-readiness",
+      "title": "Medical clinics and crew readiness",
+      "category": "Work & people"
+    },
+    {
+      "id": "patrol-circulars",
+      "title": "Patrol circulars",
+      "category": "Work & people"
+    },
+    {
+      "id": "conversations-across-a-career",
+      "title": "Conversations across a career",
+      "category": "Work & people"
+    },
+    {
+      "id": "warehouses-inventory-transfers",
+      "title": "Warehouses & inventory transfers",
+      "category": "Banking & property"
+    },
+    {
+      "id": "leasing-spare-warehouse-space",
+      "title": "Leasing spare warehouse space",
+      "category": "Banking & property"
+    },
+    {
+      "id": "home-base-station-standing",
+      "title": "Home base & station standing",
+      "category": "Banking & property"
+    },
+    {
+      "id": "credit-availability",
+      "title": "Credit availability",
+      "category": "Banking & property"
+    },
+    {
+      "id": "deposits-loans-and-interest",
+      "title": "Deposits, loans and interest",
+      "category": "Banking & property"
+    },
+    {
+      "id": "bank-rate-model",
+      "title": "Bank rate model",
+      "category": "Banking & property"
+    },
+    {
+      "id": "bank-rate-ranges-by-station",
+      "title": "Bank rate ranges by station",
+      "category": "Banking & property"
+    },
+    {
+      "id": "bank-credit-and-enforcement",
+      "title": "Bank credit and enforcement",
+      "category": "Banking & property"
+    },
+    {
+      "id": "home-base-and-station-reputation",
+      "title": "Home base and station reputation",
+      "category": "Banking & property"
+    },
+    {
+      "id": "character-growth-and-conversations",
+      "title": "Character growth and conversations",
+      "category": "Captain & records"
+    },
+    {
+      "id": "journal-action-records",
+      "title": "Journal & action records",
+      "category": "Captain & records"
+    },
+    {
+      "id": "reputation-stations-rumours",
+      "title": "Reputation, stations & rumours",
+      "category": "Captain & records"
+    },
+    {
+      "id": "progress-checkpoints",
+      "title": "Progress & checkpoints",
+      "category": "Captain & records"
+    },
+    {
+      "id": "audio-display-controls",
+      "title": "Audio & display controls",
+      "category": "Captain & records"
+    },
+    {
+      "id": "the-asterion-age",
+      "title": "The Asterion age",
+      "category": "World & science"
+    },
+    {
+      "id": "establishment-controls",
+      "title": "Establishment controls",
+      "category": "World & science"
+    },
+    {
+      "id": "government-treaties",
+      "title": "Government & treaties",
+      "category": "World & science"
+    },
+    {
+      "id": "diplomatic-missions",
+      "title": "Diplomatic missions",
+      "category": "World & science"
+    },
+    {
+      "id": "resources-and-fiction",
+      "title": "Resources and fiction",
+      "category": "World & science"
+    },
+    {
+      "id": "station-storage-limits",
+      "title": "Station storage limits",
+      "category": "World & science"
+    },
+    {
+      "id": "freight-dispatch-and-receiving-needs",
+      "title": "Freight dispatch and receiving needs",
+      "category": "World & science"
+    },
+    {
+      "id": "raids-during-a-voyage",
+      "title": "Raids during a voyage",
+      "category": "World & science"
+    },
+    {
+      "id": "raw-resources-and-local-processing",
+      "title": "Raw resources and local processing",
+      "category": "World & science"
+    },
+    {
+      "id": "regional-access",
+      "title": "Regional access",
+      "category": "World & science"
+    },
+    {
+      "id": "science-references",
+      "title": "Science references",
+      "category": "World & science"
+    },
+    {
+      "id": "receiving-inquiries-dated-leads",
+      "title": "Receiving inquiries & dated leads",
+      "category": "World & science"
+    },
+    {
+      "id": "talking-with-travelling-specialists",
+      "title": "Talking with travelling specialists",
+      "category": "World & science"
+    }
+  ]
+}

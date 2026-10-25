@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "mode": "reference",
+  "snapshot": "reference-roster.json",
+  "sha256": "91f3797e0629a429cd13db7078ae93705ae159654ae10169df8ceace7db2401f",
+  "counts": {
+    "staff": 256,
+    "guests": 104,
+    "uniqueNames": 360,
+    "uniquePortraits": 360
+  },
+  "coverage": {
+    "stationCount": 26,
+    "expectedStaff": 256,
+    "actualStaff": 256,
+    "complete": true,
+    "missing": [],
+    "unexpected": []
+  },
+  "sourceFiles": {
+    "Browser/dialogue-memory.js": "c7d45d65e7dd68a5d8924eb4387536c6e5158475a5a571d26d04d4c07a3e975a",
+    "Browser/engine.js": "976283e920da5dcfed861cf94c76b97e718e04fc422e686928e3a9049e6fc9b3",
+    "Browser/portrait-renderer.js": "a3a0b7e75bfcaa3a83195012bdcf4327215847a4e8048ccb490c440d3cc95c12",
+    "Browser/dialogue-voices.js": "5e7305224c06d3872060d00c2c308872abed02b436b4ec3bc853064c219cbef8",
+    "Browser/career-development.js": "0cbf24fa4bc8ccfbafb2f6b29a8e972f2be5f76c3d3ca46cce964afaaa07b745",
+    "Local/character-catalogue/project-roster.cjs": "9b0118a05289cbf6a7cc077e56a8fb629b7a3286a2621066e6d113735cbe8f67",
+    "Browser/world.js": "5b28f4d97da203fe6ae1c64624e03c27ba25639cbdbd1cb248c31a1f1e33463c",
+    "Browser/career-conversations.js": "51d74550887452dc4a17fc448fd23ac17497a432d3185ab380c385f1f438a30b",
+    "Browser/station-cast.js": "14cc61ec1a15072baa53aeb9fe98d660c6962b8f49f70458fb61449d5b988bf7"
+  },
+  "scope": "Fixed generic full-game reference; no player files, journeys or progress. Approved staff identities and deterministic visitor examples.",
+  "review": "Continuing career content reviewed. All360generic identities and portraits retained. Source provenance updated; no player input."
+}

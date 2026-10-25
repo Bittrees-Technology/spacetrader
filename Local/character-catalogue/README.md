@@ -1,0 +1,25 @@
+# Spacetrader character atlas
+
+Open http://127.0.0.1:8875/ for the full design library and the establishment roster.
+
+- The full design library contains all 10,240 base designs, including the 256 designs used by approved establishment staff. The roster separately shows their fixed station and establishment assignments.
+- The library shows all 2,662,400 base × 13 jobs × 4 expressions × 5 poses. It renders only one page at a time. Personal styling is not multiplied into that count.
+- Search by design ID (including e.g. `ILY-1024/clinic/e3/p4`), appearance, character name or profile text. Filter the roster by station, job and species. The roster shows only assigned establishment staff; canteen visitors and other non-staff characters are excluded, including from direct assignment links.
+- Character cards open details, names, species, visual details, personal style, traits, history and establishment duties. Their links reproduce the selected character. Preview controls change only the library preview.
+- The 256 approved staff are fixed in Browser/station-cast.js. Their names, identities, portraits and profiles stay at their assigned station and establishment across every voyage. The 104 regular visitors remain procedural in the game, avoiding all reserved staff names and portraits; they are hidden from this atlas roster. Existing identity pins and dialogue receipts remain compatible; repeated jobs now have dedicated replacements.
+
+`python3 Local/character-catalogue/serve.py` starts the loopback-only static reference server on port8875. It serves the reviewed, checksum-verified `reference-roster.json` selected by `reference-manifest.json`. It never opens a save, action ledger, lock, player profile or game session, and never starts a projection subprocess while browsing. No write endpoints exist. Reload reference reloads only the static catalogue.
+
+The offline exporter `project-roster.cjs` always creates its own fixed synthetic baseline and ignores stdin. It includes all26 stations,256 approved establishment staff and104 deterministic visitor examples. The establishment roster displays the staff; the full design library exposes all10240 designs and all job/expression/pose combinations, including visitor styles. Reference moods and visitor examples are fixed; actual conversations and procedural visitors can vary in the game. No captain, voyage day, visited/unlocked stations, relationships, balances, inventory or owned hulls are imported or returned.
+
+To review future content changes, run the exporter twice and require identical output, compare approved staff identities/artwork and complete station coverage, write a new reference snapshot and regenerate the manifest checksum/source fingerprints. Preserve the prior snapshot in review evidence before replacing it. Runtime requests never regenerate the snapshot from an installed game or an active voyage. Public portrait assets still use the existing installed-game asset link.
+
+The establishment review projects all 26 stations as accessible in memory, checks every actual establishment against the roster, and reports per-station coverage. No player licence or save is read. The approved establishment assignments are permanent. Their 256 base designs also remain available in the full design library, which includes all 10,240 designs and 2,662,400 role/expression/pose combinations. Library previews do not redirect to roster assignments. Library and roster filters are independent. Both card and profile headings display name, role, establishment type and station on separate lines in that order.
+
+Sex/body, gender and pronoun selectors and labels were removed in 0.62.0 after a dialogue audit found no conversation or consequence differences. Current NPC profiles expose neutral numeric portrait styling so approved artwork stays identical. Older captain saves retain legacy metadata for lossless compatibility; new charters do not record those choices.
+
+Both catalogues now share `Local/catalogue-shell.css`, a matching Spacetrader header and reciprocal Characters / Ships / Play game links. Collection navigation stays visible while browsing. This does not change the approved 256 staff assignments or any portraits.
+
+## Local background service
+
+The catalogue is installed as `com.jhineline.spacetrader.character-catalogue` in `~/Library/LaunchAgents`. It starts at sign-in and restarts after exit, binding only to its existing loopback port. The verified runtime lives in `~/Library/Application Support/Spacetrader/Catalogues/Local/character-catalogue`; macOS blocks LaunchAgents from opening project scripts in Documents. The runtime Browser link reads the current canonical installed Spacetrader app assets. After an approved catalogue source change, synchronize changed Local files to the runtime and restart only the corresponding catalogue service. Game releases automatically supply current Browser assets through the canonical app path. Logs are discarded to avoid unbounded growth. Source hashes and service verification are retained in `Build/CatalogueServiceReview`.

@@ -1,0 +1,26 @@
+{
+  "cargo": {},
+  "completed": [],
+  "credits": 15753,
+  "day": 5,
+  "debt": 4003,
+  "fuel": 9.390350035706511,
+  "hull": 99,
+  "location": "moon",
+  "log": [
+    {
+      "id": "4566343F-A2B4-47AC-8010-AC72A34E9C59",
+      "day": 0,
+      "text": "A legacy voyage."
+    }
+  ],
+  "pressure": {},
+  "seed": "11400794341973073054",
+  "shipID": "kestrel",
+  "spares": 3,
+  "version": 1,
+  "visited": [
+    "moon",
+    "earth"
+  ]
+}

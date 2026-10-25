@@ -1,0 +1,27 @@
+/* Shared catalogue identity and navigation. Keep all catalogue sites on this file. */
+:root{--space:#0c1d28;--panel:#152b37;--ink:#e0e8e4;--muted:#a0b4b6;--gold:#d0b57d;--line:#35505a}
+body{background:var(--space);color:var(--ink)}
+.catalogue-shell{position:sticky;top:0;z-index:10;background:var(--space);box-shadow:0 5px 16px #020b1230;border-bottom:1px solid var(--line)}
+.catalogue-shell .catalogue-header{max-width:1500px;margin:0 auto;padding:20px 40px;min-height:84px;display:flex;align-items:center;justify-content:space-between;gap:24px;border:0}
+.catalogue-header .catalogue-brand{color:var(--ink);text-decoration:none;font:600 27px/1.2 Georgia,serif;letter-spacing:-.5px}
+.catalogue-header .catalogue-links{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0;padding:0;border:0;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.catalogue-header .catalogue-links a{display:block;margin:0;padding:10px 15px;border:1px solid transparent;border-radius:5px;text-decoration:none;color:var(--muted);font-size:14px}
+.catalogue-header .catalogue-links a:hover{color:var(--ink);background:var(--panel)}
+.catalogue-header .catalogue-links a[aria-current=page]{color:var(--gold);border-color:var(--line);background:var(--panel)}
+.catalogue-header .catalogue-links .play-link{color:var(--gold);margin-left:12px;border-left:1px solid var(--line);border-radius:0}
+.catalogue-shell .collection-nav{max-width:1500px;display:flex;flex-wrap:wrap;gap:6px;margin:0 auto;padding:0 40px;border:0}
+.catalogue-shell .collection-nav button{min-height:48px;margin:0;padding:13px 17px;border:0;border-radius:0;background:none;color:var(--muted);box-shadow:none;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.catalogue-shell .collection-nav button:hover{color:var(--ink);background:var(--panel)}
+.catalogue-shell .collection-nav button[aria-pressed=true],.catalogue-shell .collection-nav button[aria-selected=true]{color:var(--gold);background:none;box-shadow:inset 0 -2px var(--gold)}
+.catalogue-shell :focus-visible{outline:2px solid var(--gold);outline-offset:-3px}
+.catalogue-shell+main{padding-top:26px}
+.inspection-page>.catalogue-shell{display:block}
+.inspection-page dialog{margin-top:0}
+.inspection-navigation{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto;font-size:13px}
+.inspection-navigation a{padding:9px;color:var(--gold)}
+@media(max-width:650px){.catalogue-shell .catalogue-header{padding:16px 18px;min-height:0;gap:12px;flex-wrap:wrap}.catalogue-header .catalogue-brand{font-size:25px}.catalogue-header .catalogue-links{gap:1px}.catalogue-header .catalogue-links a{padding:9px 10px;font-size:13px}.catalogue-header .catalogue-links .play-link{margin-left:2px}.catalogue-shell .collection-nav{padding:0 10px;gap:0}.catalogue-shell .collection-nav button{padding:12px 10px;font-size:13px;min-height:48px;flex:1 1 auto}.catalogue-shell+main{padding-top:20px}.inspection-navigation{width:100%;margin:0}.inspection-page .dialog-top{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.catalogue-shell *{scroll-behavior:auto!important}}
+
+.catalogue-header .catalogue-brand{display:flex;align-items:center;gap:12px;white-space:nowrap}.catalogue-emblem{width:36px;height:36px;fill:none;stroke:var(--gold);stroke-width:1.2;flex:none}.catalogue-emblem circle:last-child{fill:var(--gold);stroke:none}.catalogue-header .catalogue-links a{min-height:42px}
+
+.catalogue-header .catalogue-context{display:block;margin-top:3px;color:var(--muted);font:400 11px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:0}

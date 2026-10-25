@@ -1,0 +1,21 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),E=require('../../Browser/engine');
+const src=fs.readFileSync('Browser/app.js','utf8'),calls=[];let refreshes=0;
+const ctx={E,bountyActionPending:false,conversationVisit:1,modalKind:'establishment',venueID:'security',refreshVisitModal:()=>refreshes++};vm.createContext(ctx);
+const start=src.indexOf('async function handleBountyAction('),end=src.indexOf('\nfunction ',start+1);vm.runInContext(src.slice(start,end),ctx);
+assert(src.includes('if(await handleBountyAction(a,b))return;'),'The actual delegated dispatcher must call the handler');
+const fixture=name=>E.parse(fs.readFileSync('Build/BountyControlsReview/engine-fixtures/'+name+'.json','utf8'));
+const button=id=>({dataset:{id},disabled:false,isConnected:true});
+ctx.act=async(type,args)=>{calls.push({type,args});try{ctx.state=E.parse(JSON.stringify(E.transact(ctx.state,type,args)));return true;}catch(e){ctx.error=e.message;return false;}};
+(async()=>{
+ ctx.state=fixture('posted');const target=E.localBounties(ctx.state)[0],before=E.clone(ctx.state),b=button(target.id);
+ assert.equal(await ctx.handleBountyAction('accept-bounty',b),true);assert.equal(b.disabled,false);assert.equal(ctx.bountyActionPending,false);assert.equal(calls.length,1);assert.equal(calls[0].args.id,target.id);assert(E.bountyOffers(ctx.state).find(r=>r.id===target.id).accepted);assert(ctx.state.log.some(r=>r.text.startsWith('Accepted bounty:')));for(const key of ['day','credits','debt','fuel','hull','seed'])assert.equal(ctx.state[key],before[key]);assert(!ctx.state.battle&&!ctx.state.incident);assert.equal(refreshes,1);
+ const accepted=JSON.stringify(ctx.state);await ctx.handleBountyAction('accept-bounty',b);assert.match(ctx.error,/already accepted/);assert.equal(JSON.stringify(ctx.state),accepted);assert.equal(b.disabled,false);
+ ctx.state=fixture('captured');const capture=ctx.state.capturedBounties[0],cash=ctx.state.credits,day=ctx.state.day,xp=JSON.stringify(ctx.state.profile.xp);await ctx.handleBountyAction('claim-bounty',button('bounty-'+capture.id));assert.equal(ctx.state.credits,cash+capture.reward);assert.equal(ctx.state.day,day);assert.equal(JSON.stringify(ctx.state.profile.xp),xp);assert.equal(ctx.state.capturedBounties.length,0);assert(E.bountyOffers(ctx.state).find(r=>r.bountyID===capture.id).completed);assert(ctx.state.log.some(r=>r.text.startsWith('Claimed bounty:')));
+ const claimed=JSON.stringify(ctx.state);await ctx.handleBountyAction('claim-bounty',button('bounty-'+capture.id));assert.equal(JSON.stringify(ctx.state),claimed,'A second claim cannot pay twice');assert.match(ctx.error,/unpaid confirmed capture/);
+ ctx.state=fixture('captured');ctx.state.credits=999999999;const full=JSON.stringify(ctx.state),fullButton=button('bounty-'+capture.id);await ctx.handleBountyAction('claim-bounty',fullButton);assert.equal(JSON.stringify(ctx.state),full);assert.equal(fullButton.disabled,false);assert.equal(ctx.bountyActionPending,false);
+ const realAct=ctx.act;let release;ctx.act=()=>new Promise(resolve=>release=resolve);const pendingButton=button(target.id),priorRefresh=refreshes;const first=ctx.handleBountyAction('accept-bounty',pendingButton);assert(pendingButton.disabled&&ctx.bountyActionPending);await ctx.handleBountyAction('claim-bounty',button('another'));ctx.conversationVisit++;ctx.venueID='market';release(false);await first;assert.equal(refreshes,priorRefresh,'A pending action must not reopen a venue the player left');assert(!pendingButton.disabled&&!ctx.bountyActionPending);
+ ctx.act=async()=>{throw Error('Save unavailable');};await assert.rejects(ctx.handleBountyAction('accept-bounty',button(target.id)),/Save unavailable/);assert.equal(ctx.bountyActionPending,false);ctx.act=realAct;
+ const n=calls.length;await ctx.handleBountyAction('accept-bounty',{...button(target.id),disabled:true});assert.equal(calls.length,n);assert.equal(await ctx.handleBountyAction('other',button(target.id)),false);
+ console.log('PASS bounty dispatcher wiring, exact warrant acceptance, no forced battle/time/cost, persistence, once-only capture payment, duplicate rejection, failed-save recovery, concurrent-click protection and navigation preservation');
+})().catch(e=>{console.error(e);process.exitCode=1;});

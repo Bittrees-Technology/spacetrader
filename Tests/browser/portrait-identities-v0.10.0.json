@@ -1,0 +1,1822 @@
+[
+  {
+    "port": "earth",
+    "id": "market",
+    "person": "Lumen-85",
+    "species": "robot",
+    "portraitKey": "portrait-83341146"
+  },
+  {
+    "port": "earth",
+    "id": "contracts",
+    "person": "Kite-20",
+    "species": "robot",
+    "portraitKey": "portrait-96445839"
+  },
+  {
+    "port": "earth",
+    "id": "shipyard",
+    "person": "Lumen-59",
+    "species": "robot",
+    "portraitKey": "portrait-99205759"
+  },
+  {
+    "port": "earth",
+    "id": "fleet",
+    "person": "Neri of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-81311449"
+  },
+  {
+    "port": "earth",
+    "id": "security",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "earth",
+    "id": "relay",
+    "person": "Dr. Imani Okoye",
+    "species": "human",
+    "portraitKey": "portrait-9905895"
+  },
+  {
+    "port": "earth",
+    "id": "clinic",
+    "person": "Keral of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-70299765"
+  },
+  {
+    "port": "earth",
+    "id": "local",
+    "person": "Esh of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-34077334"
+  },
+  {
+    "port": "earth",
+    "id": "bank",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "earth",
+    "id": "authority",
+    "person": "Dr. Imani Okoye",
+    "species": "human",
+    "portraitKey": "portrait-9905895"
+  },
+  {
+    "port": "moon",
+    "id": "market",
+    "person": "Leila Ortiz",
+    "species": "human",
+    "portraitKey": "portrait-87595159"
+  },
+  {
+    "port": "moon",
+    "id": "contracts",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "moon",
+    "id": "shipyard",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "moon",
+    "id": "fleet",
+    "person": "Esh of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-34077334"
+  },
+  {
+    "port": "moon",
+    "id": "security",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "moon",
+    "id": "relay",
+    "person": "Nadia Sato",
+    "species": "human",
+    "portraitKey": "portrait-55317798"
+  },
+  {
+    "port": "moon",
+    "id": "clinic",
+    "person": "Vela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-32753783"
+  },
+  {
+    "port": "moon",
+    "id": "local",
+    "person": "Issa of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-82307041"
+  },
+  {
+    "port": "moon",
+    "id": "bank",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "moon",
+    "id": "authority",
+    "person": "Nadia Sato",
+    "species": "human",
+    "portraitKey": "portrait-55317798"
+  },
+  {
+    "port": "mars",
+    "id": "market",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "mars",
+    "id": "contracts",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "mars",
+    "id": "shipyard",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "mars",
+    "id": "fleet",
+    "person": "Esh of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-34077334"
+  },
+  {
+    "port": "mars",
+    "id": "security",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "mars",
+    "id": "relay",
+    "person": "Ravi Chen",
+    "species": "human",
+    "portraitKey": "portrait-55572798"
+  },
+  {
+    "port": "mars",
+    "id": "clinic",
+    "person": "Vela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-32753783"
+  },
+  {
+    "port": "mars",
+    "id": "local",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "mars",
+    "id": "bank",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "mars",
+    "id": "authority",
+    "person": "Ravi Chen",
+    "species": "human",
+    "portraitKey": "portrait-55572798"
+  },
+  {
+    "port": "phobos",
+    "id": "market",
+    "person": "Vela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-32753783"
+  },
+  {
+    "port": "phobos",
+    "id": "contracts",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "phobos",
+    "id": "shipyard",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "phobos",
+    "id": "fleet",
+    "person": "Echo-74",
+    "species": "robot",
+    "portraitKey": "portrait-2298620"
+  },
+  {
+    "port": "phobos",
+    "id": "security",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "phobos",
+    "id": "relay",
+    "person": "Elena Petrov",
+    "species": "human",
+    "portraitKey": "portrait-31959963"
+  },
+  {
+    "port": "phobos",
+    "id": "clinic",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "phobos",
+    "id": "local",
+    "person": "Jonas Reed",
+    "species": "human",
+    "portraitKey": "portrait-65104713"
+  },
+  {
+    "port": "phobos",
+    "id": "bank",
+    "person": "Leila Ortiz",
+    "species": "human",
+    "portraitKey": "portrait-87595159"
+  },
+  {
+    "port": "phobos",
+    "id": "authority",
+    "person": "Elena Petrov",
+    "species": "human",
+    "portraitKey": "portrait-31959963"
+  },
+  {
+    "port": "ceres",
+    "id": "market",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "ceres",
+    "id": "contracts",
+    "person": "Keshr of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-12709805"
+  },
+  {
+    "port": "ceres",
+    "id": "shipyard",
+    "person": "Keral of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-70299765"
+  },
+  {
+    "port": "ceres",
+    "id": "fleet",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "ceres",
+    "id": "security",
+    "person": "Relay-89",
+    "species": "robot",
+    "portraitKey": "portrait-7854526"
+  },
+  {
+    "port": "ceres",
+    "id": "relay",
+    "person": "Amara Adeyemi",
+    "species": "human",
+    "portraitKey": "portrait-65366790"
+  },
+  {
+    "port": "ceres",
+    "id": "clinic",
+    "person": "Mica-55",
+    "species": "robot",
+    "portraitKey": "portrait-55751156"
+  },
+  {
+    "port": "ceres",
+    "id": "local",
+    "person": "Rook-66",
+    "species": "robot",
+    "portraitKey": "portrait-99558251"
+  },
+  {
+    "port": "ceres",
+    "id": "bank",
+    "person": "Relay-81",
+    "species": "robot",
+    "portraitKey": "portrait-5917846"
+  },
+  {
+    "port": "ceres",
+    "id": "authority",
+    "person": "Amara Adeyemi",
+    "species": "human",
+    "portraitKey": "portrait-65366790"
+  },
+  {
+    "port": "callisto",
+    "id": "market",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "callisto",
+    "id": "contracts",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "callisto",
+    "id": "shipyard",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "callisto",
+    "id": "fleet",
+    "person": "Keshr of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-12709805"
+  },
+  {
+    "port": "callisto",
+    "id": "security",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "callisto",
+    "id": "relay",
+    "person": "Tomas Alvarez",
+    "species": "human",
+    "portraitKey": "portrait-49965839"
+  },
+  {
+    "port": "callisto",
+    "id": "clinic",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "callisto",
+    "id": "local",
+    "person": "Issa of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-82307041"
+  },
+  {
+    "port": "callisto",
+    "id": "bank",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "callisto",
+    "id": "authority",
+    "person": "Tomas Alvarez",
+    "species": "human",
+    "portraitKey": "portrait-49965839"
+  },
+  {
+    "port": "titan",
+    "id": "market",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "titan",
+    "id": "contracts",
+    "person": "Thren of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-15598867"
+  },
+  {
+    "port": "titan",
+    "id": "shipyard",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "titan",
+    "id": "fleet",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "titan",
+    "id": "security",
+    "person": "Relay-09",
+    "species": "robot",
+    "portraitKey": "portrait-96042822"
+  },
+  {
+    "port": "titan",
+    "id": "relay",
+    "person": "Leila Haddad",
+    "species": "human",
+    "portraitKey": "portrait-36824353"
+  },
+  {
+    "port": "titan",
+    "id": "clinic",
+    "person": "Mica-59",
+    "species": "robot",
+    "portraitKey": "portrait-95676032"
+  },
+  {
+    "port": "titan",
+    "id": "local",
+    "person": "Echo-30",
+    "species": "robot",
+    "portraitKey": "portrait-88921708"
+  },
+  {
+    "port": "titan",
+    "id": "bank",
+    "person": "Relay-61",
+    "species": "robot",
+    "portraitKey": "portrait-10552260"
+  },
+  {
+    "port": "titan",
+    "id": "authority",
+    "person": "Leila Haddad",
+    "species": "human",
+    "portraitKey": "portrait-36824353"
+  },
+  {
+    "port": "mercury",
+    "id": "market",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "mercury",
+    "id": "contracts",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "mercury",
+    "id": "shipyard",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "mercury",
+    "id": "fleet",
+    "person": "Kite-14",
+    "species": "robot",
+    "portraitKey": "portrait-10721456"
+  },
+  {
+    "port": "mercury",
+    "id": "security",
+    "person": "Leila Ortiz",
+    "species": "human",
+    "portraitKey": "portrait-87595159"
+  },
+  {
+    "port": "mercury",
+    "id": "relay",
+    "person": "Sofia Mendes",
+    "species": "human",
+    "portraitKey": "portrait-92625874"
+  },
+  {
+    "port": "mercury",
+    "id": "clinic",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "mercury",
+    "id": "local",
+    "person": "Theo Mensah",
+    "species": "human",
+    "portraitKey": "portrait-7590794"
+  },
+  {
+    "port": "mercury",
+    "id": "bank",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "mercury",
+    "id": "authority",
+    "person": "Sofia Mendes",
+    "species": "human",
+    "portraitKey": "portrait-92625874"
+  },
+  {
+    "port": "venus",
+    "id": "market",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "venus",
+    "id": "contracts",
+    "person": "Issa of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-82307041"
+  },
+  {
+    "port": "venus",
+    "id": "shipyard",
+    "person": "Vela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-32753783"
+  },
+  {
+    "port": "venus",
+    "id": "fleet",
+    "person": "Kite-98",
+    "species": "robot",
+    "portraitKey": "portrait-53747948"
+  },
+  {
+    "port": "venus",
+    "id": "security",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "venus",
+    "id": "relay",
+    "person": "Kenji Adebayo",
+    "species": "human",
+    "portraitKey": "portrait-79631004"
+  },
+  {
+    "port": "venus",
+    "id": "clinic",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "venus",
+    "id": "local",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "venus",
+    "id": "bank",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "venus",
+    "id": "authority",
+    "person": "Kenji Adebayo",
+    "species": "human",
+    "portraitKey": "portrait-79631004"
+  },
+  {
+    "port": "earth-high",
+    "id": "market",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "earth-high",
+    "id": "contracts",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "earth-high",
+    "id": "shipyard",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "earth-high",
+    "id": "fleet",
+    "person": "Echo-14",
+    "species": "robot",
+    "portraitKey": "portrait-30258970"
+  },
+  {
+    "port": "earth-high",
+    "id": "security",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "earth-high",
+    "id": "relay",
+    "person": "Mara Singh",
+    "species": "human",
+    "portraitKey": "portrait-57792290"
+  },
+  {
+    "port": "earth-high",
+    "id": "clinic",
+    "person": "Leila Ortiz",
+    "species": "human",
+    "portraitKey": "portrait-87595159"
+  },
+  {
+    "port": "earth-high",
+    "id": "local",
+    "person": "Theo Mensah",
+    "species": "human",
+    "portraitKey": "portrait-7590794"
+  },
+  {
+    "port": "earth-high",
+    "id": "bank",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "earth-high",
+    "id": "authority",
+    "person": "Mara Singh",
+    "species": "human",
+    "portraitKey": "portrait-57792290"
+  },
+  {
+    "port": "deimos",
+    "id": "market",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "deimos",
+    "id": "contracts",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "deimos",
+    "id": "shipyard",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "deimos",
+    "id": "fleet",
+    "person": "Echo-58",
+    "species": "robot",
+    "portraitKey": "portrait-74034010"
+  },
+  {
+    "port": "deimos",
+    "id": "security",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "deimos",
+    "id": "relay",
+    "person": "Ari Nasser",
+    "species": "human",
+    "portraitKey": "portrait-15793894"
+  },
+  {
+    "port": "deimos",
+    "id": "clinic",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "deimos",
+    "id": "local",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "deimos",
+    "id": "bank",
+    "person": "Leila Ortiz",
+    "species": "human",
+    "portraitKey": "portrait-87595159"
+  },
+  {
+    "port": "deimos",
+    "id": "authority",
+    "person": "Ari Nasser",
+    "species": "human",
+    "portraitKey": "portrait-15793894"
+  },
+  {
+    "port": "jupiter",
+    "id": "market",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "jupiter",
+    "id": "contracts",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "jupiter",
+    "id": "shipyard",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "jupiter",
+    "id": "fleet",
+    "person": "Kite-58",
+    "species": "robot",
+    "portraitKey": "portrait-26300104"
+  },
+  {
+    "port": "jupiter",
+    "id": "security",
+    "person": "Leila Ortiz",
+    "species": "human",
+    "portraitKey": "portrait-87595159"
+  },
+  {
+    "port": "jupiter",
+    "id": "relay",
+    "person": "Quinn Mensah",
+    "species": "human",
+    "portraitKey": "portrait-61635451"
+  },
+  {
+    "port": "jupiter",
+    "id": "clinic",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "jupiter",
+    "id": "local",
+    "person": "Jonas Reed",
+    "species": "human",
+    "portraitKey": "portrait-65104713"
+  },
+  {
+    "port": "jupiter",
+    "id": "bank",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "jupiter",
+    "id": "authority",
+    "person": "Quinn Mensah",
+    "species": "human",
+    "portraitKey": "portrait-61635451"
+  },
+  {
+    "port": "io",
+    "id": "market",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "io",
+    "id": "contracts",
+    "person": "Keshr of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-12709805"
+  },
+  {
+    "port": "io",
+    "id": "shipyard",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "io",
+    "id": "fleet",
+    "person": "Theo Mensah",
+    "species": "human",
+    "portraitKey": "portrait-7590794"
+  },
+  {
+    "port": "io",
+    "id": "security",
+    "person": "Relay-53",
+    "species": "robot",
+    "portraitKey": "portrait-34167805"
+  },
+  {
+    "port": "io",
+    "id": "relay",
+    "person": "Sana Torres",
+    "species": "human",
+    "portraitKey": "portrait-40350952"
+  },
+  {
+    "port": "io",
+    "id": "clinic",
+    "person": "Relay-63",
+    "species": "robot",
+    "portraitKey": "portrait-68838554"
+  },
+  {
+    "port": "io",
+    "id": "local",
+    "person": "Kite-46",
+    "species": "robot",
+    "portraitKey": "portrait-40572847"
+  },
+  {
+    "port": "io",
+    "id": "bank",
+    "person": "Relay-89",
+    "species": "robot",
+    "portraitKey": "portrait-7854526"
+  },
+  {
+    "port": "io",
+    "id": "authority",
+    "person": "Sana Torres",
+    "species": "human",
+    "portraitKey": "portrait-40350952"
+  },
+  {
+    "port": "europa",
+    "id": "market",
+    "person": "Lumen-49",
+    "species": "robot",
+    "portraitKey": "portrait-7845234"
+  },
+  {
+    "port": "europa",
+    "id": "contracts",
+    "person": "Rook-20",
+    "species": "robot",
+    "portraitKey": "portrait-17917793"
+  },
+  {
+    "port": "europa",
+    "id": "shipyard",
+    "person": "Lumen-35",
+    "species": "robot",
+    "portraitKey": "portrait-7013897"
+  },
+  {
+    "port": "europa",
+    "id": "fleet",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "europa",
+    "id": "security",
+    "person": "Keral of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-70299765"
+  },
+  {
+    "port": "europa",
+    "id": "relay",
+    "person": "Elias Noor",
+    "species": "human",
+    "portraitKey": "portrait-47284722"
+  },
+  {
+    "port": "europa",
+    "id": "clinic",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "europa",
+    "id": "local",
+    "person": "Thren of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-15598867"
+  },
+  {
+    "port": "europa",
+    "id": "bank",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "europa",
+    "id": "authority",
+    "person": "Elias Noor",
+    "species": "human",
+    "portraitKey": "portrait-47284722"
+  },
+  {
+    "port": "ganymede",
+    "id": "market",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "ganymede",
+    "id": "contracts",
+    "person": "Esh of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-34077334"
+  },
+  {
+    "port": "ganymede",
+    "id": "shipyard",
+    "person": "Keral of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-70299765"
+  },
+  {
+    "port": "ganymede",
+    "id": "fleet",
+    "person": "Jonas Reed",
+    "species": "human",
+    "portraitKey": "portrait-65104713"
+  },
+  {
+    "port": "ganymede",
+    "id": "security",
+    "person": "Relay-93",
+    "species": "robot",
+    "portraitKey": "portrait-15116385"
+  },
+  {
+    "port": "ganymede",
+    "id": "relay",
+    "person": "Lina Kovacs",
+    "species": "human",
+    "portraitKey": "portrait-98755233"
+  },
+  {
+    "port": "ganymede",
+    "id": "clinic",
+    "person": "Relay-11",
+    "species": "robot",
+    "portraitKey": "portrait-63275867"
+  },
+  {
+    "port": "ganymede",
+    "id": "local",
+    "person": "Kite-86",
+    "species": "robot",
+    "portraitKey": "portrait-79618939"
+  },
+  {
+    "port": "ganymede",
+    "id": "bank",
+    "person": "Mica-21",
+    "species": "robot",
+    "portraitKey": "portrait-74413223"
+  },
+  {
+    "port": "ganymede",
+    "id": "authority",
+    "person": "Lina Kovacs",
+    "species": "human",
+    "portraitKey": "portrait-98755233"
+  },
+  {
+    "port": "saturn",
+    "id": "market",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "saturn",
+    "id": "contracts",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "saturn",
+    "id": "shipyard",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "saturn",
+    "id": "fleet",
+    "person": "Rook-50",
+    "species": "robot",
+    "portraitKey": "portrait-99167638"
+  },
+  {
+    "port": "saturn",
+    "id": "security",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "saturn",
+    "id": "relay",
+    "person": "Noor Alvarez",
+    "species": "human",
+    "portraitKey": "portrait-27528963"
+  },
+  {
+    "port": "saturn",
+    "id": "clinic",
+    "person": "Leila Ortiz",
+    "species": "human",
+    "portraitKey": "portrait-87595159"
+  },
+  {
+    "port": "saturn",
+    "id": "local",
+    "person": "Jonas Reed",
+    "species": "human",
+    "portraitKey": "portrait-65104713"
+  },
+  {
+    "port": "saturn",
+    "id": "bank",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "saturn",
+    "id": "authority",
+    "person": "Noor Alvarez",
+    "species": "human",
+    "portraitKey": "portrait-27528963"
+  },
+  {
+    "port": "enceladus",
+    "id": "market",
+    "person": "Lumen-37",
+    "species": "robot",
+    "portraitKey": "portrait-17096779"
+  },
+  {
+    "port": "enceladus",
+    "id": "contracts",
+    "person": "Rook-72",
+    "species": "robot",
+    "portraitKey": "portrait-71639962"
+  },
+  {
+    "port": "enceladus",
+    "id": "shipyard",
+    "person": "Relay-55",
+    "species": "robot",
+    "portraitKey": "portrait-6308459"
+  },
+  {
+    "port": "enceladus",
+    "id": "fleet",
+    "person": "Neri of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-81311449"
+  },
+  {
+    "port": "enceladus",
+    "id": "security",
+    "person": "Keral of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-70299765"
+  },
+  {
+    "port": "enceladus",
+    "id": "relay",
+    "person": "Ada Farouk",
+    "species": "human",
+    "portraitKey": "portrait-22858322"
+  },
+  {
+    "port": "enceladus",
+    "id": "clinic",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "enceladus",
+    "id": "local",
+    "person": "Esh of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-34077334"
+  },
+  {
+    "port": "enceladus",
+    "id": "bank",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "enceladus",
+    "id": "authority",
+    "person": "Ada Farouk",
+    "species": "human",
+    "portraitKey": "portrait-22858322"
+  },
+  {
+    "port": "rhea",
+    "id": "market",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "rhea",
+    "id": "contracts",
+    "person": "Esh of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-34077334"
+  },
+  {
+    "port": "rhea",
+    "id": "shipyard",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "rhea",
+    "id": "fleet",
+    "person": "Theo Mensah",
+    "species": "human",
+    "portraitKey": "portrait-7590794"
+  },
+  {
+    "port": "rhea",
+    "id": "security",
+    "person": "Lumen-65",
+    "species": "robot",
+    "portraitKey": "portrait-86597200"
+  },
+  {
+    "port": "rhea",
+    "id": "relay",
+    "person": "Ivo Nakamura",
+    "species": "human",
+    "portraitKey": "portrait-46753306"
+  },
+  {
+    "port": "rhea",
+    "id": "clinic",
+    "person": "Lumen-83",
+    "species": "robot",
+    "portraitKey": "portrait-40199768"
+  },
+  {
+    "port": "rhea",
+    "id": "local",
+    "person": "Rook-22",
+    "species": "robot",
+    "portraitKey": "portrait-7652707"
+  },
+  {
+    "port": "rhea",
+    "id": "bank",
+    "person": "Mica-17",
+    "species": "robot",
+    "portraitKey": "portrait-39673958"
+  },
+  {
+    "port": "rhea",
+    "id": "authority",
+    "person": "Ivo Nakamura",
+    "species": "human",
+    "portraitKey": "portrait-46753306"
+  },
+  {
+    "port": "iapetus",
+    "id": "market",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "iapetus",
+    "id": "contracts",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "iapetus",
+    "id": "shipyard",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "iapetus",
+    "id": "fleet",
+    "person": "Esh of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-34077334"
+  },
+  {
+    "port": "iapetus",
+    "id": "security",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "iapetus",
+    "id": "relay",
+    "person": "Nina Okafor",
+    "species": "human",
+    "portraitKey": "portrait-76495758"
+  },
+  {
+    "port": "iapetus",
+    "id": "clinic",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "iapetus",
+    "id": "local",
+    "person": "Neri of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-81311449"
+  },
+  {
+    "port": "iapetus",
+    "id": "bank",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "iapetus",
+    "id": "authority",
+    "person": "Nina Okafor",
+    "species": "human",
+    "portraitKey": "portrait-76495758"
+  },
+  {
+    "port": "uranus",
+    "id": "market",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "uranus",
+    "id": "contracts",
+    "person": "Keshr of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-12709805"
+  },
+  {
+    "port": "uranus",
+    "id": "shipyard",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "uranus",
+    "id": "fleet",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "uranus",
+    "id": "security",
+    "person": "Lumen-97",
+    "species": "robot",
+    "portraitKey": "portrait-26256477"
+  },
+  {
+    "port": "uranus",
+    "id": "relay",
+    "person": "Rowan Pereira",
+    "species": "human",
+    "portraitKey": "portrait-10422613"
+  },
+  {
+    "port": "uranus",
+    "id": "clinic",
+    "person": "Mica-23",
+    "species": "robot",
+    "portraitKey": "portrait-86196005"
+  },
+  {
+    "port": "uranus",
+    "id": "local",
+    "person": "Rook-26",
+    "species": "robot",
+    "portraitKey": "portrait-53819063"
+  },
+  {
+    "port": "uranus",
+    "id": "bank",
+    "person": "Lumen-89",
+    "species": "robot",
+    "portraitKey": "portrait-93858358"
+  },
+  {
+    "port": "uranus",
+    "id": "authority",
+    "person": "Rowan Pereira",
+    "species": "human",
+    "portraitKey": "portrait-10422613"
+  },
+  {
+    "port": "miranda",
+    "id": "market",
+    "person": "Relay-05",
+    "species": "robot",
+    "portraitKey": "portrait-6014698"
+  },
+  {
+    "port": "miranda",
+    "id": "contracts",
+    "person": "Echo-56",
+    "species": "robot",
+    "portraitKey": "portrait-55798800"
+  },
+  {
+    "port": "miranda",
+    "id": "shipyard",
+    "person": "Lumen-83",
+    "species": "robot",
+    "portraitKey": "portrait-40199768"
+  },
+  {
+    "port": "miranda",
+    "id": "fleet",
+    "person": "Neri of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-81311449"
+  },
+  {
+    "port": "miranda",
+    "id": "security",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "miranda",
+    "id": "relay",
+    "person": "Yara Chen",
+    "species": "human",
+    "portraitKey": "portrait-29527599"
+  },
+  {
+    "port": "miranda",
+    "id": "clinic",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "miranda",
+    "id": "local",
+    "person": "Thren of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-15598867"
+  },
+  {
+    "port": "miranda",
+    "id": "bank",
+    "person": "Keral of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-70299765"
+  },
+  {
+    "port": "miranda",
+    "id": "authority",
+    "person": "Yara Chen",
+    "species": "human",
+    "portraitKey": "portrait-29527599"
+  },
+  {
+    "port": "ariel",
+    "id": "market",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "ariel",
+    "id": "contracts",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "ariel",
+    "id": "shipyard",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "ariel",
+    "id": "fleet",
+    "person": "Thren of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-15598867"
+  },
+  {
+    "port": "ariel",
+    "id": "security",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "ariel",
+    "id": "relay",
+    "person": "Teo Martins",
+    "species": "human",
+    "portraitKey": "portrait-65392710"
+  },
+  {
+    "port": "ariel",
+    "id": "clinic",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "ariel",
+    "id": "local",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "ariel",
+    "id": "bank",
+    "person": "Sela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-90693816"
+  },
+  {
+    "port": "ariel",
+    "id": "authority",
+    "person": "Teo Martins",
+    "species": "human",
+    "portraitKey": "portrait-65392710"
+  },
+  {
+    "port": "titania",
+    "id": "market",
+    "person": "Mica-01",
+    "species": "robot",
+    "portraitKey": "portrait-88320049"
+  },
+  {
+    "port": "titania",
+    "id": "contracts",
+    "person": "Echo-96",
+    "species": "robot",
+    "portraitKey": "portrait-323580"
+  },
+  {
+    "port": "titania",
+    "id": "shipyard",
+    "person": "Relay-51",
+    "species": "robot",
+    "portraitKey": "portrait-25235071"
+  },
+  {
+    "port": "titania",
+    "id": "fleet",
+    "person": "Neri of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-81311449"
+  },
+  {
+    "port": "titania",
+    "id": "security",
+    "person": "Keral of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-70299765"
+  },
+  {
+    "port": "titania",
+    "id": "relay",
+    "person": "Mina Salim",
+    "species": "human",
+    "portraitKey": "portrait-88003329"
+  },
+  {
+    "port": "titania",
+    "id": "clinic",
+    "person": "Keral of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-70299765"
+  },
+  {
+    "port": "titania",
+    "id": "local",
+    "person": "Esh of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-34077334"
+  },
+  {
+    "port": "titania",
+    "id": "bank",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "titania",
+    "id": "authority",
+    "person": "Mina Salim",
+    "species": "human",
+    "portraitKey": "portrait-88003329"
+  },
+  {
+    "port": "oberon",
+    "id": "market",
+    "person": "Vela of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-32753783"
+  },
+  {
+    "port": "oberon",
+    "id": "contracts",
+    "person": "Neri of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-81311449"
+  },
+  {
+    "port": "oberon",
+    "id": "shipyard",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "oberon",
+    "id": "fleet",
+    "person": "Echo-94",
+    "species": "robot",
+    "portraitKey": "portrait-47111474"
+  },
+  {
+    "port": "oberon",
+    "id": "security",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "oberon",
+    "id": "relay",
+    "person": "Alexei Costa",
+    "species": "human",
+    "portraitKey": "portrait-885022"
+  },
+  {
+    "port": "oberon",
+    "id": "clinic",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "oberon",
+    "id": "local",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "oberon",
+    "id": "bank",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "oberon",
+    "id": "authority",
+    "person": "Alexei Costa",
+    "species": "human",
+    "portraitKey": "portrait-885022"
+  },
+  {
+    "port": "neptune",
+    "id": "market",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "neptune",
+    "id": "contracts",
+    "person": "Oru of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-41429079"
+  },
+  {
+    "port": "neptune",
+    "id": "shipyard",
+    "person": "Tavi of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-24670519"
+  },
+  {
+    "port": "neptune",
+    "id": "fleet",
+    "person": "Echo-74",
+    "species": "robot",
+    "portraitKey": "portrait-2298620"
+  },
+  {
+    "port": "neptune",
+    "id": "security",
+    "person": "Anika Rao",
+    "species": "human",
+    "portraitKey": "portrait-15306674"
+  },
+  {
+    "port": "neptune",
+    "id": "relay",
+    "person": "Sol Adeyemi",
+    "species": "human",
+    "portraitKey": "portrait-94237100"
+  },
+  {
+    "port": "neptune",
+    "id": "clinic",
+    "person": "Mara Vale",
+    "species": "human",
+    "portraitKey": "portrait-34531165"
+  },
+  {
+    "port": "neptune",
+    "id": "local",
+    "person": "Idris Chen",
+    "species": "human",
+    "portraitKey": "portrait-82092455"
+  },
+  {
+    "port": "neptune",
+    "id": "bank",
+    "person": "Leila Ortiz",
+    "species": "human",
+    "portraitKey": "portrait-87595159"
+  },
+  {
+    "port": "neptune",
+    "id": "authority",
+    "person": "Sol Adeyemi",
+    "species": "human",
+    "portraitKey": "portrait-94237100"
+  },
+  {
+    "port": "triton",
+    "id": "market",
+    "person": "Relay-25",
+    "species": "robot",
+    "portraitKey": "portrait-60582860"
+  },
+  {
+    "port": "triton",
+    "id": "contracts",
+    "person": "Rook-84",
+    "species": "robot",
+    "portraitKey": "portrait-65345719"
+  },
+  {
+    "port": "triton",
+    "id": "shipyard",
+    "person": "Mica-11",
+    "species": "robot",
+    "portraitKey": "portrait-79064908"
+  },
+  {
+    "port": "triton",
+    "id": "fleet",
+    "person": "Issa of the Tides",
+    "species": "ilyri",
+    "portraitKey": "portrait-82307041"
+  },
+  {
+    "port": "triton",
+    "id": "security",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "triton",
+    "id": "relay",
+    "person": "Kai Haddad",
+    "species": "human",
+    "portraitKey": "portrait-30180799"
+  },
+  {
+    "port": "triton",
+    "id": "clinic",
+    "person": "Voss of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-54424801"
+  },
+  {
+    "port": "triton",
+    "id": "local",
+    "person": "Esh of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-34077334"
+  },
+  {
+    "port": "triton",
+    "id": "bank",
+    "person": "Aven of Glass",
+    "species": "veyr",
+    "portraitKey": "portrait-53576576"
+  },
+  {
+    "port": "triton",
+    "id": "authority",
+    "person": "Kai Haddad",
+    "species": "human",
+    "portraitKey": "portrait-30180799"
+  }
+]

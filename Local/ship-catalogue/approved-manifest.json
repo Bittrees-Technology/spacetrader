@@ -1,0 +1,43 @@
+{
+  "revision": 4,
+  "lockedOn": "2026-10-20",
+  "gameVersion": "0.72.228",
+  "scope": "Authorized packaging and cargo hold rebalance: net 250 kg accounting lots retained; all 20 ship holds gain explicit gross weight and volume; hypothetical payload/fuel calculations include packaging. Artwork, prices and class identities unchanged. Final copy review removes universal trade-unit counts; remaining space is expressed as weight and volume, and fill quantities are product-specific.",
+  "gameEngineHash": "77447bc6b3f25139377c272cd27383020fcb5cc4517a2c3f9c1d839a0271904d",
+  "files": {
+    "approved-ships.js": "3e363943a9ecfdb5b7dc2c125d068f1c2ac7bed0c9aa6286f755b948d97b148e",
+    "ship-specs.js": "3840718759de75ba9f50f9f2a5dcf43256003eb52826f9373c340382e4d76c96",
+    "ship-rules.js": "60dff15df93e2837339877451490387ecb84de44c8a73ecf4be304642d69ed19",
+    "ship-designs.js": "7ac6c37355ea3c5b0619040f1d0504678b79015221da4f1f69b6c5afd15a805d",
+    "ship-viewer.js": "6da25df4149657c5930d181550ff69505cba7447fd652343041ee5063b643be4",
+    "catalogue-model.js": "6a4962c266b44f669469c02a7cfe87a1074ce829ebff69ba6c2d95b37c7be5fc",
+    "cargo-specs.js": "ad6fdf99d9aca38033aa56432a16f3ff973495d47fdd10e1d3d97aad42fc381a",
+    "index.html": "740767d021f501205647acda1948f2d255a65a0bbfc3c389f0d89cbecf0c8921",
+    "catalogue.js": "fc6341b2f54dbeeae342126ea2ce9ae32151108ada82e798e823f70097832025"
+  },
+  "classes": [
+    "swift",
+    "kestrel",
+    "osprey",
+    "heron",
+    "merlin",
+    "petrel",
+    "peregrine",
+    "tern",
+    "curlew",
+    "cormorant",
+    "sanderling",
+    "gannet",
+    "rook",
+    "ibis",
+    "gyrfalcon",
+    "albatross",
+    "crane",
+    "nightjar",
+    "pelican",
+    "condor"
+  ],
+  "configurations": 5242880,
+  "reviewedOn": "2026-10-24",
+  "baselineRevision": 3
+}

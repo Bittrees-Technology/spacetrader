@@ -1,0 +1,180 @@
+{
+  "source": "Genuine 0.26.0 ongoing raid battle snapshots, for backwards-compatibility and combat regression coverage",
+  "templates": {
+    "1": {
+      "battle": {
+        "id": "earth-raid-1-0",
+        "origin": "raid",
+        "title": "Recover the supply corridor",
+        "destination": "earth",
+        "round": 1,
+        "range": 600,
+        "reward": 4200,
+        "acted": [],
+        "guarded": [],
+        "evaded": [],
+        "heat": {},
+        "enemies": [
+          {
+            "id": "hostile-0",
+            "name": "Cutlass cutter",
+            "hull": 38,
+            "maxHull": 38,
+            "armor": 0,
+            "damage": 7,
+            "ammo": 12,
+            "heat": 0,
+            "intent": "press"
+          },
+          {
+            "id": "hostile-1",
+            "name": "Black Kite tug",
+            "hull": 32,
+            "maxHull": 32,
+            "armor": 0,
+            "damage": 6,
+            "ammo": 12,
+            "heat": 0,
+            "intent": "flank"
+          }
+        ],
+        "log": [
+          "Contact at 600 km. One order per operational friendly ship; hostiles respond after all friendly orders."
+        ]
+      },
+      "incident": {
+        "id": "7d7c2ff8-2b33-4d1d-a581-a5869b629937",
+        "kind": "battle",
+        "destination": "earth",
+        "title": "Recover the supply corridor",
+        "detail": "A tactical engagement near the station approach. Ten minutes per round; maneuver geometry and projectile flight are abstracted.",
+        "damage": 0,
+        "delay": 0
+      }
+    },
+    "2": {
+      "battle": {
+        "id": "earth-raid-2-0",
+        "origin": "raid",
+        "title": "Break the toll blockade",
+        "destination": "earth",
+        "round": 1,
+        "range": 600,
+        "reward": 8500,
+        "acted": [],
+        "guarded": [],
+        "evaded": [],
+        "heat": {},
+        "enemies": [
+          {
+            "id": "hostile-0",
+            "name": "Cutlass cutter",
+            "hull": 60,
+            "maxHull": 60,
+            "armor": 1,
+            "damage": 9,
+            "ammo": 12,
+            "heat": 0,
+            "intent": "press"
+          },
+          {
+            "id": "hostile-1",
+            "name": "Black Kite tug",
+            "hull": 55,
+            "maxHull": 55,
+            "armor": 1,
+            "damage": 8,
+            "ammo": 12,
+            "heat": 0,
+            "intent": "flank"
+          },
+          {
+            "id": "hostile-2",
+            "name": "Corsair tender",
+            "hull": 45,
+            "maxHull": 45,
+            "armor": 1,
+            "damage": 7,
+            "ammo": 12,
+            "heat": 0,
+            "intent": "press"
+          }
+        ],
+        "log": [
+          "Contact at 600 km. One order per operational friendly ship; hostiles respond after all friendly orders."
+        ]
+      },
+      "incident": {
+        "id": "0f3a620f-d4c2-4701-a7f8-edd2e60fc59b",
+        "kind": "battle",
+        "destination": "earth",
+        "title": "Break the toll blockade",
+        "detail": "A tactical engagement near the station approach. Ten minutes per round; maneuver geometry and projectile flight are abstracted.",
+        "damage": 0,
+        "delay": 0
+      }
+    },
+    "3": {
+      "battle": {
+        "id": "earth-raid-3-0",
+        "origin": "raid",
+        "title": "Disable the raider tender",
+        "destination": "earth",
+        "round": 1,
+        "range": 600,
+        "reward": 15000,
+        "acted": [],
+        "guarded": [],
+        "evaded": [],
+        "heat": {},
+        "enemies": [
+          {
+            "id": "hostile-0",
+            "name": "Cutlass cutter",
+            "hull": 85,
+            "maxHull": 85,
+            "armor": 2,
+            "damage": 12,
+            "ammo": 12,
+            "heat": 0,
+            "intent": "press"
+          },
+          {
+            "id": "hostile-1",
+            "name": "Black Kite tug",
+            "hull": 70,
+            "maxHull": 70,
+            "armor": 2,
+            "damage": 10,
+            "ammo": 12,
+            "heat": 0,
+            "intent": "flank"
+          },
+          {
+            "id": "hostile-2",
+            "name": "Corsair tender",
+            "hull": 60,
+            "maxHull": 60,
+            "armor": 2,
+            "damage": 9,
+            "ammo": 12,
+            "heat": 0,
+            "intent": "press"
+          }
+        ],
+        "log": [
+          "Contact at 600 km. One order per operational friendly ship; hostiles respond after all friendly orders."
+        ]
+      },
+      "incident": {
+        "id": "3ff77b05-275c-4b7c-92a0-9279f260a74d",
+        "kind": "battle",
+        "destination": "earth",
+        "title": "Disable the raider tender",
+        "detail": "A tactical engagement near the station approach. Ten minutes per round; maneuver geometry and projectile flight are abstracted.",
+        "damage": 0,
+        "delay": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,1538 @@
+[
+  {
+    "assignmentKey": "earth:market:",
+    "person": "Tiller 69",
+    "portrait": "station-portraits/earth-market.svg",
+    "portraitSHA256": "ff3fe533cbe67c950c767891b72959685c27339dcc70862d7b49bd77a8beb7b5"
+  },
+  {
+    "assignmentKey": "earth:contracts:",
+    "person": "Whorl of Ingot",
+    "portrait": "station-portraits/earth-contracts.svg",
+    "portraitSHA256": "6c5c3807c58db7864ec30122466f5c364ba6dca695fed57cc5992267fd18c151"
+  },
+  {
+    "assignmentKey": "earth:shipyard:",
+    "person": "Sirocco 54",
+    "portrait": "station-portraits/earth-shipyard.svg",
+    "portraitSHA256": "565c8b5a53736da02e2c731cbf7a4672f8945cc9a0cbcac8faf2c7c8fb2782eb"
+  },
+  {
+    "assignmentKey": "earth:fleet:",
+    "person": "Thanalu-Talune",
+    "portrait": "station-portraits/earth-fleet.svg",
+    "portraitSHA256": "1e3572f556c98f939b9e22196c71c834573469f2ebaa68950b46d8af87512c30"
+  },
+  {
+    "assignmentKey": "earth:security:",
+    "person": "Ivekvra-Ralvek",
+    "portrait": "station-portraits/earth-security.svg",
+    "portraitSHA256": "fdd19fbd5336a17bc3a2c133bf59362fb8dbe9be58c8e7fd4977273bd3ce3c23"
+  },
+  {
+    "assignmentKey": "earth:relay:",
+    "person": "Taavi Rahmani",
+    "portrait": "station-portraits/earth-relay.svg",
+    "portraitSHA256": "166d0f78b1d7860895bd1834c945f04c4a93a827b1ea5cb620860887a987b96c"
+  },
+  {
+    "assignmentKey": "earth:clinic:",
+    "person": "Krelnaek praev Brevash",
+    "portrait": "station-portraits/earth-clinic.svg",
+    "portraitSHA256": "88f27636e7e2e9d8be7003d91b3a1670283e83876e5d6b251e4c8dea4052ccf5"
+  },
+  {
+    "assignmentKey": "earth:local:",
+    "person": "Talnek of Veskral",
+    "portrait": "station-portraits/earth-local.svg",
+    "portraitSHA256": "59f1941d1d82f45281d59dc630e04ff5c959f8a361a9c2c3a79cafe4ea9e1bb1"
+  },
+  {
+    "assignmentKey": "earth:bank:",
+    "person": "Eshkra·Iskrel",
+    "portrait": "station-portraits/earth-bank.svg",
+    "portraitSHA256": "6f0ef5f746ac3fe96edf19cfed61f8d3891d81671c31bd1e13a1131c07f114d6"
+  },
+  {
+    "assignmentKey": "earth:authority:",
+    "person": "Farah Diallo",
+    "portrait": "station-portraits/earth-authority.svg",
+    "portraitSHA256": "5c698e40f62eaf2444bd60a0a6d0f4fde1cef49fc07e3f20a4f966f80597cab3"
+  },
+  {
+    "assignmentKey": "earth:warehouse:",
+    "person": "Kiln / 8469",
+    "portrait": "station-portraits/earth-warehouse.svg",
+    "portraitSHA256": "b22980392a29cffef53a130b1a0baaac9b872e2d4ae6f045ff988af9ce142d63"
+  },
+  {
+    "assignmentKey": "moon:market:",
+    "person": "Idris Amini",
+    "portrait": "station-portraits/moon-market.svg",
+    "portraitSHA256": "fb2dabfff52af2b191a19d0be82c6a72db56cb58ed8f8768155e23abdb6e60df"
+  },
+  {
+    "assignmentKey": "moon:contracts:",
+    "person": "Omari R. Zoric",
+    "portrait": "station-portraits/moon-contracts.svg",
+    "portraitSHA256": "60c0cbfe8308ad7b162be4ec7a8b61c9325d8d2369f04cf51224523cd466cc21"
+  },
+  {
+    "assignmentKey": "moon:shipyard:",
+    "person": "Samira Nakamura",
+    "portrait": "station-portraits/moon-shipyard.svg",
+    "portraitSHA256": "548c88b4e08612dade540f66deac9e981c70b48affe058599dc6618b61e9eccd"
+  },
+  {
+    "assignmentKey": "moon:fleet:",
+    "person": "Orekh Skervath",
+    "portrait": "station-portraits/moon-fleet.svg",
+    "portraitSHA256": "a12eff674c1d798544cd9296fb1924c91dd9acf5dc753507e7c3b1bc0a9cb4af"
+  },
+  {
+    "assignmentKey": "moon:security:",
+    "person": "Thamei Enaleth",
+    "portrait": "station-portraits/moon-security.svg",
+    "portraitSHA256": "380dce54e044c786d7d636f6f997497c6316d92d2cd100cbf1a89045f4619188"
+  },
+  {
+    "assignmentKey": "moon:relay:",
+    "person": "Rania Navarro-Khatri",
+    "portrait": "station-portraits/moon-relay.svg",
+    "portraitSHA256": "753ce2045cf49251486723b3e7b3c5c4cd6791cf82092d21d8f571f5d5cc7e08"
+  },
+  {
+    "assignmentKey": "moon:clinic:",
+    "person": "Oshieia of Kaeluma",
+    "portrait": "station-portraits/moon-clinic.svg",
+    "portraitSHA256": "447f6f5a49543d1813486540cbdca383e2d7863e88442b719cfbaaaafda19eca"
+  },
+  {
+    "assignmentKey": "moon:local:",
+    "person": "Nirua Umareth-uli",
+    "portrait": "station-portraits/moon-local.svg",
+    "portraitSHA256": "b838993c027e51be90fc434e4f37290c1ac72ec45ee1bf67448309b0cca44eeb"
+  },
+  {
+    "assignmentKey": "moon:bank:",
+    "person": "Sumaen Ulen",
+    "portrait": "station-portraits/moon-bank.svg",
+    "portraitSHA256": "f88ab37b4c7e4ac38ba13a8dabb027a5169b9715d9f1929768947ba1f66d7d63"
+  },
+  {
+    "assignmentKey": "moon:authority:",
+    "person": "Sol Fedorova",
+    "portrait": "station-portraits/moon-authority.svg",
+    "portraitSHA256": "f7635f87c951704282c263998f826eb42cb9c8d1a90de732754f394b968121cf"
+  },
+  {
+    "assignmentKey": "moon:warehouse:",
+    "person": "Soren Yusuf",
+    "portrait": "station-portraits/moon-warehouse.svg",
+    "portraitSHA256": "b2da6c080a9274a774a477a4c480d10f217e23435394da8a3948fa30217c64f8"
+  },
+  {
+    "assignmentKey": "mars:market:",
+    "person": "Bao Mensah",
+    "portrait": "station-portraits/mars-market.svg",
+    "portraitSHA256": "f1ac5f3e2469ad758882eaf9d7d5bde04acd1ed3144f472df81a7a5a2b898181"
+  },
+  {
+    "assignmentKey": "mars:contracts:",
+    "person": "Mahir Costa",
+    "portrait": "station-portraits/mars-contracts.svg",
+    "portraitSHA256": "54c89cbc4b0517fe336bd9a0bc0921f09746fdb914a77e72cb3370712ab6922c"
+  },
+  {
+    "assignmentKey": "mars:shipyard:",
+    "person": "Uma Mwangi",
+    "portrait": "station-portraits/mars-shipyard.svg",
+    "portraitSHA256": "93b2e0962a57769848dda00cbd07a594139df9195f29c65be8a4c3d823f9e5ef"
+  },
+  {
+    "assignmentKey": "mars:fleet:",
+    "person": "Sornekh Skelor",
+    "portrait": "station-portraits/mars-fleet.svg",
+    "portraitSHA256": "b170f7537337235f8dea03df5f982079df6447b4543533f83e36f9c169b4365f"
+  },
+  {
+    "assignmentKey": "mars:security:",
+    "person": "Talune Teirua",
+    "portrait": "station-portraits/mars-security.svg",
+    "portraitSHA256": "1fdaaf00ea2d4e45ca4425fcf547bed3c451ac4402ec3cd55e8d2d1fc55dc47c"
+  },
+  {
+    "assignmentKey": "mars:relay:",
+    "person": "Uma Naledi Villanueva",
+    "portrait": "station-portraits/mars-relay.svg",
+    "portraitSHA256": "4673ae1ebc4370a4ec362c823f4f8be42135ffa02145655a9f844dacb8a8036b"
+  },
+  {
+    "assignmentKey": "mars:clinic:",
+    "person": "Iolaaru Meruai",
+    "portrait": "station-portraits/mars-clinic.svg",
+    "portraitSHA256": "2dd7ef677dc92f55c000c4ed172452e1d8341db4bbe712637111ba7eb3874971"
+  },
+  {
+    "assignmentKey": "mars:local:",
+    "person": "Raelune Naluri",
+    "portrait": "station-portraits/mars-local.svg",
+    "portraitSHA256": "065b7efb45d317bbcfd33f960b7d2f1d21f83b1773d470911d2503f54fbd66ac"
+  },
+  {
+    "assignmentKey": "mars:bank:",
+    "person": "Veiena Lumari",
+    "portrait": "station-portraits/mars-bank.svg",
+    "portraitSHA256": "130d2273caf0f4f4dadce5dcd85e2e58e1805cf64c6076ba414edbf1aa245242"
+  },
+  {
+    "assignmentKey": "mars:authority:",
+    "person": "Dione Owusu",
+    "portrait": "station-portraits/mars-authority.svg",
+    "portraitSHA256": "3160b427c9f06337ba4ec008ca2eedee03285d46c718979330ac3ec7629c7996"
+  },
+  {
+    "assignmentKey": "mars:warehouse:",
+    "person": "Davi Mbeki",
+    "portrait": "station-portraits/mars-warehouse.svg",
+    "portraitSHA256": "f7cb54c62b35ef13c6094139cf1ce650b8a168c0a5b3c3b30eb6ab4012f42371"
+  },
+  {
+    "assignmentKey": "phobos:market:",
+    "person": "Elosenu Pelauri",
+    "portrait": "station-portraits/phobos-market.svg",
+    "portraitSHA256": "8f76125686e002d43bfdf91db497fec247f0c4fcb1be2918d63393260ec40ff9"
+  },
+  {
+    "assignmentKey": "phobos:contracts:",
+    "person": "Aurilen Talune",
+    "portrait": "station-portraits/phobos-contracts.svg",
+    "portraitSHA256": "d2d64b1e77ab94510da85911bbb16a748ed7ce2e314c4908f9c436560f021681"
+  },
+  {
+    "assignmentKey": "phobos:shipyard:",
+    "person": "Zaevara Nioru",
+    "portrait": "station-portraits/phobos-shipyard.svg",
+    "portraitSHA256": "9e93556a243d9653130895ace2bb32d356ded61f8fd332dc7bf68bc385fd554f"
+  },
+  {
+    "assignmentKey": "phobos:security:",
+    "person": "Dalia Acharya",
+    "portrait": "station-portraits/phobos-security.svg",
+    "portraitSHA256": "3c97da1043508e4ae6976e8d1eceaf34dbdb31347ca5b7a6e24082e8a7f00b2f"
+  },
+  {
+    "assignmentKey": "phobos:relay:",
+    "person": "Ilya Rahmani",
+    "portrait": "station-portraits/phobos-relay.svg",
+    "portraitSHA256": "87d9fd1eeab102c0a5c5f2f3dc299907331549121a61f26b931fbca95a154f31"
+  },
+  {
+    "assignmentKey": "phobos:clinic:",
+    "person": "Neema Volkov",
+    "portrait": "station-portraits/phobos-clinic.svg",
+    "portraitSHA256": "70e123715c72c5514b5c68378c3feeca49a99562c8921b8459e3da14fafe7b6a"
+  },
+  {
+    "assignmentKey": "phobos:local:",
+    "person": "Amara J. Volkov",
+    "portrait": "station-portraits/phobos-local.svg",
+    "portraitSHA256": "b1585c65e705cb53344ad300eff91bb7fad6744a0347e17c7314e6ea72a0b21b"
+  },
+  {
+    "assignmentKey": "phobos:bank:",
+    "person": "Ismail Kowalska",
+    "portrait": "station-portraits/phobos-bank.svg",
+    "portraitSHA256": "ff28d18213dcd7418d36edf885c1879000b4dbc5e03b385e73709dac0ad2fa47"
+  },
+  {
+    "assignmentKey": "phobos:authority:",
+    "person": "Aiko Park",
+    "portrait": "station-portraits/phobos-authority.svg",
+    "portraitSHA256": "12d3f0b004275ef1c4899fbba908318773ef55cd6aba51addad242737323b15e"
+  },
+  {
+    "assignmentKey": "ceres:market:",
+    "person": "Trevshar Koryn",
+    "portrait": "station-portraits/ceres-market.svg",
+    "portraitSHA256": "f38022c8f4397131e75113524377416ec5e3d8b05138789fd4d55ad5113ceeea"
+  },
+  {
+    "assignmentKey": "ceres:contracts:",
+    "person": "Kharshar-Shal",
+    "portrait": "station-portraits/ceres-contracts.svg",
+    "portraitSHA256": "42856ec3bb61debd90726998e8d4a506dd176ce65ea6ba4d6cc3f52ce5814ba4"
+  },
+  {
+    "assignmentKey": "ceres:shipyard:",
+    "person": "Shorak Thess",
+    "portrait": "station-portraits/ceres-shipyard.svg",
+    "portraitSHA256": "9df17fdf9c5957fd2a1b94018b965f3c2eac5f4f76591a2edfa9222ff915f3a4"
+  },
+  {
+    "assignmentKey": "ceres:fleet:",
+    "person": "Thandi Vega",
+    "portrait": "station-portraits/ceres-fleet.svg",
+    "portraitSHA256": "7e5531d487075a513e9cfc8b1efbf6274930e44997c1d2921578b56504da8865"
+  },
+  {
+    "assignmentKey": "ceres:security:",
+    "person": "Cadence/3691",
+    "portrait": "station-portraits/ceres-security.svg",
+    "portraitSHA256": "930ee22655b4b8a6140c9fd83fde09dc2f34edac4afd79c99267d535fa1e768e"
+  },
+  {
+    "assignmentKey": "ceres:relay:",
+    "person": "Dev Ghosh",
+    "portrait": "station-portraits/ceres-relay.svg",
+    "portraitSHA256": "5a7e2c4365831f77d56e757ae081b4eaec2e07b9beaa8a33435c5218a0c2d287"
+  },
+  {
+    "assignmentKey": "ceres:clinic:",
+    "person": "Carillon [688]",
+    "portrait": "station-portraits/ceres-clinic.svg",
+    "portraitSHA256": "16121d6432e754b234bec2b4e7bee2918c8463f1b15e48aa30ca14fc278fe18e"
+  },
+  {
+    "assignmentKey": "ceres:local:",
+    "person": "Scribe-3171",
+    "portrait": "station-portraits/ceres-local.svg",
+    "portraitSHA256": "760c9906b8dbe860f906db3813a476924ea1e6ab5cba4295a0c00cc1419bc543"
+  },
+  {
+    "assignmentKey": "ceres:bank:",
+    "person": "Nacre-9657",
+    "portrait": "station-portraits/ceres-bank.svg",
+    "portraitSHA256": "dc916beba68509ca37397d35346f516bac0c1481819e0b32be41e71c473a4d34"
+  },
+  {
+    "assignmentKey": "ceres:authority:",
+    "person": "Zephyr Watanabe",
+    "portrait": "station-portraits/ceres-authority.svg",
+    "portraitSHA256": "d874c9b55a9e50819f86a2f18cdb1cf2221b1e21b7a465c12731b05fec11d525"
+  },
+  {
+    "assignmentKey": "ceres:warehouse:",
+    "person": "Vraevrok Thal",
+    "portrait": "station-portraits/ceres-warehouse.svg",
+    "portraitSHA256": "f9a2d720ef6e995cfa1c17c250db4023491cbc08482ace8981f80b750bc70afe"
+  },
+  {
+    "assignmentKey": "callisto:market:",
+    "person": "Naledi Yusuf",
+    "portrait": "station-portraits/callisto-market.svg",
+    "portraitSHA256": "fb3af692a74e847b9af3a5d23b53eb1feabc604761ef96dfd065eae79ff32ff8"
+  },
+  {
+    "assignmentKey": "callisto:contracts:",
+    "person": "Zephyr Delgado",
+    "portrait": "station-portraits/callisto-contracts.svg",
+    "portraitSHA256": "c0aaee5a98e2629c6398df0925696df55bf14e0004330f5ffd95e9ae042e810d"
+  },
+  {
+    "assignmentKey": "callisto:shipyard:",
+    "person": "Naledi Nishimura",
+    "portrait": "station-portraits/callisto-shipyard.svg",
+    "portraitSHA256": "378f52a2dfe625e70406822d7115f718f9e3890e5161a5b0f4232b96e54b8b08"
+  },
+  {
+    "assignmentKey": "callisto:fleet:",
+    "person": "Neshvek Akrath",
+    "portrait": "station-portraits/callisto-fleet.svg",
+    "portraitSHA256": "ac4709832b6f0fd15c9271dea8755160d28822db5aa009b9716d6ea29ad36387"
+  },
+  {
+    "assignmentKey": "callisto:security:",
+    "person": "Aearu Kaeluma",
+    "portrait": "station-portraits/callisto-security.svg",
+    "portraitSHA256": "adee7c375a086f2bc0fb76a0e3801441af91af39c07508ce3095a34260ccb711"
+  },
+  {
+    "assignmentKey": "callisto:relay:",
+    "person": "Vera X. Aguiar",
+    "portrait": "station-portraits/callisto-relay.svg",
+    "portraitSHA256": "8b4e6afe7791bec44a42793a59f8aee484f6e1b8adb6c3b6c8d8668f6f6d69c3"
+  },
+  {
+    "assignmentKey": "callisto:clinic:",
+    "person": "Oaliwen Thaluen",
+    "portrait": "station-portraits/callisto-clinic.svg",
+    "portraitSHA256": "d6986bdd68c7ada6ed04413ea634cc5095628a043aadf57a8807e55983f681f7"
+  },
+  {
+    "assignmentKey": "callisto:local:",
+    "person": "Ashaesha Sorune",
+    "portrait": "station-portraits/callisto-local.svg",
+    "portraitSHA256": "208d170e6d3653aaf42082c1cafefdb5ca8d9a5fd6faf8e64ec96852010fc5fe"
+  },
+  {
+    "assignmentKey": "callisto:bank:",
+    "person": "Miowa Liora",
+    "portrait": "station-portraits/callisto-bank.svg",
+    "portraitSHA256": "5a08417dcc7bc5cb2d4aba88c47dcc49fb6751ec56b367eb122f178e69ecb896"
+  },
+  {
+    "assignmentKey": "callisto:authority:",
+    "person": "Chandra Bashir",
+    "portrait": "station-portraits/callisto-authority.svg",
+    "portraitSHA256": "688f3f1fe17a37f20365eb5a1f7352e67f021bc6cf40fce8ea83607b123506f2"
+  },
+  {
+    "assignmentKey": "callisto:warehouse:",
+    "person": "Safiya Elbaz",
+    "portrait": "station-portraits/callisto-warehouse.svg",
+    "portraitSHA256": "1a46fd8d2a4aa3756eee9a61fbafda4307cf08c25af326f53f99bb8ac04d9eb7"
+  },
+  {
+    "assignmentKey": "titan:market:",
+    "person": "Zharnor Brevash",
+    "portrait": "station-portraits/titan-market.svg",
+    "portraitSHA256": "9b108ee454e92acf4fc6b1e3287a91497ed769e38cb2efed8182dd795926e044"
+  },
+  {
+    "assignmentKey": "titan:contracts:",
+    "person": "Urvor Weshkar",
+    "portrait": "station-portraits/titan-contracts.svg",
+    "portraitSHA256": "718590729fd102cbd40f325328407a030728472dedf676472c238e5872d1cc15"
+  },
+  {
+    "assignmentKey": "titan:shipyard:",
+    "person": "Ashune Rhavorn",
+    "portrait": "station-portraits/titan-shipyard.svg",
+    "portraitSHA256": "1c87053703bb657c3bd7e05669d9af4e1aa04c659fb162e063db316dcd93b4dc"
+  },
+  {
+    "assignmentKey": "titan:fleet:",
+    "person": "Kiran Hasegawa",
+    "portrait": "station-portraits/titan-fleet.svg",
+    "portraitSHA256": "816ade53585dc5bb2d3dcdbc96260cab6694ffea62e702eacf633408a03b8236"
+  },
+  {
+    "assignmentKey": "titan:security:",
+    "person": "Cadence [D8E]",
+    "portrait": "station-portraits/titan-security.svg",
+    "portraitSHA256": "5a701639853e5d7074143e7b0e20784825dc7a6a1effb5c5ab1ba46f31082481"
+  },
+  {
+    "assignmentKey": "titan:relay:",
+    "person": "Tariq Osei",
+    "portrait": "station-portraits/titan-relay.svg",
+    "portraitSHA256": "b96b880bf221ac4ab5a3b1114abf38f76d394629ff6553ee3b4468997500e14f"
+  },
+  {
+    "assignmentKey": "titan:clinic:",
+    "person": "Thimble Folio",
+    "portrait": "station-portraits/titan-clinic.svg",
+    "portraitSHA256": "061b665e954bc3981ae556c5753df2a052d4c73af5a12caeff19081459398f79"
+  },
+  {
+    "assignmentKey": "titan:local:",
+    "person": "Catenary [185F]",
+    "portrait": "station-portraits/titan-local.svg",
+    "portraitSHA256": "98f4a1ddf882ec2c92946293095d808e69c37427cc68852d054c69dac8d86b7c"
+  },
+  {
+    "assignmentKey": "titan:bank:",
+    "person": "Spire 51.20",
+    "portrait": "station-portraits/titan-bank.svg",
+    "portraitSHA256": "343828c2fc6bac7166627e300a256793ea4e9b1427cbe91b114fd07e2b9cd9c2"
+  },
+  {
+    "assignmentKey": "titan:authority:",
+    "person": "Jovan Chao",
+    "portrait": "station-portraits/titan-authority.svg",
+    "portraitSHA256": "f8edec452b2ed6a221be055f0d5a0a68b4cee18e5c07e8842d40e5b5a4c233c0"
+  },
+  {
+    "assignmentKey": "titan:warehouse:",
+    "person": "Rethvor Sornesh",
+    "portrait": "station-portraits/titan-warehouse.svg",
+    "portraitSHA256": "57ab0a9e9df8e1677c6f5dd3442068858753421205fe89ac231f259d5e4de230"
+  },
+  {
+    "assignmentKey": "mercury:market:",
+    "person": "Taeeia Ameth",
+    "portrait": "station-portraits/mercury-market.svg",
+    "portraitSHA256": "7154011ab4bf7953ec48657c88c7dbe703378be84dded12270c6cfee02366771"
+  },
+  {
+    "assignmentKey": "mercury:contracts:",
+    "person": "Taewa Saerumi",
+    "portrait": "station-portraits/mercury-contracts.svg",
+    "portraitSHA256": "54acc7d0efc6107845b64a3d06687b1831b8261fc0d3958abbfa8eef4569efa6"
+  },
+  {
+    "assignmentKey": "mercury:shipyard:",
+    "person": "Laemara Oshara",
+    "portrait": "station-portraits/mercury-shipyard.svg",
+    "portraitSHA256": "d8a4ac5a892f8cb5e26b25bcc004aee5de44572b9a869e27554c475052b24ab0"
+  },
+  {
+    "assignmentKey": "mercury:security:",
+    "person": "Greta Singh",
+    "portrait": "station-portraits/mercury-security.svg",
+    "portraitSHA256": "4436d9dbb555c7fc798aa0d0d831fdf03f9275730ecc22374bdb92103d69018c"
+  },
+  {
+    "assignmentKey": "mercury:relay:",
+    "person": "Rania N. Varga",
+    "portrait": "station-portraits/mercury-relay.svg",
+    "portraitSHA256": "9ad9c6de41fffe26874cec0223b564700e4e624ac46a84055ffbcf2c3a17679d"
+  },
+  {
+    "assignmentKey": "mercury:clinic:",
+    "person": "Wren Zoric",
+    "portrait": "station-portraits/mercury-clinic.svg",
+    "portraitSHA256": "bd23d0f3e8d267f052ee2688aa08522b8232c211d86da6f13ffee68a99421bbc"
+  },
+  {
+    "assignmentKey": "mercury:local:",
+    "person": "Ayodele S. Osei",
+    "portrait": "station-portraits/mercury-local.svg",
+    "portraitSHA256": "0bb04eaa28367a2bb75d2819a2d91e6315d43f3ff33dc3ee9fff467573c567cd"
+  },
+  {
+    "assignmentKey": "mercury:bank:",
+    "person": "Davi Vasquez",
+    "portrait": "station-portraits/mercury-bank.svg",
+    "portraitSHA256": "3bb8bb3c6d3b093f679d6ffd41693529e4c00cfaa633c44ef2310ed4969b3904"
+  },
+  {
+    "assignmentKey": "mercury:authority:",
+    "person": "Taavi Mensah",
+    "portrait": "station-portraits/mercury-authority.svg",
+    "portraitSHA256": "9a24376a4e843809c5518a4b1a15f30e1cf6c1a70c3325e16373c541805f60b8"
+  },
+  {
+    "assignmentKey": "venus:market:",
+    "person": "Eshali Taeluma",
+    "portrait": "station-portraits/venus-market.svg",
+    "portraitSHA256": "91bcb4fddd5623d1929a840707c507068598f4e9f752d39a4848cc4fd53f4890"
+  },
+  {
+    "assignmentKey": "venus:contracts:",
+    "person": "Oalireth Taeluma",
+    "portrait": "station-portraits/venus-contracts.svg",
+    "portraitSHA256": "2f3ae47ead80634ddcb50aa1ddf3436d2963329a759b5d3e9fd14a2708088799"
+  },
+  {
+    "assignmentKey": "venus:shipyard:",
+    "person": "Raelivara Vaeliri",
+    "portrait": "station-portraits/venus-shipyard.svg",
+    "portraitSHA256": "f3ac5bd9bb52aec02c7462bf8f0dc7af694a7acf7a91e9f32576ad67b5f990c4"
+  },
+  {
+    "assignmentKey": "venus:security:",
+    "person": "Vian Lind",
+    "portrait": "station-portraits/venus-security.svg",
+    "portraitSHA256": "28e4deabf4c26718011ec07903b256f6a7813a07a47ab013556202a8c57c4e97"
+  },
+  {
+    "assignmentKey": "venus:relay:",
+    "person": "Neema Devereux",
+    "portrait": "station-portraits/venus-relay.svg",
+    "portraitSHA256": "0bf8f03893b5a4b2a00f85a4e901a7d4858968e8d732a8661203f6bb9e26c7b2"
+  },
+  {
+    "assignmentKey": "venus:clinic:",
+    "person": "Wren Tanaka",
+    "portrait": "station-portraits/venus-clinic.svg",
+    "portraitSHA256": "1475a5af277d959088d7d15a5a8392dbba60c25aa5cd12235304da89f1cd5246"
+  },
+  {
+    "assignmentKey": "venus:local:",
+    "person": "Edda Ibrahim",
+    "portrait": "station-portraits/venus-local.svg",
+    "portraitSHA256": "91ce5b7c0d6576af5a22b887146bfc7f3781e4e4eea2f1178e2ce687f284a767"
+  },
+  {
+    "assignmentKey": "venus:bank:",
+    "person": "Remy Elbaz",
+    "portrait": "station-portraits/venus-bank.svg",
+    "portraitSHA256": "6105618ae5c5aa567e559038b9f937c4da0b3d9dfcc6788fa7eb072e0ca738ca"
+  },
+  {
+    "assignmentKey": "venus:authority:",
+    "person": "Anika Fedorova",
+    "portrait": "station-portraits/venus-authority.svg",
+    "portraitSHA256": "8be327d15c3a442c6144171e4f0dec9da85528430dd79af88c5a02331442ead2"
+  },
+  {
+    "assignmentKey": "earth-high:market:",
+    "person": "Waeri Saerumi",
+    "portrait": "station-portraits/earth-high-market.svg",
+    "portraitSHA256": "a94d65145ef1efa3b2d0d78c477842097adf4452e71cef3a4141a32ee86bbc8c"
+  },
+  {
+    "assignmentKey": "earth-high:contracts:",
+    "person": "Reielu Nalieth",
+    "portrait": "station-portraits/earth-high-contracts.svg",
+    "portraitSHA256": "5158f037f6b3db0596e9450ce5184200705d323e30ebca997dd34ee0f483f33c"
+  },
+  {
+    "assignmentKey": "earth-high:shipyard:",
+    "person": "Zaelo Zaerai",
+    "portrait": "station-portraits/earth-high-shipyard.svg",
+    "portraitSHA256": "72b1887ea147266a96309f9e747842e4312cb3001551c94f2dc79f5c450cfefe"
+  },
+  {
+    "assignmentKey": "earth-high:fleet:",
+    "person": "Cobalt Spindle",
+    "portrait": "station-portraits/earth-high-fleet.svg",
+    "portraitSHA256": "f8fa45f3d83985d23b64caf0e1297dc168d6bb053debae44e0073ca5ff39635c"
+  },
+  {
+    "assignmentKey": "earth-high:security:",
+    "person": "Jules Okafor",
+    "portrait": "station-portraits/earth-high-security.svg",
+    "portraitSHA256": "d17832c9c4c5ea000c619bd5d817565d3546cdc1b33767cbe0ac4e01aadca70c"
+  },
+  {
+    "assignmentKey": "earth-high:relay:",
+    "person": "Chandra Kapoor-Salgado",
+    "portrait": "station-portraits/earth-high-relay.svg",
+    "portraitSHA256": "3b23efc2e3dbf764bd779cf6098da94a59dbc414f9f53d2f283dc5b846cd1fd4"
+  },
+  {
+    "assignmentKey": "earth-high:clinic:",
+    "person": "Mahir Daoud",
+    "portrait": "station-portraits/earth-high-clinic.svg",
+    "portraitSHA256": "542f5defbca3da52345f419edd6a94adb0bbe6f8c30d4e8a3477bcb36a20ba03"
+  },
+  {
+    "assignmentKey": "earth-high:local:",
+    "person": "Dalia Okafor",
+    "portrait": "station-portraits/earth-high-local.svg",
+    "portraitSHA256": "ea2a22d5f60326e641cd3fef339604ea35d66f6749ec336b608715c276dca044"
+  },
+  {
+    "assignmentKey": "earth-high:bank:",
+    "person": "Omari Dossantos",
+    "portrait": "station-portraits/earth-high-bank.svg",
+    "portraitSHA256": "fcc9626c81d0db3d83245a34252f79871e298b8ab484ec738d56b0fbb3e466de"
+  },
+  {
+    "assignmentKey": "earth-high:authority:",
+    "person": "Vivek Mbatha",
+    "portrait": "station-portraits/earth-high-authority.svg",
+    "portraitSHA256": "a1793001c451a053895de46bf2dd1f75603621d0c44ade801c295d3f6a468c00"
+  },
+  {
+    "assignmentKey": "earth-high:warehouse:",
+    "person": "Iolaumo Ulen",
+    "portrait": "station-portraits/earth-high-warehouse.svg",
+    "portraitSHA256": "169b10a37f3c35ba6a06b1c7072557827abc4fa348db717de4995b4c7d9c9a29"
+  },
+  {
+    "assignmentKey": "deimos:market:",
+    "person": "Nalurima Taeluma",
+    "portrait": "station-portraits/deimos-market.svg",
+    "portraitSHA256": "eb1ba88ceae45bed379c3916d08b608593ea6538ce83392e231cedd19f567334"
+  },
+  {
+    "assignmentKey": "deimos:contracts:",
+    "person": "Nalumio Eshauri",
+    "portrait": "station-portraits/deimos-contracts.svg",
+    "portraitSHA256": "9398457f8e9657959de4a201919a880350b761d5c512ddfc5c16e78ea8e4c27f"
+  },
+  {
+    "assignmentKey": "deimos:shipyard:",
+    "person": "Uriaru Nimari",
+    "portrait": "station-portraits/deimos-shipyard.svg",
+    "portraitSHA256": "dacdca6a355a1dd0a80aa2a687df8f8a242cc6a6d77241166a107b889ed0ce58"
+  },
+  {
+    "assignmentKey": "deimos:security:",
+    "person": "Hyejin Acharya",
+    "portrait": "station-portraits/deimos-security.svg",
+    "portraitSHA256": "4555acd8ee1f91c1b288c216cbf7a478c43c28a226db9d738e07dfb1d0567b69"
+  },
+  {
+    "assignmentKey": "deimos:relay:",
+    "person": "Laleh Rao",
+    "portrait": "station-portraits/deimos-relay.svg",
+    "portraitSHA256": "523f9ff1d8e6228ac5dcf5660d8afa7ee567c78d038a6b831ed2fda47925b510"
+  },
+  {
+    "assignmentKey": "deimos:clinic:",
+    "person": "Laleh Alvarado",
+    "portrait": "station-portraits/deimos-clinic.svg",
+    "portraitSHA256": "e500719c3788557ca72b673ed1f6382db097bb31bc6648b17058c9ff9e6c0578"
+  },
+  {
+    "assignmentKey": "deimos:local:",
+    "person": "Safiya Nwosu",
+    "portrait": "station-portraits/deimos-local.svg",
+    "portraitSHA256": "a3276255b7a79e5755018f91dcd1cc19f7ed226df8b6617b45571cd7d99ce86d"
+  },
+  {
+    "assignmentKey": "deimos:bank:",
+    "person": "Jules Huerta",
+    "portrait": "station-portraits/deimos-bank.svg",
+    "portraitSHA256": "e73b910829ed64c2fb36ab98fbee5f3ba589ce4d3a317cb1861024f003350fbf"
+  },
+  {
+    "assignmentKey": "deimos:authority:",
+    "person": "Soren Aksoy",
+    "portrait": "station-portraits/deimos-authority.svg",
+    "portraitSHA256": "3fd4678a9d4525f5f2352e27831671b75389a8753e835cdfb0d9614428fb2ab0"
+  },
+  {
+    "assignmentKey": "jupiter:market:",
+    "person": "Teivara Raelune",
+    "portrait": "station-portraits/jupiter-market.svg",
+    "portraitSHA256": "5ea139555db30ef8507936f34fd1a74f38c9a3d5fcb0600186dc65badbb386fa"
+  },
+  {
+    "assignmentKey": "jupiter:contracts:",
+    "person": "Eshamei Ulen",
+    "portrait": "station-portraits/jupiter-contracts.svg",
+    "portraitSHA256": "c06ab6601ab3cd02e78886d975e2e02fbb403b51e63252c74c4a3ac1f3171102"
+  },
+  {
+    "assignmentKey": "jupiter:shipyard:",
+    "person": "Miosia Zaerai",
+    "portrait": "station-portraits/jupiter-shipyard.svg",
+    "portraitSHA256": "e04906b7a67a0ab80d4b0fe3b8601b8c63fb8d75dff95aa9f33b69f3856bc963"
+  },
+  {
+    "assignmentKey": "jupiter:security:",
+    "person": "Amina Adebayo",
+    "portrait": "station-portraits/jupiter-security.svg",
+    "portraitSHA256": "c213b119f896fad0b191a8fde316e997e7288692694b621509d8e71fa235ae64"
+  },
+  {
+    "assignmentKey": "jupiter:relay:",
+    "person": "Usha Kovacs-Patel",
+    "portrait": "station-portraits/jupiter-relay.svg",
+    "portraitSHA256": "9f11372d9ca28cb793b7e9a6cf58ab71daf4a5a028684bc7134311d6e7d59a4f"
+  },
+  {
+    "assignmentKey": "jupiter:clinic:",
+    "person": "Nico Park",
+    "portrait": "station-portraits/jupiter-clinic.svg",
+    "portraitSHA256": "07bf271595c4c9cb6d72877a588fd71fe1f5e32da95a504277a7752c5c0508d7"
+  },
+  {
+    "assignmentKey": "jupiter:local:",
+    "person": "Basil Villanueva",
+    "portrait": "station-portraits/jupiter-local.svg",
+    "portraitSHA256": "905be1456e39f1f6e380b92db8fabd3089bc018e484b8da20d31a9d43153ef6e"
+  },
+  {
+    "assignmentKey": "jupiter:bank:",
+    "person": "Qasim Almeida",
+    "portrait": "station-portraits/jupiter-bank.svg",
+    "portraitSHA256": "0c3f40e886ef81b60765f803a9d3843942a0c4a5abb83a0298bca9ff9b0320ff"
+  },
+  {
+    "assignmentKey": "jupiter:authority:",
+    "person": "Feray Hartmann",
+    "portrait": "station-portraits/jupiter-authority.svg",
+    "portraitSHA256": "d78e246d432d27b5dbf29448422c87c9fef77a3e3034bea936c07c2b870ab786"
+  },
+  {
+    "assignmentKey": "io:market:",
+    "person": "Qeshal Varys",
+    "portrait": "station-portraits/io-market.svg",
+    "portraitSHA256": "54a1d1ff020952ce6a4b240246368a5c6d0ee717a85fc23224ad715dcee4d309"
+  },
+  {
+    "assignmentKey": "io:contracts:",
+    "person": "Jharul Othrel",
+    "portrait": "station-portraits/io-contracts.svg",
+    "portraitSHA256": "d20c37c177f345574c0543867d7720e8c70f614a97e53399a484e4778c318fcc"
+  },
+  {
+    "assignmentKey": "io:shipyard:",
+    "person": "Teshosh Veshar",
+    "portrait": "station-portraits/io-shipyard.svg",
+    "portraitSHA256": "db14940f4da7eef5e0430cd89b1377ec48b926dacff30a849979504b8e6d441d"
+  },
+  {
+    "assignmentKey": "io:security:",
+    "person": "Bobbin Juncture",
+    "portrait": "station-portraits/io-security.svg",
+    "portraitSHA256": "ab2bc1904016790ae64e8d10cf2eb64de58d539cf811f4ef9336c8607e740b41"
+  },
+  {
+    "assignmentKey": "io:relay:",
+    "person": "Bekele, Ada",
+    "portrait": "station-portraits/io-relay.svg",
+    "portraitSHA256": "0fc7f8c5b04e972a915ae284775f23c518e5ac721223456327e70481a55def00"
+  },
+  {
+    "assignmentKey": "io:clinic:",
+    "person": "Cadence : Semaphore 14",
+    "portrait": "station-portraits/io-clinic.svg",
+    "portraitSHA256": "361cae737faf356a8aa8040c6d4c5d1439d775b8d1cfcedbb30d5b73581addbf"
+  },
+  {
+    "assignmentKey": "io:local:",
+    "person": "Astrolabe : Stave 98",
+    "portrait": "station-portraits/io-local.svg",
+    "portraitSHA256": "0c169047730e790ab34d9e42e5db55a83665e5295e538a09badb32b7ed51530b"
+  },
+  {
+    "assignmentKey": "io:bank:",
+    "person": "Axiom / 7132",
+    "portrait": "station-portraits/io-bank.svg",
+    "portraitSHA256": "0bbebc8f4e09e53fc140b82de8dfa1671c81abc8f9e697bbd465e03d6b4f80ca"
+  },
+  {
+    "assignmentKey": "io:authority:",
+    "person": "Hadi Mensah",
+    "portrait": "station-portraits/io-authority.svg",
+    "portraitSHA256": "68cafa52b920ad7b0a0c09d9a83a2d5b10a27bf5acd37ed12aa698b2307ab2c3"
+  },
+  {
+    "assignmentKey": "europa:market:",
+    "person": "Crucible : Rivet 45",
+    "portrait": "station-portraits/europa-market.svg",
+    "portraitSHA256": "9c35a2114c15001773be03adaf2db4b26c5ae1f5c75b442d86ddc63b53a7ef0b"
+  },
+  {
+    "assignmentKey": "europa:contracts:",
+    "person": "Rill Filigree",
+    "portrait": "station-portraits/europa-contracts.svg",
+    "portraitSHA256": "a3a40378d36641f58062bd0f3c1d300ca6daa61b0fb0e7242c063ab8657b019c"
+  },
+  {
+    "assignmentKey": "europa:shipyard:",
+    "person": "74-Mica",
+    "portrait": "station-portraits/europa-shipyard.svg",
+    "portraitSHA256": "df822d127dd3d1e3d9557505d8155db01bfbd347fcec2bd6309f45a8a7cfe47b"
+  },
+  {
+    "assignmentKey": "europa:security:",
+    "person": "Ekkar Urkesh",
+    "portrait": "station-portraits/europa-security.svg",
+    "portraitSHA256": "37bd8efcfc73e64f3afa6d482df9d3075f056ce741db680f8ec308f567208209"
+  },
+  {
+    "assignmentKey": "europa:relay:",
+    "person": "Neema Faruqi",
+    "portrait": "station-portraits/europa-relay.svg",
+    "portraitSHA256": "a37390b7261571058a3f23894c8fbc19e44eab521fc6482e7ca0e143a29e3d96"
+  },
+  {
+    "assignmentKey": "europa:clinic:",
+    "person": "Qeshir Skervath",
+    "portrait": "station-portraits/europa-clinic.svg",
+    "portraitSHA256": "a7d1e9ea61ecf7afe264f42f808bd6ff89de87d7176f40233f34c4d307b6577d"
+  },
+  {
+    "assignmentKey": "europa:local:",
+    "person": "Istraek Ekrun",
+    "portrait": "station-portraits/europa-local.svg",
+    "portraitSHA256": "7ea9b6ba3a597d9a7563a3bda688cea5415b5690abecbd8902ed4ac17f1cb07b"
+  },
+  {
+    "assignmentKey": "europa:bank:",
+    "person": "Vraevrith Ekrun",
+    "portrait": "station-portraits/europa-bank.svg",
+    "portraitSHA256": "027cc27ba0096f8a4ece4e7ef761385b68245128f1855e1dc9e5bb6fea07770c"
+  },
+  {
+    "assignmentKey": "europa:authority:",
+    "person": "Wren Owusu",
+    "portrait": "station-portraits/europa-authority.svg",
+    "portraitSHA256": "8b5f96694e071723297c2b7731ce64f2c2c0be20d12ce0feb44ecbee1842c4ae"
+  },
+  {
+    "assignmentKey": "ganymede:market:",
+    "person": "Talekh Ithral",
+    "portrait": "station-portraits/ganymede-market.svg",
+    "portraitSHA256": "88f80e6db8414c98f5ded4aa001710cfc8294afec1b272b24140e10fdc6be79d"
+  },
+  {
+    "assignmentKey": "ganymede:contracts:",
+    "person": "Keshthra Koryn",
+    "portrait": "station-portraits/ganymede-contracts.svg",
+    "portraitSHA256": "719bd2ecb16236e944a284178e8ac048a35bab0d4ae34e2f718161ccf0d60ff9"
+  },
+  {
+    "assignmentKey": "ganymede:shipyard:",
+    "person": "Orynvek Skelor",
+    "portrait": "station-portraits/ganymede-shipyard.svg",
+    "portraitSHA256": "cec3ffafabdfdb599df8bcb916a3086f8e37cd65db40076d0bbe38d5e6e5d973"
+  },
+  {
+    "assignmentKey": "ganymede:fleet:",
+    "person": "Vivek Cabrera",
+    "portrait": "station-portraits/ganymede-fleet.svg",
+    "portraitSHA256": "d57616e8cef09209b50704a016a1dc3172ca7bd7e733f084318826b2423032d0"
+  },
+  {
+    "assignmentKey": "ganymede:security:",
+    "person": "Stave 18",
+    "portrait": "station-portraits/ganymede-security.svg",
+    "portraitSHA256": "c78dbf0f7b91eda9c98ba2af74db8b7d7a426001f9544b3e16510c8eac4988b3"
+  },
+  {
+    "assignmentKey": "ganymede:relay:",
+    "person": "Zuri Watanabe",
+    "portrait": "station-portraits/ganymede-relay.svg",
+    "portraitSHA256": "6e4394e85c4db112d147a6519cf41519db3b7960f6c348f2ba97471ff318b719"
+  },
+  {
+    "assignmentKey": "ganymede:clinic:",
+    "person": "Lattice Capstan",
+    "portrait": "station-portraits/ganymede-clinic.svg",
+    "portraitSHA256": "1b6179e35501f1c5a0d2c6beea66dd04ac044022ba3b42caf10f9cfcda02c5a7"
+  },
+  {
+    "assignmentKey": "ganymede:local:",
+    "person": "Chalcedony / Semaphore",
+    "portrait": "station-portraits/ganymede-local.svg",
+    "portraitSHA256": "7db819cfca369855ffe004dde18287972778c4c192cdea7686bc48d1ffa43444"
+  },
+  {
+    "assignmentKey": "ganymede:bank:",
+    "person": "Aster-6271",
+    "portrait": "station-portraits/ganymede-bank.svg",
+    "portraitSHA256": "132ae92084a0ba40d7ed78b75fa5eac9b3114e6123707ba099c8a30de0c1395d"
+  },
+  {
+    "assignmentKey": "ganymede:authority:",
+    "person": "Oren Ionescu",
+    "portrait": "station-portraits/ganymede-authority.svg",
+    "portraitSHA256": "78c8c2a227c61b8d05be6c475c51759af2e00ea55d6efc2e8e70371e832138ca"
+  },
+  {
+    "assignmentKey": "ganymede:warehouse:",
+    "person": "Veskev Velkar",
+    "portrait": "station-portraits/ganymede-warehouse.svg",
+    "portraitSHA256": "ad40e71115e19fe81b33629350d3734f6f810519dbbaa86e7930eb99af2e9af1"
+  },
+  {
+    "assignmentKey": "saturn:market:",
+    "person": "Waemio Liora",
+    "portrait": "station-portraits/saturn-market.svg",
+    "portraitSHA256": "875c457b6cf512cbfa9ada43b7db76dd15ef01dae9f061ba143b5a2bdd3e9c26"
+  },
+  {
+    "assignmentKey": "saturn:contracts:",
+    "person": "Orupela Umareth",
+    "portrait": "station-portraits/saturn-contracts.svg",
+    "portraitSHA256": "f43b3a8e50a76678a775621f93742f002790900e49a454c25a76346511d2b1ac"
+  },
+  {
+    "assignmentKey": "saturn:shipyard:",
+    "person": "Waeri Meruai",
+    "portrait": "station-portraits/saturn-shipyard.svg",
+    "portraitSHA256": "af45f97c9a072e1112050f1fe7c396ab27c907df14c9d80910f0585e37cd5017"
+  },
+  {
+    "assignmentKey": "saturn:fleet:",
+    "person": "Aster/3834",
+    "portrait": "station-portraits/saturn-fleet.svg",
+    "portraitSHA256": "ac4bb801e3f312686c0ac325090a0028df0177eb4302ac48dc410afedbea0fe1"
+  },
+  {
+    "assignmentKey": "saturn:security:",
+    "person": "Xia Nakano",
+    "portrait": "station-portraits/saturn-security.svg",
+    "portraitSHA256": "af997d6ce4e7f94f6616b3f2725483051902c7b0e4c08ae752b56b4ee585a555"
+  },
+  {
+    "assignmentKey": "saturn:relay:",
+    "person": "Basil Sato",
+    "portrait": "station-portraits/saturn-relay.svg",
+    "portraitSHA256": "5cba8edd6174e706bf2af0778b8b5bf8ec27d17c37d586c163d6ae23e8f1eef8"
+  },
+  {
+    "assignmentKey": "saturn:clinic:",
+    "person": "Ada Barbosa",
+    "portrait": "station-portraits/saturn-clinic.svg",
+    "portraitSHA256": "9c69ba672d0131c637427d94363fa862f3c530398c9f737f7ba6a3b2b74d393f"
+  },
+  {
+    "assignmentKey": "saturn:local:",
+    "person": "Luca Das",
+    "portrait": "station-portraits/saturn-local.svg",
+    "portraitSHA256": "edcd2dbadfecee2e2766bad497b2c532a31eefcf72e8dc14fb80fadd213629d8"
+  },
+  {
+    "assignmentKey": "saturn:bank:",
+    "person": "Vian Owusu",
+    "portrait": "station-portraits/saturn-bank.svg",
+    "portraitSHA256": "2ecbb666099daf0bff619f9ce63d946e1bfbf1ba795e93c5ea6f5f6e8dc6fde0"
+  },
+  {
+    "assignmentKey": "saturn:authority:",
+    "person": "Dara Kowalska",
+    "portrait": "station-portraits/saturn-authority.svg",
+    "portraitSHA256": "ea1da7988a6f31c19dc795dcdeec822f747f691bd3481a24d513ce8ca92cb012"
+  },
+  {
+    "assignmentKey": "enceladus:market:",
+    "person": "Canticle Sirocco",
+    "portrait": "station-portraits/enceladus-market.svg",
+    "portraitSHA256": "4fc2e089f73c5edf7549f222251ff6fea096dbf42c884855c5346ed6ccc10da6"
+  },
+  {
+    "assignmentKey": "enceladus:contracts:",
+    "person": "Saffron/2454",
+    "portrait": "station-portraits/enceladus-contracts.svg",
+    "portraitSHA256": "ad1b666b9ecaa5fbd278d1d6792a20282ef83c5666160e6488b2e252df6611c7"
+  },
+  {
+    "assignmentKey": "enceladus:shipyard:",
+    "person": "Cobalt [1161]",
+    "portrait": "station-portraits/enceladus-shipyard.svg",
+    "portraitSHA256": "dbc85165bf86cb2f3fcfbc9e1edc550fc6c4dee3af6f82388d3ee9b2f2d9fbaa"
+  },
+  {
+    "assignmentKey": "enceladus:security:",
+    "person": "Vraevik Arven",
+    "portrait": "station-portraits/enceladus-security.svg",
+    "portraitSHA256": "6af38945083b73993fcbfaca1c8c9db0f87aa5d02bfe869bdbd31c5515a8257c"
+  },
+  {
+    "assignmentKey": "enceladus:relay:",
+    "person": "Safiya Bhatt",
+    "portrait": "station-portraits/enceladus-relay.svg",
+    "portraitSHA256": "8028f4d1af98a000ab23686c8216f81b64194eca08d27b37ed449ea342a80de9"
+  },
+  {
+    "assignmentKey": "enceladus:clinic:",
+    "person": "Cevrok Kharvek",
+    "portrait": "station-portraits/enceladus-clinic.svg",
+    "portraitSHA256": "316a93ea6d8e2b093071345948819aa82dc59cbf09a711cbc54eed558b5c3a15"
+  },
+  {
+    "assignmentKey": "enceladus:local:",
+    "person": "Ralsen Ithral",
+    "portrait": "station-portraits/enceladus-local.svg",
+    "portraitSHA256": "f62624de80df82a0d441917f5ac1e85273a4a2bc06d9c9c572b783319c175986"
+  },
+  {
+    "assignmentKey": "enceladus:bank:",
+    "person": "Rhavven Qeshral",
+    "portrait": "station-portraits/enceladus-bank.svg",
+    "portraitSHA256": "20cd74f7f4031125303557df641857dda6f8667cfb2ef796e7743b2e05cbe463"
+  },
+  {
+    "assignmentKey": "enceladus:authority:",
+    "person": "Zephyr Yamada",
+    "portrait": "station-portraits/enceladus-authority.svg",
+    "portraitSHA256": "27fb549d2c0809b5dd7131ae2c139afde3757d6b8901d854be78eebb323d437e"
+  },
+  {
+    "assignmentKey": "rhea:market:",
+    "person": "Eshesh Krelash",
+    "portrait": "station-portraits/rhea-market.svg",
+    "portraitSHA256": "fb5265067beff27b33669b5e1c4019de7fd7eeb41d9a7d34f0e68d1fdea25d9e"
+  },
+  {
+    "assignmentKey": "rhea:contracts:",
+    "person": "Shorvor Thal",
+    "portrait": "station-portraits/rhea-contracts.svg",
+    "portraitSHA256": "44455448b148546c71dc5531c220171d83a52883431013fddba495d923ae3663"
+  },
+  {
+    "assignmentKey": "rhea:shipyard:",
+    "person": "Kharrok Heskor",
+    "portrait": "station-portraits/rhea-shipyard.svg",
+    "portraitSHA256": "34057518b4d496610b9f55d77e71ecd56b55091a95ce67bbd89c581c204c738c"
+  },
+  {
+    "assignmentKey": "rhea:security:",
+    "person": "Crucible [F70]",
+    "portrait": "station-portraits/rhea-security.svg",
+    "portraitSHA256": "5ae866dfa03be7bb2df11d5366f320a046cb4f86138736e626be336a590f11d2"
+  },
+  {
+    "assignmentKey": "rhea:relay:",
+    "person": "Usha Sato",
+    "portrait": "station-portraits/rhea-relay.svg",
+    "portraitSHA256": "c80e6a53746d84fa3b99443b2bc44e366ed11ef99f67cd27ac5538428e60a175"
+  },
+  {
+    "assignmentKey": "rhea:clinic:",
+    "person": "Aster 1",
+    "portrait": "station-portraits/rhea-clinic.svg",
+    "portraitSHA256": "e2f90ac9c345cf6227b4f407cb40dc6bd811b62321464423bab16b636057e106"
+  },
+  {
+    "assignmentKey": "rhea:local:",
+    "person": "Aquarelle / Yarrow",
+    "portrait": "station-portraits/rhea-local.svg",
+    "portraitSHA256": "f5524353fbeea56db7f6f1f09283a838be36e582ef92a202e93480dd19bd746e"
+  },
+  {
+    "assignmentKey": "rhea:bank:",
+    "person": "Loomwork 90",
+    "portrait": "station-portraits/rhea-bank.svg",
+    "portraitSHA256": "23ec3301b6da10de756725e9b9dc9b84b0732b989b658d61d04fda9c8b7108c9"
+  },
+  {
+    "assignmentKey": "rhea:authority:",
+    "person": "Amara Mbatha",
+    "portrait": "station-portraits/rhea-authority.svg",
+    "portraitSHA256": "091e7fcb03f7acdb80f15f3cf87441ac5fa0a8dc22888e19429ebc11572dcdd5"
+  },
+  {
+    "assignmentKey": "iapetus:market:",
+    "person": "Vera Dlamini",
+    "portrait": "station-portraits/iapetus-market.svg",
+    "portraitSHA256": "9ba01c496be0ed58ce4be50a19d73fe4e3e1e50ca0c5599cb3375c8fa3213fd1"
+  },
+  {
+    "assignmentKey": "iapetus:contracts:",
+    "person": "Dalia Mensah",
+    "portrait": "station-portraits/iapetus-contracts.svg",
+    "portraitSHA256": "941b4032a188efec462fb9133d210d212ff1946d23359738d511aaa45aadd1e8"
+  },
+  {
+    "assignmentKey": "iapetus:shipyard:",
+    "person": "Noor Mwangi",
+    "portrait": "station-portraits/iapetus-shipyard.svg",
+    "portraitSHA256": "af298fbcb4338b7ed34ef3a36ff82f373f8fbe1c94b55dd854b33251660ae7cd"
+  },
+  {
+    "assignmentKey": "iapetus:fleet:",
+    "person": "Urar Thal",
+    "portrait": "station-portraits/iapetus-fleet.svg",
+    "portraitSHA256": "c08279afc0c87465e31905101f4c2ea9d4bb3e5ebc965a589cb8c4eb3d3f982b"
+  },
+  {
+    "assignmentKey": "iapetus:security:",
+    "person": "Mirinae Saelun",
+    "portrait": "station-portraits/iapetus-security.svg",
+    "portraitSHA256": "08cfa58c8ca270f238700de1e071cd346330817ed97d5826e8b546feadd05cd6"
+  },
+  {
+    "assignmentKey": "iapetus:relay:",
+    "person": "Vian Delgado",
+    "portrait": "station-portraits/iapetus-relay.svg",
+    "portraitSHA256": "626c5392ea9497055aaa04c0017073696b10b5a227a895da4804daa058ae42cf"
+  },
+  {
+    "assignmentKey": "iapetus:clinic:",
+    "person": "Talinae Saelun",
+    "portrait": "station-portraits/iapetus-clinic.svg",
+    "portraitSHA256": "11e6616d0994b6c1e7b05092cd884030deafb55e0482edba7859983fa72f9f79"
+  },
+  {
+    "assignmentKey": "iapetus:local:",
+    "person": "Zaeelu Eshauri",
+    "portrait": "station-portraits/iapetus-local.svg",
+    "portraitSHA256": "8dd49feb0792d6d9d06a41be3bc3330dbbd6ce978da439bb4f49c1e34411ff4d"
+  },
+  {
+    "assignmentKey": "iapetus:bank:",
+    "person": "Jaeren Vaeli",
+    "portrait": "station-portraits/iapetus-bank.svg",
+    "portraitSHA256": "9acd5ec3f627c4cb18d79309f44a2ceeabe0b75d468d2f5195f2388f8f80e135"
+  },
+  {
+    "assignmentKey": "iapetus:authority:",
+    "person": "Kenji Kaur",
+    "portrait": "station-portraits/iapetus-authority.svg",
+    "portraitSHA256": "364b81eda4e79915090f1170ef852451b1a7bf11ddc77278b7e8de23ee799f73"
+  },
+  {
+    "assignmentKey": "uranus:market:",
+    "person": "Lorvor Skelor",
+    "portrait": "station-portraits/uranus-market.svg",
+    "portraitSHA256": "0776cd83c903417175315b5f5e7f11abe958b4d5d193add6afcaa9c314db7e37"
+  },
+  {
+    "assignmentKey": "uranus:contracts:",
+    "person": "Naskune Zharven",
+    "portrait": "station-portraits/uranus-contracts.svg",
+    "portraitSHA256": "1f560a1bd6e8a47ae1032c86884d4bd0fe99f68ab0fee41f4f20a65994676ec9"
+  },
+  {
+    "assignmentKey": "uranus:shipyard:",
+    "person": "Trevevra Xalreth",
+    "portrait": "station-portraits/uranus-shipyard.svg",
+    "portraitSHA256": "c9ae99dc1079092005c1a3846ac680aff2f25c697dd5eaac518aa9ec61e357f3"
+  },
+  {
+    "assignmentKey": "uranus:security:",
+    "person": "Polestar/3063",
+    "portrait": "station-portraits/uranus-security.svg",
+    "portraitSHA256": "dcd518e940f07c4a9462c0b4b574cb5afc415f9551d39eb9aac6c10b8058ea02"
+  },
+  {
+    "assignmentKey": "uranus:relay:",
+    "person": "Vera Almeida",
+    "portrait": "station-portraits/uranus-relay.svg",
+    "portraitSHA256": "32eedd5f473b7a5c86c7b1b7c198932c58aa339b1e7a30e126dea44f456594f5"
+  },
+  {
+    "assignmentKey": "uranus:clinic:",
+    "person": "16-Palisade",
+    "portrait": "station-portraits/uranus-clinic.svg",
+    "portraitSHA256": "d983882424039d33bdbbfc03edb177f8e35e774cd1cbc958a08fe5457570b855"
+  },
+  {
+    "assignmentKey": "uranus:local:",
+    "person": "37-Whorl",
+    "portrait": "station-portraits/uranus-local.svg",
+    "portraitSHA256": "97529e3fbe68d539142a8ec98091605ee3a40c93b6e505287e6cf576b4ba2063"
+  },
+  {
+    "assignmentKey": "uranus:bank:",
+    "person": "Cadence/5714",
+    "portrait": "station-portraits/uranus-bank.svg",
+    "portraitSHA256": "7bd378b014b61f103eb0b6c56e89b7e3c767e80270d7bc357e3bbda05f6a686c"
+  },
+  {
+    "assignmentKey": "uranus:authority:",
+    "person": "Kamal Qureshi",
+    "portrait": "station-portraits/uranus-authority.svg",
+    "portraitSHA256": "ad8b859d89ac1bb5868754ec35f97d56b38140ee961a357dc57b6136c0c6348d"
+  },
+  {
+    "assignmentKey": "miranda:market:",
+    "person": "Vesper 84",
+    "portrait": "station-portraits/miranda-market.svg",
+    "portraitSHA256": "cf9ed57826d96443151ce50ab317b0080c4d747b1e24b53739941c0e2a44428c"
+  },
+  {
+    "assignmentKey": "miranda:contracts:",
+    "person": "Sirocco 36",
+    "portrait": "station-portraits/miranda-contracts.svg",
+    "portraitSHA256": "ed6273e26aa072b9a1c20efa83ec62fc256c361b57184beccfb2a16a21576a60"
+  },
+  {
+    "assignmentKey": "miranda:shipyard:",
+    "person": "Lenticel / 1414",
+    "portrait": "station-portraits/miranda-shipyard.svg",
+    "portraitSHA256": "4aa8cf38c9c1cf40ddba3a0134ea452a78848ba2db6cb7786699a56c892f13f3"
+  },
+  {
+    "assignmentKey": "miranda:security:",
+    "person": "Zvekan Ralvek",
+    "portrait": "station-portraits/miranda-security.svg",
+    "portraitSHA256": "63f646b395574a625081d15e8cb52e331a6583b2df7eb0cdd988ae38d32647a8"
+  },
+  {
+    "assignmentKey": "miranda:relay:",
+    "person": "Vivek Idris Sengupta",
+    "portrait": "station-portraits/miranda-relay.svg",
+    "portraitSHA256": "f848e517ec78e63d501979893e1a777fa630ad48ad9a4a1a1b22f8bfb65e4306"
+  },
+  {
+    "assignmentKey": "miranda:clinic:",
+    "person": "Krelesh Othrel",
+    "portrait": "station-portraits/miranda-clinic.svg",
+    "portraitSHA256": "3840786ba671006c042bd7541347428b4e192bd16901d54252913b5816925f55"
+  },
+  {
+    "assignmentKey": "miranda:local:",
+    "person": "Istrxel Osvren",
+    "portrait": "station-portraits/miranda-local.svg",
+    "portraitSHA256": "99e704380033228963218c78e9ae5161123c79c0916c3ca3cd504709aa9d34fc"
+  },
+  {
+    "assignmentKey": "miranda:bank:",
+    "person": "Zharvor Oskavar",
+    "portrait": "station-portraits/miranda-bank.svg",
+    "portraitSHA256": "b455910b8537dae11eb6be5753a731df4722a1e850b04cde40c9c58e010feee8"
+  },
+  {
+    "assignmentKey": "miranda:authority:",
+    "person": "Selam Yusuf",
+    "portrait": "station-portraits/miranda-authority.svg",
+    "portraitSHA256": "62cafb192b4c53ea1cce9ef1842626ae13c1c27412d315877e9767e03c50d882"
+  },
+  {
+    "assignmentKey": "ariel:market:",
+    "person": "Esme Sarr",
+    "portrait": "station-portraits/ariel-market.svg",
+    "portraitSHA256": "5d62e422dd149fcacfd562c5ad51bd299b217b186813e0e7dd9c4d5e9f53b783"
+  },
+  {
+    "assignmentKey": "ariel:contracts:",
+    "person": "Luz Ortiz",
+    "portrait": "station-portraits/ariel-contracts.svg",
+    "portraitSHA256": "42e0d6d46010126a5fb5445c786cf55c1e27d3398ae40c6204abfc8dd99b9f16"
+  },
+  {
+    "assignmentKey": "ariel:shipyard:",
+    "person": "Laleh Leclerc",
+    "portrait": "station-portraits/ariel-shipyard.svg",
+    "portraitSHA256": "91ce5a50c13a44dc2641d92c82a7c3ca0f90f408d7e1ef9c36873eb6d478075a"
+  },
+  {
+    "assignmentKey": "ariel:security:",
+    "person": "Ulouli Oshara",
+    "portrait": "station-portraits/ariel-security.svg",
+    "portraitSHA256": "cd3cd15b5702e10832249525b2b2eb8be0fce545f5767d42be414e9b6af3908f"
+  },
+  {
+    "assignmentKey": "ariel:relay:",
+    "person": "Mateo Haddadi",
+    "portrait": "station-portraits/ariel-relay.svg",
+    "portraitSHA256": "46887d683d2930c25c1819f255db3e9cdd155e73425fa072f98504924fb4c7e1"
+  },
+  {
+    "assignmentKey": "ariel:clinic:",
+    "person": "Sioren Kiorai",
+    "portrait": "station-portraits/ariel-clinic.svg",
+    "portraitSHA256": "6d0b6ff54ed7285218fc59e28bab489c68fcdbf29a4c59b78383ab99b5d54798"
+  },
+  {
+    "assignmentKey": "ariel:local:",
+    "person": "Maiara Meruai",
+    "portrait": "station-portraits/ariel-local.svg",
+    "portraitSHA256": "00a18df8d0cf1d4bb36e4d4720b3d96b38df05fa62aa87460740ef7db8a4d08c"
+  },
+  {
+    "assignmentKey": "ariel:bank:",
+    "person": "Waeae Halia",
+    "portrait": "station-portraits/ariel-bank.svg",
+    "portraitSHA256": "c2777eb1ddfc8cd6dc057af32bbee47b05a66ea99358b13c35391c4addab7c60"
+  },
+  {
+    "assignmentKey": "ariel:authority:",
+    "person": "Tariq Nakano",
+    "portrait": "station-portraits/ariel-authority.svg",
+    "portraitSHA256": "29aa8bdc44a7f512585a44476f4e593c92c4f05c536f389480bf67c4c819380f"
+  },
+  {
+    "assignmentKey": "titania:market:",
+    "person": "Scribe-9006",
+    "portrait": "station-portraits/titania-market.svg",
+    "portraitSHA256": "54c1e5577caf8f866345b765fe5cee7dc7ba1346451e968c03b8ff19bf30e814"
+  },
+  {
+    "assignmentKey": "titania:contracts:",
+    "person": "Almanac : Jacquard 52",
+    "portrait": "station-portraits/titania-contracts.svg",
+    "portraitSHA256": "5ae80af34051ce24e6fae36bae3309513ae4b0d9d59429bb3abb7f1c1a7e5cdc"
+  },
+  {
+    "assignmentKey": "titania:shipyard:",
+    "person": "Mote/2608",
+    "portrait": "station-portraits/titania-shipyard.svg",
+    "portraitSHA256": "28f4f71ae0b79d37c3d30704d590ac45dde00409debe2d84aafdf6724a0ee719"
+  },
+  {
+    "assignmentKey": "titania:fleet:",
+    "person": "Oshieia Halia",
+    "portrait": "station-portraits/titania-fleet.svg",
+    "portraitSHA256": "124a2ac94f367d5573cc39ae238d7639abeec21befdc6277c6fffef2edbd5c06"
+  },
+  {
+    "assignmentKey": "titania:security:",
+    "person": "Orynsen Yevrak",
+    "portrait": "station-portraits/titania-security.svg",
+    "portraitSHA256": "ebf5e6746deda368facc011bb53cdc484e04d13c8c5012d268bbc44d69e356e3"
+  },
+  {
+    "assignmentKey": "titania:relay:",
+    "person": "Usha Diop",
+    "portrait": "station-portraits/titania-relay.svg",
+    "portraitSHA256": "83e42d131ffb36ab1bcb62ce0414653c0e4a1d76f1950857e58d3c31285b0757"
+  },
+  {
+    "assignmentKey": "titania:clinic:",
+    "person": "Naskune Grevath",
+    "portrait": "station-portraits/titania-clinic.svg",
+    "portraitSHA256": "40adeb79a54233490ea433006c9b3add5e67b489c3922f5e7a05dcdfccf72c2c"
+  },
+  {
+    "assignmentKey": "titania:local:",
+    "person": "Naskesk Drelith",
+    "portrait": "station-portraits/titania-local.svg",
+    "portraitSHA256": "df116fa86d2f80e51ba19c286cf4762ecc45ffa98fad17af3b7969b238c98dce"
+  },
+  {
+    "assignmentKey": "titania:bank:",
+    "person": "Qeshor Drelith",
+    "portrait": "station-portraits/titania-bank.svg",
+    "portraitSHA256": "795cfe0cd43e57c2c5fc77b3333d77699d5e6f7d402dd0c8283ee0823dd26ab0"
+  },
+  {
+    "assignmentKey": "titania:authority:",
+    "person": "Luan Hasegawa",
+    "portrait": "station-portraits/titania-authority.svg",
+    "portraitSHA256": "610048e53b81b777f1e2229fc862863a3bcb6cfc588ea33e554d1604a9ffffec"
+  },
+  {
+    "assignmentKey": "oberon:market:",
+    "person": "Uloelu Vaeliri",
+    "portrait": "station-portraits/oberon-market.svg",
+    "portraitSHA256": "91f64a6dbbf54a9d4859d24ab04417b635a051538056075553870e267ced91d2"
+  },
+  {
+    "assignmentKey": "oberon:contracts:",
+    "person": "Shaaeli Maeri",
+    "portrait": "station-portraits/oberon-contracts.svg",
+    "portraitSHA256": "60ea5c14eec074795f1bf368611c1068991412cce0ad07476c71955e74d4961b"
+  },
+  {
+    "assignmentKey": "oberon:shipyard:",
+    "person": "Laesha Nerathi",
+    "portrait": "station-portraits/oberon-shipyard.svg",
+    "portraitSHA256": "58d87882644df281b427acfa29f0f19ae51dc8b32940d0c4af4d4fa3eafb13c9"
+  },
+  {
+    "assignmentKey": "oberon:fleet:",
+    "person": "Clasp/2775",
+    "portrait": "station-portraits/oberon-fleet.svg",
+    "portraitSHA256": "ec10952625ee98b3cde4ec36336a3a227df16965af9a99b406746a12850c3a87"
+  },
+  {
+    "assignmentKey": "oberon:security:",
+    "person": "Usha Leclerc",
+    "portrait": "station-portraits/oberon-security.svg",
+    "portraitSHA256": "59ba6678ff45d074ea6d5a9fbdad225e5ff8f34c578f37776fde12cf2d883e69"
+  },
+  {
+    "assignmentKey": "oberon:relay:",
+    "person": "Idris Osei",
+    "portrait": "station-portraits/oberon-relay.svg",
+    "portraitSHA256": "e0ed80e7d3026d45e5103bc68a1910384bb6572c745f809e62501bbd41ed53d9"
+  },
+  {
+    "assignmentKey": "oberon:clinic:",
+    "person": "Farah Huerta",
+    "portrait": "station-portraits/oberon-clinic.svg",
+    "portraitSHA256": "f55ab1edc4dc2d03641318cf9a6b78e5f4610e7d84ad0e67c534e9ddb4998c08"
+  },
+  {
+    "assignmentKey": "oberon:local:",
+    "person": "Malika Hartmann",
+    "portrait": "station-portraits/oberon-local.svg",
+    "portraitSHA256": "5fff894f9a7e917f6d6c9983c64d936f5e691d62ca8bbcac68531d40051dfadc"
+  },
+  {
+    "assignmentKey": "oberon:bank:",
+    "person": "Soraya Nakamura",
+    "portrait": "station-portraits/oberon-bank.svg",
+    "portraitSHA256": "ba98c09085c677d43f31e75767cd889133e7d604c6f1819354174834e7a586da"
+  },
+  {
+    "assignmentKey": "oberon:authority:",
+    "person": "Lina Zoric",
+    "portrait": "station-portraits/oberon-authority.svg",
+    "portraitSHA256": "b2adbad3c5b5c74ea0d464c7aa1a1bdf2c1a4f9242aba4111553bd1935a21c02"
+  },
+  {
+    "assignmentKey": "neptune:market:",
+    "person": "Siovai Vaeli",
+    "portrait": "station-portraits/neptune-market.svg",
+    "portraitSHA256": "4781b7cd391194213bd192080b875ba34cf71f9dec8b3c4125bc74a177c42ff4"
+  },
+  {
+    "assignmentKey": "neptune:contracts:",
+    "person": "Saeae Shaliri",
+    "portrait": "station-portraits/neptune-contracts.svg",
+    "portraitSHA256": "97e61f52723f29c6decb4a1c128808b808a9e612da00862a4865f1889858c330"
+  },
+  {
+    "assignmentKey": "neptune:shipyard:",
+    "person": "Raeliwa Zaerai",
+    "portrait": "station-portraits/neptune-shipyard.svg",
+    "portraitSHA256": "6e964541315bda7822a9bc1e4cf3d925eaa2c78a9b3de8ee7ca9dbebeec90592"
+  },
+  {
+    "assignmentKey": "neptune:fleet:",
+    "person": "Socket 28.33",
+    "portrait": "station-portraits/neptune-fleet.svg",
+    "portraitSHA256": "5fc6212c21d5aa2e309b488e5c22673c0ac7d9ec8be56c6c67ec8f6a2f2a1885"
+  },
+  {
+    "assignmentKey": "neptune:security:",
+    "person": "Zephyr Dlamini",
+    "portrait": "station-portraits/neptune-security.svg",
+    "portraitSHA256": "2d4414e1b6846981f0d3742c36d41558396f26adf410700913c1f68f5e030b9b"
+  },
+  {
+    "assignmentKey": "neptune:relay:",
+    "person": "Kiran Naidoo",
+    "portrait": "station-portraits/neptune-relay.svg",
+    "portraitSHA256": "3fd4ab39a6f623e2cc95a42a0f98be557366f287f27d6eebc0d590c94e95609a"
+  },
+  {
+    "assignmentKey": "neptune:clinic:",
+    "person": "Zuri Navarro",
+    "portrait": "station-portraits/neptune-clinic.svg",
+    "portraitSHA256": "8d1371da467e87c504e704126ee98b15b5566fe7d739afcd0b661d46c3daf778"
+  },
+  {
+    "assignmentKey": "neptune:local:",
+    "person": "Valeria Tran",
+    "portrait": "station-portraits/neptune-local.svg",
+    "portraitSHA256": "cbbc022a802a0d23c90ff8024ed1cfe6a7d193e208bd838bb9b3328e82f27e1a"
+  },
+  {
+    "assignmentKey": "neptune:bank:",
+    "person": "Aiko Ionescu",
+    "portrait": "station-portraits/neptune-bank.svg",
+    "portraitSHA256": "19517431be72bfd1f9eee60587d830a2336ec12380b1dfade329aec591a06efe"
+  },
+  {
+    "assignmentKey": "neptune:authority:",
+    "person": "Naledi Qureshi",
+    "portrait": "station-portraits/neptune-authority.svg",
+    "portraitSHA256": "5aed90c3da20f42f0884cebd515e5132bcb8c0b0407b2e04e61743efbad8a11e"
+  },
+  {
+    "assignmentKey": "neptune:warehouse:",
+    "person": "Yaluyae Zaerai",
+    "portrait": "station-portraits/neptune-warehouse.svg",
+    "portraitSHA256": "e9d9f67d75b24fbfe2308b22d7468daaa36c50d2f49de6842a4b90ab31d68dbd"
+  },
+  {
+    "assignmentKey": "triton:market:",
+    "person": "Stave/8440",
+    "portrait": "station-portraits/triton-market.svg",
+    "portraitSHA256": "51f9956384084f5b6b9d126d70aceb576910741e72e283db7bde71f199faf3de"
+  },
+  {
+    "assignmentKey": "triton:contracts:",
+    "person": "Beacon / Zenith",
+    "portrait": "station-portraits/triton-contracts.svg",
+    "portraitSHA256": "10f5be4f09fa1204760c79503f4a60e13004cae7e2dcaa73350e3a40751d4e05"
+  },
+  {
+    "assignmentKey": "triton:shipyard:",
+    "person": "15-Caliper",
+    "portrait": "station-portraits/triton-shipyard.svg",
+    "portraitSHA256": "f5f3c9910bc5f915c85076f94e5d453eb75f0d3261cde7957d0b5e4c52351eac"
+  },
+  {
+    "assignmentKey": "triton:security:",
+    "person": "Praeveth Arven",
+    "portrait": "station-portraits/triton-security.svg",
+    "portraitSHA256": "3e14b313d2d256ce16febf7595f28c8adbe184e257279428fd47ab58ea8b6807"
+  },
+  {
+    "assignmentKey": "triton:relay:",
+    "person": "Mira Mwangi",
+    "portrait": "station-portraits/triton-relay.svg",
+    "portraitSHA256": "bceb15b16001bceaa0d8e4cea6701114c8e33a60e95156c84863ddb70a7ec523"
+  },
+  {
+    "assignmentKey": "triton:clinic:",
+    "person": "Draevevra Meskal",
+    "portrait": "station-portraits/triton-clinic.svg",
+    "portraitSHA256": "774cd86cb9b100ea7bb13c6846a296959d1100e89ab25b01be4793b4c1dd164d"
+  },
+  {
+    "assignmentKey": "triton:local:",
+    "person": "Velra Yevrak",
+    "portrait": "station-portraits/triton-local.svg",
+    "portraitSHA256": "f7e1fb02f49375fc244221fe0ba87fd6ded398048e199bfa61f94868c2e56ea1"
+  },
+  {
+    "assignmentKey": "triton:bank:",
+    "person": "Vyrav Drelith",
+    "portrait": "station-portraits/triton-bank.svg",
+    "portraitSHA256": "0203c2ad2b6913b9b7998a9c99d55b707eb0a333667e20bc8f60a39848901ec3"
+  },
+  {
+    "assignmentKey": "triton:authority:",
+    "person": "Xia Ionescu",
+    "portrait": "station-portraits/triton-authority.svg",
+    "portraitSHA256": "10ac13909cd9eed9e92025bc76e62a45a91ac1ad9c529c38c7330f220b7c39e1"
+  }
+]

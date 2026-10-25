@@ -1,0 +1,29 @@
+{
+  "mode": "reference",
+  "revision": "v95",
+  "engineSHA256": "85d5b149e0e4773d4dbcefa03d8144117a42ab673734446b655e761b108ff7f1",
+  "inputs": {
+    "formulas": "9d67b7116a6c0e54fa440ee5e801ab33a35c0a6eac6d7b4bf8f73903f3a4eec1",
+    "template": "487434656edd7a2def2f65da0980b57ba16187718cbf376f016b6ea80c2cd6c3",
+    "styles": "0739301f78f7c9fd7a7af278d35ac3102b593105b94d6f712a198a3e16ea2059",
+    "builder": "161bf158cf090145f6904a6c0034e7669cf069468899c39dcfeb15035b9fec37",
+    "header": "96f54354d34a7bbd441d9ee7c19d2367b6667b2f6dde3704a72371a75d6c7e58"
+  },
+  "sections": [
+    "prices",
+    "reserves",
+    "cargo-packing",
+    "arbitrage",
+    "production-recovery",
+    "freight",
+    "payment",
+    "recovery",
+    "charts",
+    "other-markets",
+    "merchant-business"
+  ],
+  "outputs": {
+    "mechanics.html": "0927863150daad63da57c15bc80363a299f79cd1cc4825c0ab650c3f3f1b98d5",
+    "mechanics-fragment.html": "c1439facc76b9abe0e53f1a01f3764b8772b2175eb47b8af06447c8314cb5fdb"
+  }
+}

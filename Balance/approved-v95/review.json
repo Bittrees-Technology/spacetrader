@@ -1,0 +1,114 @@
+{
+  "authorization": "User: resolve stock not sold back and explain why near-empty markets occur.",
+  "date": "2026-10-25",
+  "baseline": "v94",
+  "scope": "Resolve returned exchange stock being inaccessible the same day. Existing gross purchase/sale receipts now offset each other for daily net stock-withdrawal and buyer intake limits. Actual stock, protected inputs, receiving room, price curve, XP accounting and station roles retained. Correct shortage reporting: six inactive cells and two temporary consumer-only imports, zero selling exchanges in the stressed day4320 count. No production, consumption, route, price or reward changes.",
+  "sourceChanges": [
+    "Local/goods-catalogue/project-formulas.cjs",
+    "Browser/engine.js",
+    "Local/goods-catalogue/mechanics-template.html"
+  ],
+  "regressions": {
+    "market-returns": 10,
+    "goods-network": 13,
+    "exchange-pricing": 7,
+    "exchange-inline": 4,
+    "exchange-inventory-sync": 6,
+    "commercial-standing": 11,
+    "production-chains": 12
+  },
+  "reproducedDefect": "Before engine: exhaust allocation, sell3, available remains0; candidate available3. The player QA medicine row is available0 before and1 after using the exact same physical stock and saved gross receipts.",
+  "liquidityRules": {
+    "retail": "max(0,min(floor(physical minus protected),daily allocation minus same-day gross buys plus same-day gross sales))",
+    "buyer": "max(0,min(physical free room,dynamic funded allowance minus same-day gross sales plus same-day gross buys))",
+    "rollover": "Only current-day receipts count. Existing saved gross receipts retained without migration or loss.",
+    "limits": "No stock created, no free round-trip money/Commerce XP, custody and warehouse source respected; physical and medical retail limits still apply."
+  },
+  "economyComparison": {
+    "goods": true,
+    "formulas": true,
+    "bonding-curves": true
+  },
+  "pricingAudit": "100-year minimum rounded to26 complete1440-day cycles;62,300,160 station/day quotes. Repeated cycles are consistency evidence, not independent observations.",
+  "shortageDiagnosis": {
+    "simulatedDays": 4440,
+    "stress": {
+      "initiallyEmptied": [
+        "moon",
+        "earth-high"
+      ],
+      "blockadeDays": 120
+    },
+    "nearEmptyAt4320": 8,
+    "inactiveRows": [
+      "moon:nickel-ore",
+      "moon:cobalt-ore",
+      "moon:copper-ore",
+      "moon:uranium-ore",
+      "moon:brines",
+      "earth-high:brines"
+    ],
+    "exchangeSellingMarkets": 0,
+    "consumerOnly": [
+      {
+        "key": "oberon:silver",
+        "station": "Mommur Anchorage",
+        "good": "Silver bullion",
+        "daysBelowOne": 37,
+        "min": 0,
+        "max": 12.686382697396436,
+        "final": 12.686382697396436,
+        "totals": {
+          "production": 0,
+          "consumption": 21.018426749437552,
+          "netShipments": 33.70480944683396
+        },
+        "routes": [
+          {
+            "id": 1566,
+            "good": "silver",
+            "from": "earth-high",
+            "to": "oberon",
+            "units": 0.37870572412173026,
+            "lead": 105,
+            "capacity": 0.7574114482434605
+          }
+        ]
+      },
+      {
+        "key": "oberon:gold",
+        "station": "Mommur Anchorage",
+        "good": "Gold bullion",
+        "daysBelowOne": 29,
+        "min": 0,
+        "max": 22.513695681675156,
+        "final": 22.513695681675156,
+        "totals": {
+          "production": 0,
+          "consumption": 37.72027144593126,
+          "netShipments": 60.23396712760641
+        },
+        "routes": [
+          {
+            "id": 1591,
+            "good": "gold",
+            "from": "earth-high",
+            "to": "oberon",
+            "units": 0.6274371575792336,
+            "lead": 105,
+            "capacity": 1.2548743151584671
+          }
+        ]
+      }
+    ],
+    "normalBaseline": "Previous unchanged physical model: 0 cells below one lot at day1440,2880,4320. Physical model hash unchanged; stress replay reproduces prior counts 12,11,8.",
+    "unchangedPhysicalModelSHA256": "cb42cf1bee3095a4ab1bae5db7c959b856878fcc49b1ff506f3de51584f8b7e9",
+    "matchesBeforePhysicalModel": true
+  },
+  "shortageScope": "Eight is a count of station/product cells, not whole stations or eight listed markets. Six have no trading, production, consumption or routes and were zeroed artificially. Oberon gold and silver are consumer-only, supplied from earth-high over105days. The extra120day trace shows37/29days below1lot, then stock reaches12.69/22.51lots; deliveries exceed consumption. Normal unchanged baseline had no near-empty cells at three full-cycle checkpoints. No claim of zero transient shortage at every intermediate day.",
+  "legacyTestLimitation": {
+    "suite": "exchange-capacity",
+    "baselineAndCandidate": "Same obsolete 250kg hold-space/gauge assertion at line6, current gross packaging takes more space. Exact paired logs retained; no suite pass claimed."
+  },
+  "referenceBoundary": "Guide and goods mechanics remain generic; no actual voyage imported. Bank range figures retained because bank formulas unchanged; provenance updated."
+}

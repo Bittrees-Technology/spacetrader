@@ -1,0 +1,9 @@
+'use strict';
+const assert=require('node:assert/strict'),M=require('../../Browser/market-economy');
+let checks=0;function test(name,fn){fn();checks++;console.log('PASS '+name);}
+const b=M.createNetwork(0);b.transit=[];for(const r of M.routes)for(let offset=0;offset<=r.lead;offset++)b.transit.push({route:r.id,due:offset,units:offset%2?1:2});M.compactNetwork(b);assert.equal(typeof b.pipeline,'string');
+test('repeated validation of exact encoded frames preserves all packet quantities',()=>{const before=JSON.stringify(b),packets=M.networkPackets(b);for(let n=0;n<10;n++)M.validateNetworkPipeline(JSON.parse(before));assert.equal(JSON.stringify(b),before);assert.deepEqual(M.networkPackets(b),packets);});
+test('a warm valid frame never allows appended transit or a changed encoding',()=>{M.validateNetworkPipeline(b);for(const edit of [x=>x.transit.push({route:0,due:0,units:1}),x=>x.pipeline+='!',x=>x.pipeline=x.pipeline.slice(0,-4),x=>x.pipeline=42,x=>x.plan=44]){const bad=JSON.parse(JSON.stringify(b));edit(bad);assert.throws(()=>M.validateNetworkPipeline(bad));}});
+test('invalid quantities cannot enter the cache after a successful frame',()=>{const n=structuredClone(b);delete n.pipeline;n.transit=[];for(const r of M.routes)for(let offset=0;offset<=r.lead;offset++)n.transit.push({route:r.id,due:offset,units:offset===0?Infinity:1});M.compactNetwork(n);for(let repeat=0;repeat<2;repeat++)assert.throws(()=>M.validateNetworkPipeline(n),/freight/i);});
+test('eviction and calendar changes retain exact semantic validation',()=>{for(let n=0;n<8;n++){const x=structuredClone(b);x.day+=n;M.validateNetworkPipeline(x);}M.validateNetworkPipeline(b);const bad=structuredClone(b);bad.pipeline='D1:AAAAAA==';assert.throws(()=>M.validateNetworkPipeline(bad));});
+console.log(checks+' compact freight validation scenarios passed.');

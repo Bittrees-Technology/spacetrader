@@ -1,0 +1,21 @@
+{
+  "id": "merchant:earth:0:procurement",
+  "kind": "procurement",
+  "origin": "earth",
+  "posted": 0,
+  "deadline": 180,
+  "lines": [
+    {
+      "port": "earth",
+      "good": "liquid-water",
+      "units": 20,
+      "unitPrice": 116,
+      "need": 0.8887235959683489
+    }
+  ],
+  "reward": 2320,
+  "canAccept": true,
+  "status": "active",
+  "stage": 0,
+  "paid": 0
+}

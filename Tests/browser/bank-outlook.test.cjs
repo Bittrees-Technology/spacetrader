@@ -1,0 +1,24 @@
+'use strict';
+const assert=require('node:assert/strict'),E=require('../../Browser/engine');let count=0;
+function test(name,run){run();console.log('PASS '+name);count++;}
+function ready(pid='earth',day=0){let s=E.transact(E.fresh(),'create',{name:'Bank outlook QA',background:'engineer',temperament:'measured'});s.location=pid;s.day=day;s.visited=[...new Set([...s.visited,pid])];return E.parse(JSON.stringify(s));}
+const talk=(s,topic)=>E.transact(s,'venue-talk',{id:'bank',topic:'tree-bank-'+topic});
+const protectedState=s=>JSON.stringify({day:s.day,credits:s.credits,debt:s.debt,bank:s.bank,seed:s.seed,xp:s.profile.xp,reputation:E.reputationData(s.profile),relationships:s.profile.relationships,fleet:s.fleet,cargo:s.cargo,profileStats:s.profile.stats});
+const pct=n=>(n*100).toFixed(2)+'%';
+test('all 26 managers expose an outlook and all followups, with pure views and persistent return navigation',()=>{
+ for(const p of E.world.ports){let s=ready(p.id,360),raw=JSON.stringify(s),v=E.establishmentVisit(s,'bank');assert(v.topics.some(t=>t.id==='tree-bank-rates'));assert.equal(JSON.stringify(s),raw);const before=protectedState(s);s=talk(s,'rates');assert.equal(E.establishmentVisit(s,'bank').tree.stage,'Rates & financial conditions');const beat=require('../../Browser/conversation-exchanges').create(s.dialogue.at(-1).text).beats[0].text;assert(/getting dearer|getting easier|fairly settled/.test(beat));for(const topic of ['conditions','fixed','rates']){assert(E.establishmentVisit(s,'bank').topics.some(t=>t.id==='tree-bank-'+topic));s=talk(s,topic);assert.equal(protectedState(s),before);assert(!/\d|%|Ship-day|floating quote|momentum|percentage-point/.test(s.dialogue.at(-1).text));assert(s.dialogue.at(-1).text.length<600);assert.deepEqual(E.parse(JSON.stringify(s)),s);}s=E.transact(s,'venue-talk',{id:'bank',topic:'tree-back'});assert(E.establishmentVisit(s,'bank').topics.some(t=>t.id==='tree-bank-rates'));assert.equal(protectedState(s),before);}
+});
+test('short hints reflect rising/falling momentum and strengthening/easing pressure without reporting mechanics',()=>{
+ const found=new Set();for(let day=0;day<1461;day+=3){const t=E.bankTerms('earth',day),s=talk(ready('earth',day),'rates'),text=s.dialogue.at(-1).text,kind=Math.abs(t.rateVelocity)<=1e-9?'steady':t.rateVelocity>0?'rising':'falling';found.add(kind);assert(text.includes(kind==='steady'?'fairly settled':kind==='rising'?'getting dearer':'getting easier'));if(kind!=='steady'&&Math.abs(t.rateAcceleration)>1e-9){const fast=t.rateVelocity*t.rateAcceleration>0;found.add(kind+(fast?' faster':' slower'));assert(text.includes(fast?'grown stronger':'less insistent'));}assert(!/\d|%|Ship-day|quote|momentum|spread|guarantee/.test(text));assert(text.length<600);}
+ for(const kind of ['steady','rising faster','rising slower','falling faster','falling slower'])assert(found.has(kind),kind);
+});
+test('local and fixed hints stay grounded in this branch without quoting figures or supplying a trading itinerary',()=>{
+ for(const p of E.world.ports){for(const day of [0,210,720]){const t=E.bankTerms(p.id,day),previous=E.bankTerms(p.id,Math.max(0,day-1)),s=ready(p.id,day),n=talk(talk(s,'rates'),'conditions'),text=n.dialogue.at(-1).text;assert(text.includes(t.netBalance< -1e-6?'depend on what comes through the docks':t.netBalance>1e-6?'plenty to send out':'production keeps fairly close'));assert(text.includes(t.fundingAPR>previous.fundingAPR+1e-9?'tighter across the cooperatives':t.fundingAPR<previous.fundingAPR-1e-9?'easier to arrange funds':'quiet between the branches'));assert(!/\d|%|Ship-day|quoted|price gap/.test(text));assert(text.length<600);const fixed=talk(n,'fixed').dialogue.at(-1).text;assert(/certainty/.test(fixed));assert(fixed.includes('Anything you’ve already signed stays on its agreed terms'));assert(!/\d|%|floating|percentage|premium/.test(fixed));assert(fixed.length<600);}}
+});
+test('repeated questions earn no rewards or money; a later day refreshes outlook without changing signed loans',()=>{
+ let s=ready('earth',360);s=E.transact(s,'borrow',{amount:100,rateMode:'fixed'});s=talk(s,'rates');const before=protectedState(s),reply=s.dialogue.at(-1).text;for(let i=0;i<6;i++)s=talk(s,'rates');assert.equal(protectedState(s),before);assert.equal(s.dialogue.at(-1).text,reply);s=E.transact(s,'wait');const signed=JSON.stringify(s.bank.loans),day=s.day;s=talk(s,'rates');assert(s.dialogue.at(-1).text.includes(E.bankTerms(s.location,day).rateVelocity>0?'getting dearer':'getting easier'));assert.equal(JSON.stringify(s.bank.loans),signed);assert(s.lastJournalEntry);assert.deepEqual(E.parse(JSON.stringify(s)),s);
+});
+test('rate branches cannot be invoked at another establishment or bypass the opening choice',()=>{
+ const s=ready();assert.throws(()=>E.transact(s,'venue-talk',{id:'market',topic:'tree-bank-rates'}));assert.throws(()=>talk(s,'fixed'));assert.throws(()=>talk(s,'conditions'));
+});
+console.log(count+' bank outlook scenarios passed.');

@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict'),E=require('../../Browser/engine'),{ready}=require('./combat-v2-balance.cjs');
+const unchanged=(s,action,args,re)=>{const raw=JSON.stringify(s);assert.throws(()=>E.transact(s,action,args),re);assert.equal(JSON.stringify(s),raw);};
+let s=ready('gyrfalcon',2,2);s.location='earth-high';s.visited.push(s.location);s.ammo=0;s.ordnanceAmmo=0;
+const cash=s.credits;s=E.transact(s,'service-ship',{service:'ammo',amount:6});assert.equal(s.ammo,6);assert.equal(s.credits,cash-120);
+let c=s.credits;s=E.transact(s,'service-ship',{service:'ordnance',amount:2});assert.equal(s.ordnanceAmmo,2);assert.equal(s.credits,c-480);E.validate(s);
+s.location='earth';unchanged(s,'service-ship',{service:'ordnance',amount:3},/does not stock/);
+s.location='earth-high';unchanged(s,'upgrade',{ship:'swift'},/ammunition|ordnance/);assert(!E.shipOffer(s,'swift').canTrade);
+let w=ready('swift',3,2);w.location='earth-high';w.visited.push(w.location);w.ammo=0;w.ordnanceAmmo=0;w.cargo.water=Math.floor(E.ship(w).cargoTonnes*4);E.validate(w);unchanged(w,'service-ship',{service:'ammo',amount:24},/cargo space/);
+w=E.transact(w,'warehouse-buy',{port:w.location});w=E.transact(w,'warehouse-store',{port:w.location,ship:w.flagshipID,item:'water',units:1});w.ammo=5;E.validate(w);w=E.transact(w,'warehouse-store',{port:w.location,ship:w.flagshipID,item:'ammo-cannon',units:5});w=E.transact(w,'warehouse-take',{port:w.location,ship:w.flagshipID,item:'water',units:1});const r=E.warehouseOverview(w).rows.find(r=>r.id==='ammo-cannon');assert(r.maxTake<5);if(r.maxTake){w=E.transact(w,'warehouse-take',{port:w.location,ship:w.flagshipID,item:'ammo-cannon',units:r.maxTake});E.validate(w);}unchanged(w,'warehouse-take',{port:w.location,ship:w.flagshipID,item:'ammo-cannon',units:5},/cargo space|stored items/);
+console.log('PASS weapon-specific suppliers, exact ammunition charges, cargo constraints, exchange safeguards and warehouse limits');
+
+let debtor=ready('kestrel',0,3);debtor.upgrades.weapons=3;debtor.ammo=E.weaponFits(debtor)[1].magazine;debtor.credits=0;debtor.bank={deposits:{},loans:[{port:'moon',balance:17000,apr:E.bankTerms('moon').loanAPR}],legacyDebt:0};debtor.debt=17000;debtor.incident={id:'review-collection',kind:'equipment',destination:'moon',title:'Arrival',detail:'Review debt enforcement',damage:0,delay:0};E.validate(debtor);const collected=E.transact(debtor,'resolve',{choice:'isolate'});E.validate(collected);assert(collected.fleetLoss||collected.ammo<=E.weaponFits(collected)[1].magazine);console.log('PASS arrival enforcement never leaves ammunition in an undersized seized magazine');

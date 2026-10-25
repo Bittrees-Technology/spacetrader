@@ -1,0 +1,75 @@
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1680px;margin:auto;padding:26px 32px 48px}h1{font:36px/1.15 Georgia,serif;letter-spacing:-.5px;margin:0 0 8px}p{margin:0;color:var(--muted)}.page-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:25px}button,input,select{font:inherit}button,input,select{border:1px solid #45616c;background:#142b37;color:var(--ink);border-radius:5px}button{cursor:pointer;min-height:42px;padding:9px 15px}button:hover{background:#254351;border-color:#82928a}button:disabled{opacity:.4;cursor:default}input,select{width:100%;height:42px;padding:8px 10px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,.table-wrap:focus-visible{outline:2px solid var(--gold);outline-offset:3px}label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:6px}.filters{display:grid;grid-template-columns:2fr repeat(4,minmax(130px,1fr));gap:12px;padding-bottom:20px;border-bottom:1px solid var(--line)}.filters button{align-self:end}.results-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:18px 0 12px}.results-toolbar label{flex-direction:row;align-items:center;white-space:nowrap}.results-toolbar select{width:80px;height:36px}.table-wrap{max-height:69dvh;overflow:auto;border:1px solid var(--line);border-radius:6px;overscroll-behavior:contain;scrollbar-gutter:stable}table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12px;min-width:1110px}.product-col{width:15%}.orbit-col{width:6%}.station-col{width:12%}.flow-col{width:10%}.rate-col{width:5.5%}.unlock-col{width:19%}.price-col{width:12%}.scan-col{width:8.5%}th,td{text-align:left;border-bottom:1px solid #304752;padding:14px 11px;vertical-align:top;overflow-wrap:anywhere}thead th{position:sticky;top:0;z-index:3;background:#1b3340;color:var(--ink);padding:0;border-bottom:1px solid #64808a}th button{width:100%;min-height:65px;text-align:left;font-weight:600;font-size:12px;border:0;border-radius:0;background:transparent;padding:11px}th button small{display:block;color:var(--muted);font-size:11px;font-weight:400;margin-top:3px}th[aria-sort]{box-shadow:inset 0 -2px var(--gold)}tbody tr:nth-child(even){background:#122631}tbody tr:hover{background:#1a3541}tbody th{position:sticky;left:0;background:var(--space);z-index:1;font-size:14px;font-weight:600;box-shadow:1px 0 var(--line)}tbody tr:nth-child(even) th{background:#122631}tbody tr:hover th{background:#1a3541}thead th:first-child{left:0;z-index:4}td small,tbody th small{display:block;color:var(--muted);font-size:11px;font-weight:400;line-height:1.5;margin-top:5px}.price-line{display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-variant-numeric:tabular-nums;white-space:nowrap}.price-line span{color:var(--muted);font-size:11px}.price-line strong{font-size:13px;font-weight:600}.price-line+.price-line{margin-top:3px}.balance{font-weight:600;color:#d4c3a0}.balance.surplus{color:#9ecbc2}.scan-yes{color:#e4b09d;font-weight:600}.scan-no{color:var(--muted)}.method{border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:12px}.method summary{cursor:pointer;color:var(--gold)}.method p{max-width:100ch;margin-top:12px}#empty,#error{padding:35px;text-align:center}#error{color:#edbcaa}.skip{position:fixed;left:12px;top:-80px;background:var(--panel);color:var(--gold);z-index:30;padding:10px}.skip:focus{top:10px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}[hidden]{display:none!important}@media(min-width:1600px){table{font-size:13px}th button{font-size:13px}}@media(max-width:1100px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.filters .search{grid-column:span 2}main{padding:24px 20px}.table-wrap{max-height:65dvh}}@media(max-width:650px){.page-heading{align-items:start;flex-direction:column}h1{font-size:30px}.filters{grid-template-columns:1fr 1fr}.filters .search{grid-column:1/-1}.results-toolbar{align-items:start;gap:12px;font-size:12px}.results-toolbar label{font-size:11px}main{padding:20px 14px}.product-col{width:180px}.table-wrap{max-height:65dvh}}
+
+.page-heading{margin-bottom:18px}.page-heading p{font-size:13px}.filters{gap:10px;padding-bottom:16px}.filters label{gap:4px}.results-toolbar{margin:14px 0 10px}tbody th small{font-size:10px}td small{font-size:10px}th,td{padding:11px 10px}
+
+/* Compact controls above one continuous, uncapped comparison table. */
+main{padding-top:18px}.page-heading{margin-bottom:14px}h1{font-size:32px;margin-bottom:5px}
+.filters{grid-template-columns:repeat(6,minmax(0,1fr));gap:7px 10px;padding-bottom:12px}
+.filters .search{grid-column:span 2}.filters>label:nth-child(4){grid-column:span 2}
+.filters label{font-size:11px;gap:2px}.filters input,.filters select{height:36px;padding:6px 9px;font-size:12px}.filters button{min-height:36px;padding:6px 10px;font-size:12px}
+.results-toolbar{margin:10px 0 8px;font-size:12px}.table-wrap{max-height:calc(100dvh - 320px);min-height:240px}
+.balance{display:block;font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}.balance span{font-size:10px;font-weight:400}
+.balance.surplus{color:#9cdeb4}.balance.consumption{color:#ffaaa5}
+.method{margin-top:16px}
+@media(max-width:1000px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.filters .search{grid-column:span 2}.filters>label:nth-child(4){grid-column:span 2}.table-wrap{max-height:65dvh}}
+@media(max-width:650px){.filters{grid-template-columns:1fr 1fr}.filters .search{grid-column:1/-1}.filters>label:nth-child(4){grid-column:auto}.filters input,.filters select,.filters button{min-height:44px;height:auto}.balance{font-size:13px}}
+
+.filters{grid-template-columns:repeat(7,minmax(0,1fr));gap:7px 10px}
+.advanced-filters{grid-column:1/-1;color:var(--muted);font-size:12px}
+.advanced-filters>summary{cursor:pointer;min-height:30px;padding:5px 0;color:var(--gold);width:fit-content}
+.advanced-filters>summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.advanced-filter-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:5px 0 3px}
+@media(max-width:1000px){.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.filters .search{grid-column:span 2}.filters>label:nth-child(4){grid-column:span 2}.advanced-filter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.filters{grid-template-columns:1fr 1fr}.filters .search{grid-column:1/-1}.filters>label:nth-child(4){grid-column:auto}.advanced-filter-grid{grid-template-columns:1fr 1fr}}
+
+/* The document owns vertical scrolling; every matching row stays in the table. */
+.table-wrap{max-height:none!important;min-height:0;overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto}
+.filters{grid-template-columns:minmax(170px,1.3fr) minmax(190px,2fr) repeat(3,minmax(105px,1fr)) auto}
+.filters .search,.filters>label:nth-child(4),.filters>#stationFilter{grid-column:auto}
+.filters.summary-filters{grid-template-columns:minmax(210px,1.4fr) minmax(220px,2fr) minmax(150px,1fr) auto}
+.summary-filters .advanced-filter-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.item-summary table{min-width:620px}.summary-product-col{width:40%}.summary-price-col{width:15%}
+.summary-price{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media(max-width:1100px){.filters{grid-template-columns:repeat(4,minmax(0,1fr))}.filters .search{grid-column:span 2}.filters>#stationFilter{grid-column:span 2}.filters.summary-filters{grid-template-columns:repeat(3,minmax(0,1fr))}.summary-filters .search{grid-column:auto}.table-wrap{overflow-x:auto;overflow-y:visible}}
+@media(max-width:650px){.filters,.filters.summary-filters{grid-template-columns:1fr 1fr}.filters>#viewFilter,.filters .search{grid-column:1/-1}.filters>#stationFilter{grid-column:auto}.summary-filters .advanced-filter-grid{grid-template-columns:1fr 1fr}.summary-product-col{width:36%}.summary-price-col{width:16%}}
+
+/* Compact data rows; unrestricted summary goods need no repeated unit/count line. */
+.table-wrap tbody th,.table-wrap tbody td{padding:8px 10px}
+.item-summary tbody th,.item-summary .summary-price{font-size:13px}
+.item-summary thead button{min-height:50px;padding:9px 10px}
+.table-wrap td small,.table-wrap tbody th small{margin-top:3px}
+
+.page-heading-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.button-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 15px;border:1px solid #45616c;background:#142b37;color:var(--ink);border-radius:5px;text-decoration:none;font:inherit;white-space:nowrap}.button-link:hover{background:#254351;border-color:#82928a}
+
+/* Two compact return columns preserve the summary's single-table layout. */
+.item-summary table{min-width:940px}.summary-product-col{width:24%}.summary-price-col{width:11%}.summary-potential-col{width:16%}.potential{font-variant-numeric:tabular-nums}.potential strong{display:block;font-size:13px;white-space:nowrap}.potential strong span{display:inline-block;font-size:11px;font-weight:400;margin-left:4px}.potential.gain strong{color:#9cdeb4}.potential.loss strong{color:#ffaaa5}.potential.neutral strong,.muted{color:var(--muted)}.potential small{white-space:nowrap;font-size:10px}#potential-note{font-size:11px;margin:0 0 8px;color:var(--muted)}#potential-note a{color:var(--gold)}@media(min-width:1101px){.item-summary table{min-width:0}}
+
+/* Typical averages stay beside extrema without widening the desktop summary. */
+.summary-product-col{width:20%}.summary-price-col{width:8%}.summary-potential-col{width:14%}.summary-average-col{width:10%}.item-summary tbody th,.item-summary tbody td{padding:7px 8px}.item-summary .summary-price,.item-summary .potential strong{font-size:12px}.item-summary .potential strong span{display:block;margin:2px 0 0}.item-summary .potential small{font-size:9px}.potential.average .return-percent{font-size:11px;color:inherit}.potential.average.gain{color:#9cdeb4}.potential.average.loss{color:#ffaaa5}.item-summary table{min-width:1080px}@media(min-width:1101px){.item-summary table{min-width:0}}
+
+.result-controls{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:flex-end}.results-toolbar #return-basis-control{display:flex;align-items:center;gap:8px;flex-direction:row;font-size:11px}.results-toolbar #returns{width:140px;min-height:34px;height:34px;font-size:12px;padding:5px 8px}@media(max-width:650px){.result-controls{gap:8px;align-items:flex-end;flex-direction:column}.results-toolbar #return-basis-control{gap:5px}.results-toolbar #returns{width:130px;min-height:44px;height:44px}}
+
+/* Binned outcome silhouette: numbers appear only when a marker is inspected. */
+.summary-product-col{width:15%}.summary-price-col{width:7%}.summary-potential-col{width:10.5%}.summary-average-col{width:9%}.summary-distribution-col{width:18%}.item-summary .potential small{font-size:9px;white-space:normal}.item-summary .distribution-cell{padding:3px 5px;vertical-align:middle}.distribution-curve{display:block;width:100%;height:56px;overflow:visible}.curve-area{fill:#81adb921}.curve-line{fill:none;stroke:#91b9c2;stroke-width:1.3;stroke-linejoin:round}.curve-baseline{stroke:#3c5964;stroke-width:.7}.curve-guide{stroke:#7c9ca5;stroke-width:.65;opacity:.45}.curve-mark{fill:#152b37;stroke:#b9ccd0;stroke-width:1}.central .curve-mark{stroke:var(--gold);fill:var(--gold)}.curve-hit{fill:transparent;stroke:none;pointer-events:all}.curve-point{cursor:crosshair;outline:none}.curve-point:hover .curve-mark,.curve-point:focus .curve-mark{stroke:#fff;fill:#fff;stroke-width:1.5}.curve-point:hover .curve-guide,.curve-point:focus .curve-guide{opacity:1;stroke:var(--gold)}.curve-heading{padding:9px 8px;vertical-align:middle;font-size:12px;font-weight:600}.curve-heading small{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:3px}.curve-tooltip{position:fixed;z-index:100;padding:10px 12px;max-width:310px;border:1px solid #718d94;background:#0a1b25;box-shadow:0 6px 22px #0008;border-radius:5px;color:var(--ink);font-size:11px;pointer-events:none}.curve-tooltip>div{display:flex;justify-content:space-between;align-items:baseline;gap:20px}.curve-tooltip>div+div{margin-top:5px}.curve-tooltip span{color:var(--muted)}.curve-tooltip strong{font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}.item-summary table{min-width:1170px}@media(min-width:1101px){.item-summary table{min-width:0}}
+
+.curve-point.extreme-negative .curve-mark{fill:#ffaaa5;stroke:#ffaaa5}.curve-point.extreme-positive .curve-mark{fill:#9cdeb4;stroke:#9cdeb4}.curve-point:hover .curve-mark.extreme,.curve-point:focus .curve-mark.extreme{stroke:#fff;stroke-width:1.5}
+
+/* Quiet column rules continue through the headings and every data row. */
+#goodsTable tr>:not(:last-child){border-inline-end:1px solid rgba(141,170,181,.18)}
+#goodsTable tbody th{box-shadow:none}
+
+/* Keep the item label as the reading anchor; center the comparison fields. */
+#goodsTable tr>:not(:first-child){text-align:center;vertical-align:middle}
+#goodsTable th:not(:first-child)>button{text-align:center}
+#goodsTable td:not(:first-child) .price-line{justify-content:center}
+#goodsTable .distribution-curve{margin-inline:auto}
+
+/* A shared price axis makes cheap asks and high bids comparable within each good. */
+.item-summary .daily-price-curve{height:64px;max-width:260px}
+.price-series.price-buy .curve-area{fill:#8fcad812}.price-series.price-buy .curve-line{stroke:#8fcad8;stroke-width:1.45}
+.price-series.price-sell .curve-area{fill:#dfb56910}.price-series.price-sell .curve-line{stroke:#dfb569;stroke-width:1.45;stroke-dasharray:3 1.7}
+.price-mark-buy .curve-mark{stroke:#8fcad8;fill:#16323c}.price-mark-sell .curve-mark{stroke:#dfb569;fill:#382f1e}.price-mark-shared .curve-mark{stroke:#dce7e8;fill:#16323c}
+.price-axis-label{fill:#a9bfc5;font-size:8px;font-variant-numeric:tabular-nums}
+.price-curve-legend{display:flex;justify-content:center;gap:14px;font-size:10px;font-weight:500;margin-top:5px}
+.price-curve-legend>span{display:inline-flex;align-items:center;gap:4px}.price-curve-legend>span:before{content:'';width:14px;border-top:2px solid #8fcad8}.price-curve-legend .sell-key:before{border-color:#dfb569;border-top-style:dashed}
+.curve-tooltip .price-frequency{display:block;color:#a9bfc5;font-size:10px;margin:2px 0 7px}.curve-tooltip .price-population{display:block;border-top:1px solid #3c5964;padding-top:6px;margin-top:5px;color:#a9bfc5;font-size:10px}

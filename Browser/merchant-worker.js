@@ -1,0 +1,4 @@
+'use strict';
+// Disposable forecasts use only the supplied in-game state; no saves or network services.
+importScripts('world.js','station-cast.js','ship-specs.js','cargo-specs.js','cargo-packing.js','ship-rules.js','combat-rules.js','ship-graphics.js','dialogue-memory.js','dialogue-voices.js','production-plan.js','market-economy.js','ship-names.js','journal.js','patrol-reports.js','career-development.js','career-conversations.js','story-conversations.js','stock-pricing.js','engine.js');
+let revision=null,view=null;self.onmessage=e=>{const v=e.data;try{if(v.state){view=v.state;revision=v.revision;}if(!view||revision!==v.revision)throw Error('The voyage changed. Calculate a fresh outlook.');self.postMessage({request:v.request,revision:v.revision,kind:v.kind,result:v.kind==='business'?Heliocline.merchantOverview(view):Heliocline.merchantPlan(view,v.args)});}catch(error){self.postMessage({request:v.request,revision:v.revision,kind:v.kind,error:error.message});}};

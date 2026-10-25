@@ -1,0 +1,56 @@
+'use strict';
+(function(root){
+ const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ // Local density smoothing changes only the drawing, never population statistics.
+ function smoothMasses(d){
+  const n=d.masses.length;if(!n||d.standardDeviation===0)return [...d.masses];
+  const bandwidth=Math.max(1,n/64),radius=Math.ceil(3*bandwidth),width=(d.high-d.low)/n,out=Array(n).fill(0),allowed=i=>d.low+(i+1)*width>=d.minimum&&d.low+i*width<=d.maximum;
+  const kernel=Array.from({length:radius*2+1},(_,i)=>Math.exp(-.5*((i-radius)/bandwidth)**2));
+  for(let i=0;i<n;i++){const mass=d.masses[i];if(!mass)continue;const a=Math.max(0,i-radius),b=Math.min(n-1,i+radius);let total=0;for(let j=a;j<=b;j++)if(allowed(j))total+=kernel[j-i+radius];if(!total){out[i]+=mass;continue;}for(let j=a;j<=b;j++)if(allowed(j))out[j]+=mass*kernel[j-i+radius]/total;}
+  return out;
+ }
+ function curveGeometry(d,densityMaximum=null){
+  const left=8,right=172,top=7,base=48,x=v=>left+(v-d.low)/(d.high-d.low)*(right-left),constant=d.standardDeviation===0;
+  if(constant){const cx=x(d.mean);return {x,y:()=>top,path:`M${cx},${base} L${cx},${top} L${cx},${base}`,area:`M${cx},${base} L${cx},${top} L${cx},${base} Z`,points:[[cx,base],[cx,top],[cx,base]]};}
+  const masses=smoothMasses(d),max=densityMaximum??Math.max(...masses),points=[[x(d.minimum),base],...masses.flatMap((v,i)=>{const value=d.low+(i+.5)/masses.length*(d.high-d.low);return value>d.minimum&&value<d.maximum?[[x(value),max?base-v/max*(base-top):base]]:[];}),[x(d.maximum),base]];
+  const slopes=points.slice(1).map((p,i)=>(p[1]-points[i][1])/(p[0]-points[i][0])),tangents=points.map((_,i)=>i===0?slopes[0]:i===points.length-1?slopes.at(-1):(slopes[i-1]*slopes[i]<=0?0:(slopes[i-1]+slopes[i])/2));
+  for(let i=0;i<slopes.length;i++){const slope=slopes[i];if(slope===0){tangents[i]=0;tangents[i+1]=0;continue;}const a=tangents[i]/slope,b=tangents[i+1]/slope,length=Math.hypot(a,b);if(length>3){tangents[i]=3*a/length*slope;tangents[i+1]=3*b/length*slope;}}
+  let path=`M${points[0][0].toFixed(3)},${base}`;
+  for(let i=0;i<points.length-1;i++){const a=points[i],b=points[i+1],h=(b[0]-a[0])/3;path+=` C${(a[0]+h).toFixed(3)},${(a[1]+tangents[i]*h).toFixed(3)} ${(b[0]-h).toFixed(3)},${(b[1]-tangents[i+1]*h).toFixed(3)} ${b[0].toFixed(3)},${b[1].toFixed(3)}`;}
+  function y(value){if(value<d.minimum||value>d.maximum)return base;const px=x(value);let lo=0,hi=points.length-2;while(lo<hi){const mid=Math.floor((lo+hi)/2);if(points[mid+1][0]<px)lo=mid+1;else hi=mid;}const a=points[lo],b=points[lo+1],h=b[0]-a[0],t=Math.max(0,Math.min(1,(px-a[0])/h));return (2*t**3-3*t**2+1)*a[1]+(t**3-2*t**2+t)*h*tangents[lo]+(-2*t**3+3*t**2)*b[1]+(t**3-t**2)*h*tangents[lo+1];}
+  return {x,y,path,area:path+' Z',points};
+ }
+ function render(all,percent,item){const d=all?.[percent?'percent':'credits'];if(!d||!Number.isFinite(d.mean)||!Array.isArray(d.masses))return '<span class="muted" aria-label="Distribution unavailable">—</span>';
+  const w=180,h=56,base=48,{x,y,path,area}=curveGeometry(d);
+  const labels=[{name:d.minimum<0?'Max loss':'Minimum outcome',value:d.minimum,endpoint:true},{name:d.maximum>0?'Max gain':'Maximum outcome',value:d.maximum,endpoint:true},{name:'Mean',value:d.mean},{name:'Median',value:d.median},...[-3,-2,-1,1,2,3].map(n=>({name:(n>0?'+':'−')+Math.abs(n)+' standard deviation'+(Math.abs(n)>1?'s':''),value:d.mean+n*d.standardDeviation}))].sort((a,b)=>a.value-b.value),groups=[];
+  for(const label of labels){const position=x(label.value),prior=groups.at(-1);if(prior&&position-prior.x<6){prior.labels.push(label);if(label.endpoint)prior.x=position;}else groups.push({x:position,labels:[label]});}
+  const marks=groups.map(g=>{const endpoint=g.labels.find(l=>l.endpoint),value=(endpoint||g.labels[0]).value,cy=y(value),median=g.labels.some(l=>l.name==='Median'),central=median||g.labels.some(l=>l.name==='Mean'),data=g.labels.map(l=>({...l,outside:l.value<d.minimum||l.value>d.maximum}));
+   return `<g class="curve-point ${central?'central':''} ${endpoint?(endpoint.value<0?'extreme-negative':'extreme-positive'):''}" tabindex="0" role="button" aria-label="${esc(item+' · '+g.labels.map(l=>l.name).join(' / '))}" data-curve-points="${esc(JSON.stringify(data))}" data-unit="${percent?'percent':'credits'}"><line class="curve-guide" x1="${g.x.toFixed(2)}" y1="${cy.toFixed(2)}" x2="${g.x.toFixed(2)}" y2="${base}"/><rect class="curve-hit" x="${(g.x-5).toFixed(2)}" y="${(cy-6).toFixed(2)}" width="10" height="${(base-cy+12).toFixed(2)}" rx="5"/>${endpoint?`<rect class="curve-mark extreme" x="${g.x-2.8}" y="${cy-2.8}" width="5.6" height="5.6" rx=".7"/>`:median?`<path class="curve-mark median" d="M${g.x},${cy-3.2} l3.2,3.2 l-3.2,3.2 l-3.2,-3.2 Z"/>`:`<circle class="curve-mark" cx="${g.x.toFixed(2)}" cy="${cy.toFixed(2)}" r="2.2"/>`}</g>`;
+  }).join('');
+  return `<svg class="distribution-curve" viewBox="0 0 ${w} ${h}" aria-label="${esc(item)} · ${percent?'return percentage':'credit margin'} distribution. Each item has its own horizontal scale. Hover or focus endpoints for maximum gain and loss, and inner markers for median, mean and standard deviations."><path class="curve-area" d="${area}"/><path class="curve-line" d="${path}"/><line class="curve-baseline" x1="8" y1="${base}" x2="172" y2="${base}"/>${marks}</svg>`;
+ }
+ function renderPrices(all,item){
+  if(!all||(!all.buy&&!all.sell))return '<span class="muted" aria-label="Daily price distribution unavailable">—</span>';
+  const sides=[['buy',all.buy],['sell',all.sell]].filter(([,s])=>s),peak=Math.max(...sides.flatMap(([,s])=>smoothMasses(s))),groups=[];
+  const lines=sides.map(([side,d])=>{
+   const geometry=curveGeometry(d,peak),x=v=>geometry.x(Math.max(d.low,Math.min(d.high,v))),name=side==='buy'?'Buy':'Sell';
+   const labels=[{name:'Minimum price',value:d.minimum,endpoint:true},{name:'Maximum price',value:d.maximum,endpoint:true},{name:'Mean',value:d.mean},{name:'Median',value:d.median},...[-3,-2,-1,1,2,3].map(n=>({name:(n>0?'+':'−')+Math.abs(n)+' standard deviation'+(Math.abs(n)>1?'s':''),value:d.mean+n*d.standardDeviation}))];
+   for(const label of labels){const px=x(label.value),py=geometry.y(label.value),outside=label.value<d.minimum||label.value>d.maximum,data={...label,name:name+' · '+label.name,side,outside,count:d.count,periodDays:all.periodDays,atOrBelow:d.prices.reduce((n,[p,c])=>n+(p<=label.value?c:0),0)/d.count,atOrAbove:d.prices.reduce((n,[p,c])=>n+(p>=label.value?c:0),0)/d.count};let group=groups.find(g=>Math.abs(g.x-px)<9);if(!group){group={x:px,y:py,labels:[]};groups.push(group);}group.labels.push(data);}
+   return `<g class="price-series price-${side}"><path class="curve-area" d="${geometry.area}"/><path class="curve-line" d="${geometry.path}"/></g>`;
+  }).join('');
+  const marks=groups.map(g=>{const side=g.labels.every(l=>l.side===g.labels[0].side)?g.labels[0].side:'shared',central=g.labels.some(l=>/Mean|Median/.test(l.name)),endpoint=g.labels.some(l=>l.endpoint);return `<g class="curve-point price-mark-${side} ${central?'price-central':''}" tabindex="0" role="button" aria-label="${esc(item+' · '+g.labels.map(l=>l.name).join(' / '))}" data-curve-points="${esc(JSON.stringify(g.labels))}" data-unit="credits"><line class="curve-guide" x1="${g.x.toFixed(2)}" y1="${g.y.toFixed(2)}" x2="${g.x.toFixed(2)}" y2="48"/><rect class="curve-hit" x="${(g.x-4).toFixed(2)}" y="${(g.y-5).toFixed(2)}" width="8" height="${(58-g.y).toFixed(2)}" rx="3"/>${endpoint?`<rect class="curve-mark" x="${g.x-2.3}" y="${g.y-2.3}" width="4.6" height="4.6"/>`:`<circle class="curve-mark" cx="${g.x.toFixed(2)}" cy="${g.y.toFixed(2)}" r="${central?2.6:1.8}"/>`}</g>`;}).join('');
+  const minimum=Math.min(...sides.map(([,s])=>s.minimum)),maximum=Math.max(...sides.map(([,s])=>s.maximum)),number=n=>new Intl.NumberFormat(undefined,{maximumFractionDigits:0}).format(n);
+  return `<svg class="distribution-curve daily-price-curve" viewBox="0 0 180 64" aria-label="${esc(item)} · daily buy and sell price distributions in credits across ${all.periodDays} days. Shared price and frequency scales; each station-day counts once per available side. Hover or focus markers for prices, median, mean and standard deviations.">${lines}<line class="curve-baseline" x1="8" y1="48" x2="172" y2="48"/>${marks}<text class="price-axis-label" x="8" y="61">${number(all.low)} cr</text><text class="price-axis-label" x="172" y="61" text-anchor="end">${number(all.high)} cr</text></svg>`;
+ }
+ function frequencyText(value){if(value===0)return '0%';if(value===1)return '100%';const pct=value*100;if(pct>99.9)return '>99.9%';return new Intl.NumberFormat(undefined,pct<.1?{maximumSignificantDigits:3}:{maximumFractionDigits:1}).format(pct)+'%';}
+ function bind(container,tooltip){let active=null;
+  function hide(){tooltip.hidden=true;if(active)active.removeAttribute('aria-describedby');active=null;}
+  function show(point){if(!point)return;hide();active=point;const values=JSON.parse(point.dataset.curvePoints),unit=point.dataset.unit;tooltip.replaceChildren();for(const p of values){const row=document.createElement('div'),label=document.createElement('span'),value=document.createElement('strong');label.textContent=p.name+(p.outside?' · outside quoted range':'');value.textContent=new Intl.NumberFormat(undefined,{maximumFractionDigits:p.endpoint?(unit==='percent'?1:0):2,signDisplay:p.side?'auto':p.endpoint?'exceptZero':'auto'}).format(p.value)+(unit==='percent'?'%':' cr');row.append(label,value);tooltip.append(row);if(p.side&&!p.outside){const frequency=document.createElement('small');frequency.className='price-frequency';frequency.textContent=frequencyText(p.atOrBelow)+' at/below · '+frequencyText(p.atOrAbove)+' at/above';tooltip.append(frequency);}}const populations=[...new Map(values.filter(p=>p.side).map(p=>[p.side,p])).values()];if(populations.length){const note=document.createElement('small');note.className='price-population';note.textContent=populations.map(p=>(p.side==='buy'?'Buy':'Sell')+': '+p.count.toLocaleString()+' station-day quotes').join(' · ');tooltip.append(note);}tooltip.hidden=false;point.setAttribute('aria-describedby',tooltip.id);const box=point.getBoundingClientRect(),tip=tooltip.getBoundingClientRect();tooltip.style.left=Math.max(8,Math.min(innerWidth-tip.width-8,box.left+box.width/2-tip.width/2))+'px';tooltip.style.top=Math.max(8,Math.min(innerHeight-tip.height-8,box.top-tip.height-9))+'px';}
+  container.addEventListener('pointerover',e=>{const point=e.target.closest?.('[data-curve-points]');if(point&&point!==active)show(point);});
+  container.addEventListener('pointerout',e=>{if(active&&!active.contains(e.relatedTarget))hide();});
+  container.addEventListener('focusin',e=>show(e.target.closest?.('[data-curve-points]')));container.addEventListener('focusout',hide);container.addEventListener('click',e=>{const point=e.target.closest?.('[data-curve-points]');if(point)show(point);});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});addEventListener('scroll',hide,true);addEventListener('resize',hide);
+  return hide;
+ }
+ const api={render,renderPrices,frequencyText,bind,smoothMasses,curveGeometry};if(typeof module!=='undefined')module.exports=api;else root.SpacetraderDistribution=api;
+})(globalThis);

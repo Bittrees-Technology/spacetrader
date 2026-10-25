@@ -1,0 +1,959 @@
+{
+  "modelVersion": "0.72.239",
+  "approvedRevision": "v95",
+  "engineSHA256": "85d5b149e0e4773d4dbcefa03d8144117a42ab673734446b655e761b108ff7f1",
+  "scope": "Exhaustive actual-engine public bank quotes for every valid saved game day. Existing signed fixed agreements may retain different legacy rates. Each minimum and maximum may occur on different days; ranges are not simultaneous offers.",
+  "firstDay": 0,
+  "lastDay": 365249,
+  "days": 365250,
+  "stationQuotes": 9496500,
+  "elapsedSeconds": 140.789326292,
+  "maxObservedFloatingDailyMove": 0.00020000000000000573,
+  "checks": {
+    "completePlayableCalendar": true,
+    "quoteSource": "actual Browser/engine.js bankTerms",
+    "noInstantFundedCarry": true,
+    "noSaveOrLedgerRead": true,
+    "sourceUnchanged": true
+  },
+  "rows": [
+    {
+      "id": "earth",
+      "station": "Meridian Station",
+      "body": "Earth",
+      "region": "Earth",
+      "depositAPR": {
+        "minimum": 0.002,
+        "maximum": 0.0461,
+        "minimumDay": 950,
+        "maximumDay": 4729
+      },
+      "loanAPR": {
+        "minimum": 0.012,
+        "maximum": 0.0618,
+        "minimumDay": 2558,
+        "maximumDay": 9003
+      },
+      "fixedAPR": {
+        "minimum": 0.027,
+        "maximum": 0.0768,
+        "minimumDay": 2558,
+        "maximumDay": 9003
+      },
+      "fixedPremium": {
+        "minimum": 0.015,
+        "maximum": 0.015,
+        "minimumDay": 0,
+        "maximumDay": 0
+      },
+      "creditSpread": {
+        "minimum": 0.01,
+        "maximum": 0.0192,
+        "minimumDay": 2529,
+        "maximumDay": 4302
+      }
+    },
+    {
+      "id": "moon",
+      "station": "Shackleton Relay",
+      "body": "Moon",
+      "region": "Earth",
+      "depositAPR": {
+        "minimum": 0.002,
+        "maximum": 0.0503,
+        "minimumDay": 2568,
+        "maximumDay": 4725
+      },
+      "loanAPR": {
+        "minimum": 0.0129,
+        "maximum": 0.0641,
+        "minimumDay": 6854,
+        "maximumDay": 9005
+      },
+      "fixedAPR": {
+        "minimum": 0.0299,
+        "maximum": 0.081,
+        "minimumDay": 6854,
+        "maximumDay": 9005
+      },
+      "fixedPremium": {
+        "minimum": 0.0169,
+        "maximum": 0.017,
+        "minimumDay": 0,
+        "maximumDay": 1085
+      },
+      "creditSpread": {
+        "minimum": 0.0107,
+        "maximum": 0.0167,
+        "minimumDay": 6843,
+        "maximumDay": 2978
+      }
+    },
+    {
+      "id": "mars",
+      "station": "Valles Anchorage",
+      "body": "Mars",
+      "region": "Mars",
+      "depositAPR": {
+        "minimum": 0.002,
+        "maximum": 0.0503,
+        "minimumDay": 1238,
+        "maximumDay": 9023
+      },
+      "loanAPR": {
+        "minimum": 0.0185,
+        "maximum": 0.0698,
+        "minimumDay": 6854,
+        "maximumDay": 9003
+      },
+      "fixedAPR": {
+        "minimum": 0.0358,
+        "maximum": 0.0871,
+        "minimumDay": 6854,
+        "maximumDay": 9003
+      },
+      "fixedPremium": {
+        "minimum": 0.0173,
+        "maximum": 0.0173,
+        "minimumDay": 0,
+        "maximumDay": 0
+      },
+      "creditSpread": {
+        "minimum": 0.016,
+        "maximum": 0.024,
+        "minimumDay": 2152,
+        "maximumDay": 4306
+      }
+    },
+    {
+      "id": "phobos",
+      "station": "Stickney Dock",
+      "body": "Phobos",
+      "region": "Mars",
+      "depositAPR": {
+        "minimum": 0.002,
+        "maximum": 0.0534,
+        "minimumDay": 2573,
+        "maximumDay": 4731
+      },
+      "loanAPR": {
+        "minimum": 0.0204,
+        "maximum": 0.0716,
+        "minimumDay": 6856,
+        "maximumDay": 9007
+      },
+      "fixedAPR": {
+        "minimum": 0.0393,
+        "maximum": 0.0904,
+        "minimumDay": 6856,
+        "maximumDay": 9007
+      },
+      "fixedPremium": {
+        "minimum": 0.0188,
+        "maximum": 0.0189,
+        "minimumDay": 0,
+        "maximumDay": 637
+      },
+      "creditSpread": {
+        "minimum": 0.0148,
+        "maximum": 0.0222,
+        "minimumDay": 2153,
+        "maximumDay": 4298
+      }
+    },
+    {
+      "id": "ceres",
+      "station": "Occator Exchange",
+      "body": "Ceres",
+      "region": "Ceres",
+      "depositAPR": {
+        "minimum": 0.002,
+        "maximum": 0.0536,
+        "minimumDay": 2575,
+        "maximumDay": 4735
+      },
+      "loanAPR": {
+        "minimum": 0.0242,
+        "maximum": 0.0754,
+        "minimumDay": 6858,
+        "maximumDay": 9005
+      },
+      "fixedAPR": {
+        "minimum": 0.0426,
+        "maximum": 0.0937,
+        "minimumDay": 6858,
+        "maximumDay": 9005
+      },
+      "fixedPremium": {
+        "minimum": 0.0182,
+        "maximum": 0.0184,
+        "minimumDay": 91,
+        "maximumDay": 934
+      },
+      "creditSpread": {
+        "minimum": 0.0178,
+        "maximum": 0.0267,
+        "minimumDay": 2157,
+        "maximumDay": 4298
+      }
+    },
+    {
+      "id": "callisto",
+      "station": "Valhalla Relay",
+      "body": "Callisto",
+      "region": "Jupiter",
+      "depositAPR": {
+        "minimum": 0.0053,
+        "maximum": 0.0574,
+        "minimumDay": 6878,
+        "maximumDay": 4736
+      },
+      "loanAPR": {
+        "minimum": 0.0277,
+        "maximum": 0.0789,
+        "minimumDay": 6859,
+        "maximumDay": 9004
+      },
+      "fixedAPR": {
+        "minimum": 0.0476,
+        "maximum": 0.0986,
+        "minimumDay": 6859,
+        "maximumDay": 9004
+      },
+      "fixedPremium": {
+        "minimum": 0.0197,
+        "maximum": 0.0199,
+        "minimumDay": 42,
+        "maximumDay": 901
+      },
+      "creditSpread": {
+        "minimum": 0.0181,
+        "maximum": 0.0264,
+        "minimumDay": 3468,
+        "maximumDay": 4301
+      }
+    },
+    {
+      "id": "titan",
+      "station": "Kraken Orbital",
+      "body": "Titan",
+      "region": "Saturn",
+      "depositAPR": {
+        "minimum": 0.0062,
+        "maximum": 0.0586,
+        "minimumDay": 6883,
+        "maximumDay": 4735
+      },
+      "loanAPR": {
+        "minimum": 0.0303,
+        "maximum": 0.0815,
+        "minimumDay": 6856,
+        "maximumDay": 4712
+      },
+      "fixedAPR": {
+        "minimum": 0.0504,
+        "maximum": 0.1015,
+        "minimumDay": 6856,
+        "maximumDay": 4712
+      },
+      "fixedPremium": {
+        "minimum": 0.02,
+        "maximum": 0.0201,
+        "minimumDay": 0,
+        "maximumDay": 643
+      },
+      "creditSpread": {
+        "minimum": 0.0207,
+        "maximum": 0.0283,
+        "minimumDay": 475,
+        "maximumDay": 11561
+      }
+    },
+    {
+      "id": "mercury",
+      "station": "Caloris Observatory",
+      "body": "Mercury",
+      "region": "Mercury",
+      "depositAPR": {
+        "minimum": 0.002,
+        "maximum": 0.0536,
+        "minimumDay": 2572,
+        "maximumDay": 9024
+      },
+      "loanAPR": {
+        "minimum": 0.0225,
+        "maximum": 0.0737,
+        "minimumDay": 6857,
+        "maximumDay": 4712
+      },
+      "fixedAPR": {
+        "minimum": 0.0426,
+        "maximum": 0.0937,
+        "minimumDay": 6857,
+        "maximumDay": 4712
+      },
+      "fixedPremium": {
+        "minimum": 0.02,
+        "maximum": 0.0201,
+        "minimumDay": 0,
+        "maximumDay": 1051
+      },
+      "creditSpread": {
+        "minimum": 0.0165,
+        "maximum": 0.0247,
+        "minimumDay": 2152,
+        "maximumDay": 4297
+      }
+    },
+    {
+      "id": "venus",
+      "station": "Aphrodite Orbital",
+      "body": "Venus",
+      "region": "Venus",
+      "depositAPR": {
+        "minimum": 0.002,
+        "maximum": 0.0509,
+        "minimumDay": 2569,
+        "maximumDay": 4735
+      },
+      "loanAPR": {
+        "minimum": 0.0185,
+        "maximum": 0.0696,
+        "minimumDay": 6854,
+        "maximumDay": 4712
+      },
+      "fixedAPR": {
+        "minimum": 0.0376,
+        "maximum": 0.0886,
+        "minimumDay": 6854,
+        "maximumDay": 4712
+      },
+      "fixedPremium": {
+        "minimum": 0.019,
+        "maximum": 0.0191,
+        "minimumDay": 0,
+        "maximumDay": 613
+      },
+      "creditSpread": {
+        "minimum": 0.0153,
+        "maximum": 0.0229,
+        "minimumDay": 2151,
+        "maximumDay": 4296
+      }
+    },
+    {
+      "id": "earth-high",
+      "station": "Kepler Shipyard",
+      "body": "Earth high orbit",
+      "region": "Earth",
+      "depositAPR": {
+        "minimum": 0.002,
+        "maximum": 0.0471,
+        "minimumDay": 948,
+        "maximumDay": 9019
+      },
+      "loanAPR": {
+        "minimum": 0.012,
+        "maximum": 0.0623,
+        "minimumDay": 2566,
+        "maximumDay": 9003
+      },
+      "fixedAPR": {
+        "minimum": 0.0277,
+        "maximum": 0.0779,
+        "minimumDay": 2566,
+        "maximumDay": 9003
+      },
+      "fixedPremium": {
+        "minimum": 0.0156,
+        "maximum": 0.0157,
+        "minimumDay": 0,
+        "maximumDay": 865
+      },
+      "creditSpread": {
+        "minimum": 0.01,
+        "maximum": 0.0186,
+        "minimumDay": 2537,
+        "maximumDay": 11561
+      }
+    },
+    {
+      "id": "deimos",
+      "station": "Swift Anchorage",
+      "body": "Deimos",
+      "region": "Mars",
+      "depositAPR": {
+        "minimum": 0.002,
+        "maximum": 0.0531,
+        "minimumDay": 2569,
+        "maximumDay": 4729
+      },
+      "loanAPR": {
+        "minimum": 0.0202,
+        "maximum": 0.0714,
+        "minimumDay": 6859,
+        "maximumDay": 9004
+      },
+      "fixedAPR": {
+        "minimum": 0.0393,
+        "maximum": 0.0904,
+        "minimumDay": 6859,
+        "maximumDay": 9004
+      },
+      "fixedPremium": {
+        "minimum": 0.019,
+        "maximum": 0.0191,
+        "minimumDay": 0,
+        "maximumDay": 770
+      },
+      "creditSpread": {
+        "minimum": 0.0149,
+        "maximum": 0.0223,
+        "minimumDay": 2151,
+        "maximumDay": 2977
+      }
+    },
+    {
+      "id": "jupiter",
+      "station": "Zephyr Array",
+      "body": "Jupiter high orbit",
+      "region": "Jupiter",
+      "depositAPR": {
+        "minimum": 0.0041,
+        "maximum": 0.0564,
+        "minimumDay": 6881,
+        "maximumDay": 9024
+      },
+      "loanAPR": {
+        "minimum": 0.0272,
+        "maximum": 0.0784,
+        "minimumDay": 6856,
+        "maximumDay": 4713
+      },
+      "fixedAPR": {
+        "minimum": 0.0475,
+        "maximum": 0.0986,
+        "minimumDay": 6856,
+        "maximumDay": 4713
+      },
+      "fixedPremium": {
+        "minimum": 0.0202,
+        "maximum": 0.0203,
+        "minimumDay": 0,
+        "maximumDay": 559
+      },
+      "creditSpread": {
+        "minimum": 0.0181,
+        "maximum": 0.0271,
+        "minimumDay": 2152,
+        "maximumDay": 4300
+      }
+    },
+    {
+      "id": "io",
+      "station": "Pele Watch",
+      "body": "Io",
+      "region": "Jupiter",
+      "depositAPR": {
+        "minimum": 0.0053,
+        "maximum": 0.0575,
+        "minimumDay": 6878,
+        "maximumDay": 4735
+      },
+      "loanAPR": {
+        "minimum": 0.0277,
+        "maximum": 0.079,
+        "minimumDay": 6857,
+        "maximumDay": 9005
+      },
+      "fixedAPR": {
+        "minimum": 0.049,
+        "maximum": 0.1002,
+        "minimumDay": 6857,
+        "maximumDay": 9005
+      },
+      "fixedPremium": {
+        "minimum": 0.0212,
+        "maximum": 0.0213,
+        "minimumDay": 0,
+        "maximumDay": 918
+      },
+      "creditSpread": {
+        "minimum": 0.0181,
+        "maximum": 0.0264,
+        "minimumDay": 3467,
+        "maximumDay": 4299
+      }
+    },
+    {
+      "id": "europa",
+      "station": "Conamara Research",
+      "body": "Europa",
+      "region": "Jupiter",
+      "depositAPR": {
+        "minimum": 0.0053,
+        "maximum": 0.0575,
+        "minimumDay": 6880,
+        "maximumDay": 4739
+      },
+      "loanAPR": {
+        "minimum": 0.0277,
+        "maximum": 0.079,
+        "minimumDay": 6861,
+        "maximumDay": 9006
+      },
+      "fixedAPR": {
+        "minimum": 0.0491,
+        "maximum": 0.1003,
+        "minimumDay": 6861,
+        "maximumDay": 9006
+      },
+      "fixedPremium": {
+        "minimum": 0.0212,
+        "maximum": 0.0214,
+        "minimumDay": 0,
+        "maximumDay": 612
+      },
+      "creditSpread": {
+        "minimum": 0.0182,
+        "maximum": 0.0265,
+        "minimumDay": 809,
+        "maximumDay": 11564
+      }
+    },
+    {
+      "id": "ganymede",
+      "station": "Galileo Haven",
+      "body": "Ganymede",
+      "region": "Jupiter",
+      "depositAPR": {
+        "minimum": 0.0043,
+        "maximum": 0.0564,
+        "minimumDay": 6880,
+        "maximumDay": 9029
+      },
+      "loanAPR": {
+        "minimum": 0.0271,
+        "maximum": 0.0783,
+        "minimumDay": 6860,
+        "maximumDay": 9006
+      },
+      "fixedAPR": {
+        "minimum": 0.0467,
+        "maximum": 0.0977,
+        "minimumDay": 6860,
+        "maximumDay": 9006
+      },
+      "fixedPremium": {
+        "minimum": 0.0194,
+        "maximum": 0.0196,
+        "minimumDay": 0,
+        "maximumDay": 958
+      },
+      "creditSpread": {
+        "minimum": 0.0179,
+        "maximum": 0.0269,
+        "minimumDay": 9415,
+        "maximumDay": 4302
+      }
+    },
+    {
+      "id": "saturn",
+      "station": "Cassini Exchange",
+      "body": "Saturn high orbit",
+      "region": "Saturn",
+      "depositAPR": {
+        "minimum": 0.0056,
+        "maximum": 0.058,
+        "minimumDay": 6881,
+        "maximumDay": 4738
+      },
+      "loanAPR": {
+        "minimum": 0.0301,
+        "maximum": 0.0813,
+        "minimumDay": 6856,
+        "maximumDay": 9003
+      },
+      "fixedAPR": {
+        "minimum": 0.051,
+        "maximum": 0.1021,
+        "minimumDay": 6856,
+        "maximumDay": 9003
+      },
+      "fixedPremium": {
+        "minimum": 0.0208,
+        "maximum": 0.0209,
+        "minimumDay": 0,
+        "maximumDay": 578
+      },
+      "creditSpread": {
+        "minimum": 0.0205,
+        "maximum": 0.0287,
+        "minimumDay": 490,
+        "maximumDay": 4300
+      }
+    },
+    {
+      "id": "enceladus",
+      "station": "Tiger Stripe Sentinel",
+      "body": "Enceladus",
+      "region": "Saturn",
+      "depositAPR": {
+        "minimum": 0.0062,
+        "maximum": 0.0586,
+        "minimumDay": 6883,
+        "maximumDay": 4733
+      },
+      "loanAPR": {
+        "minimum": 0.0303,
+        "maximum": 0.0815,
+        "minimumDay": 6857,
+        "maximumDay": 4710
+      },
+      "fixedAPR": {
+        "minimum": 0.0522,
+        "maximum": 0.1033,
+        "minimumDay": 6857,
+        "maximumDay": 4710
+      },
+      "fixedPremium": {
+        "minimum": 0.0217,
+        "maximum": 0.0219,
+        "minimumDay": 9,
+        "maximumDay": 438
+      },
+      "creditSpread": {
+        "minimum": 0.0207,
+        "maximum": 0.0283,
+        "minimumDay": 490,
+        "maximumDay": 4297
+      }
+    },
+    {
+      "id": "rhea",
+      "station": "Tirawa Depot",
+      "body": "Rhea",
+      "region": "Saturn",
+      "depositAPR": {
+        "minimum": 0.0069,
+        "maximum": 0.0592,
+        "minimumDay": 6879,
+        "maximumDay": 9033
+      },
+      "loanAPR": {
+        "minimum": 0.0307,
+        "maximum": 0.0819,
+        "minimumDay": 6856,
+        "maximumDay": 9005
+      },
+      "fixedAPR": {
+        "minimum": 0.0517,
+        "maximum": 0.1027,
+        "minimumDay": 6856,
+        "maximumDay": 9005
+      },
+      "fixedPremium": {
+        "minimum": 0.0208,
+        "maximum": 0.021,
+        "minimumDay": 5,
+        "maximumDay": 1027
+      },
+      "creditSpread": {
+        "minimum": 0.021,
+        "maximum": 0.0279,
+        "minimumDay": 1815,
+        "maximumDay": 4297
+      }
+    },
+    {
+      "id": "iapetus",
+      "station": "Cassini Ridge",
+      "body": "Iapetus",
+      "region": "Saturn",
+      "depositAPR": {
+        "minimum": 0.0069,
+        "maximum": 0.0592,
+        "minimumDay": 6879,
+        "maximumDay": 4738
+      },
+      "loanAPR": {
+        "minimum": 0.0307,
+        "maximum": 0.0819,
+        "minimumDay": 6856,
+        "maximumDay": 9004
+      },
+      "fixedAPR": {
+        "minimum": 0.053,
+        "maximum": 0.1041,
+        "minimumDay": 6856,
+        "maximumDay": 9004
+      },
+      "fixedPremium": {
+        "minimum": 0.0222,
+        "maximum": 0.0223,
+        "minimumDay": 0,
+        "maximumDay": 570
+      },
+      "creditSpread": {
+        "minimum": 0.021,
+        "maximum": 0.028,
+        "minimumDay": 1817,
+        "maximumDay": 11558
+      }
+    },
+    {
+      "id": "uranus",
+      "station": "Herschel Relay",
+      "body": "Uranus high orbit",
+      "region": "Uranus",
+      "depositAPR": {
+        "minimum": 0.0061,
+        "maximum": 0.0587,
+        "minimumDay": 6883,
+        "maximumDay": 4739
+      },
+      "loanAPR": {
+        "minimum": 0.033,
+        "maximum": 0.0842,
+        "minimumDay": 6854,
+        "maximumDay": 9005
+      },
+      "fixedAPR": {
+        "minimum": 0.055,
+        "maximum": 0.1061,
+        "minimumDay": 6854,
+        "maximumDay": 9005
+      },
+      "fixedPremium": {
+        "minimum": 0.0219,
+        "maximum": 0.022,
+        "minimumDay": 0,
+        "maximumDay": 835
+      },
+      "creditSpread": {
+        "minimum": 0.0233,
+        "maximum": 0.0315,
+        "minimumDay": 1825,
+        "maximumDay": 15856
+      }
+    },
+    {
+      "id": "miranda",
+      "station": "Verona Watch",
+      "body": "Miranda",
+      "region": "Uranus",
+      "depositAPR": {
+        "minimum": 0.0074,
+        "maximum": 0.0605,
+        "minimumDay": 6885,
+        "maximumDay": 9025
+      },
+      "loanAPR": {
+        "minimum": 0.0341,
+        "maximum": 0.0853,
+        "minimumDay": 6855,
+        "maximumDay": 9005
+      },
+      "fixedAPR": {
+        "minimum": 0.0571,
+        "maximum": 0.1082,
+        "minimumDay": 6855,
+        "maximumDay": 9005
+      },
+      "fixedPremium": {
+        "minimum": 0.0229,
+        "maximum": 0.0231,
+        "minimumDay": 0,
+        "maximumDay": 1010
+      },
+      "creditSpread": {
+        "minimum": 0.024,
+        "maximum": 0.0305,
+        "minimumDay": 6829,
+        "maximumDay": 4297
+      }
+    },
+    {
+      "id": "ariel",
+      "station": "Lassell Dock",
+      "body": "Ariel",
+      "region": "Uranus",
+      "depositAPR": {
+        "minimum": 0.0074,
+        "maximum": 0.0605,
+        "minimumDay": 6884,
+        "maximumDay": 9024
+      },
+      "loanAPR": {
+        "minimum": 0.034,
+        "maximum": 0.0852,
+        "minimumDay": 6860,
+        "maximumDay": 4712
+      },
+      "fixedAPR": {
+        "minimum": 0.0563,
+        "maximum": 0.1073,
+        "minimumDay": 6860,
+        "maximumDay": 4712
+      },
+      "fixedPremium": {
+        "minimum": 0.0221,
+        "maximum": 0.0223,
+        "minimumDay": 11,
+        "maximumDay": 1024
+      },
+      "creditSpread": {
+        "minimum": 0.0239,
+        "maximum": 0.0305,
+        "minimumDay": 6831,
+        "maximumDay": 4296
+      }
+    },
+    {
+      "id": "titania",
+      "station": "Messina Terminal",
+      "body": "Titania",
+      "region": "Uranus",
+      "depositAPR": {
+        "minimum": 0.0074,
+        "maximum": 0.0605,
+        "minimumDay": 6883,
+        "maximumDay": 9024
+      },
+      "loanAPR": {
+        "minimum": 0.0342,
+        "maximum": 0.0854,
+        "minimumDay": 6856,
+        "maximumDay": 4713
+      },
+      "fixedAPR": {
+        "minimum": 0.0562,
+        "maximum": 0.1073,
+        "minimumDay": 6856,
+        "maximumDay": 4713
+      },
+      "fixedPremium": {
+        "minimum": 0.0219,
+        "maximum": 0.022,
+        "minimumDay": 0,
+        "maximumDay": 817
+      },
+      "creditSpread": {
+        "minimum": 0.0241,
+        "maximum": 0.0307,
+        "minimumDay": 6829,
+        "maximumDay": 4294
+      }
+    },
+    {
+      "id": "oberon",
+      "station": "Mommur Anchorage",
+      "body": "Oberon",
+      "region": "Uranus",
+      "depositAPR": {
+        "minimum": 0.0074,
+        "maximum": 0.0604,
+        "minimumDay": 6883,
+        "maximumDay": 4728
+      },
+      "loanAPR": {
+        "minimum": 0.0342,
+        "maximum": 0.0854,
+        "minimumDay": 6858,
+        "maximumDay": 4711
+      },
+      "fixedAPR": {
+        "minimum": 0.0576,
+        "maximum": 0.1087,
+        "minimumDay": 6858,
+        "maximumDay": 4711
+      },
+      "fixedPremium": {
+        "minimum": 0.0233,
+        "maximum": 0.0234,
+        "minimumDay": 0,
+        "maximumDay": 437
+      },
+      "creditSpread": {
+        "minimum": 0.0241,
+        "maximum": 0.0306,
+        "minimumDay": 6831,
+        "maximumDay": 4295
+      }
+    },
+    {
+      "id": "neptune",
+      "station": "Le Verrier Array",
+      "body": "Neptune high orbit",
+      "region": "Neptune",
+      "depositAPR": {
+        "minimum": 0.0073,
+        "maximum": 0.0605,
+        "minimumDay": 6881,
+        "maximumDay": 9023
+      },
+      "loanAPR": {
+        "minimum": 0.0367,
+        "maximum": 0.0879,
+        "minimumDay": 6856,
+        "maximumDay": 4714
+      },
+      "fixedAPR": {
+        "minimum": 0.0604,
+        "maximum": 0.1115,
+        "minimumDay": 6856,
+        "maximumDay": 4714
+      },
+      "fixedPremium": {
+        "minimum": 0.0236,
+        "maximum": 0.0237,
+        "minimumDay": 0,
+        "maximumDay": 750
+      },
+      "creditSpread": {
+        "minimum": 0.0265,
+        "maximum": 0.0336,
+        "minimumDay": 6832,
+        "maximumDay": 4295
+      }
+    },
+    {
+      "id": "triton",
+      "station": "Lassell Research",
+      "body": "Triton",
+      "region": "Neptune",
+      "depositAPR": {
+        "minimum": 0.0072,
+        "maximum": 0.0605,
+        "minimumDay": 6886,
+        "maximumDay": 4729
+      },
+      "loanAPR": {
+        "minimum": 0.0375,
+        "maximum": 0.0888,
+        "minimumDay": 6859,
+        "maximumDay": 9006
+      },
+      "fixedAPR": {
+        "minimum": 0.0614,
+        "maximum": 0.1126,
+        "minimumDay": 6859,
+        "maximumDay": 9006
+      },
+      "fixedPremium": {
+        "minimum": 0.0238,
+        "maximum": 0.0239,
+        "minimumDay": 0,
+        "maximumDay": 534
+      },
+      "creditSpread": {
+        "minimum": 0.0273,
+        "maximum": 0.0346,
+        "minimumDay": 6832,
+        "maximumDay": 4297
+      }
+    }
+  ],
+  "stockPricingSHA256": "c9b952bfd05f677fb5b0429c0d811e775c54bd6444d569e47cde3d16f29cadd1",
+  "mode": "reference"
+}
