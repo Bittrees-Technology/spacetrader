@@ -2,16 +2,16 @@
   "mode": "reference",
   "source": "guide-template.cjs",
   "inputs": {
-    "template": "a571e9d5c7e25a3903973d04467ab683250440e99fa2b62b54899115845b6e3d",
+    "template": "7e630d5b5aa84c7f7cc854dfe95ad6c70f4ab8ef5715ee4861eb9f40666f19c9",
     "engine": "85d5b149e0e4773d4dbcefa03d8144117a42ab673734446b655e761b108ff7f1",
     "helpers": "7a9b7a0981d552961f5c9513892010f54b7a81e109c9d47c4bb57e2188bc37e0",
-    "exporter": "20a1a72edc5fdd3272f871ead00e014cf10f6f8ecc18080aa4c37995c2d01e79",
+    "exporter": "8f86387412a114fcbd8f3cee61229edcb9f2430d5fe462372b8b91ba632cddb8",
     "goodsMechanics": "c1439facc76b9abe0e53f1a01f3764b8772b2175eb47b8af06447c8314cb5fdb",
     "bankRateRanges": "70a3d8e980400ef7f4695182f96614a3b6234ea199a0e1fd44e31e0865259d6c"
   },
-  "fragmentSHA256": "75e09f4afbbb1ec0b3fa367ec6455604b113559ab77fb690c5b0d27c812b0e3f",
-  "indexSHA256": "3de7405ca8dcfb25899513b1d98f69fd89ce742a12a730292f1f9a783883ce2d",
-  "builderSHA256": "d3c30bda60054868249f56893f8e4450b9ad8c78bf11e8b1cdf45290a2f6f0a5",
+  "fragmentSHA256": "a22c6e3407bced852343d57d45964acbe5a63bf5a3f4bc3b9ff6a4bbe7e40080",
+  "indexSHA256": "c08730faab74474186c879163bc65dffef958b39b731134e75b07ed7fc9746da",
+  "builderSHA256": "0a48284537ce0656f17fb7d8039d66bd978c2694a34ce1482fbdc28bec6eb830",
   "headerSHA256": "96f54354d34a7bbd441d9ee7c19d2367b6667b2f6dde3704a72371a75d6c7e58",
   "topics": [
     {
@@ -40,6 +40,11 @@
       "category": "Travel & stations"
     },
     {
+      "id": "establishment-controls",
+      "title": "Establishment controls",
+      "category": "Travel & stations"
+    },
+    {
       "id": "navigation-learning-and-repeated-routes",
       "title": "Navigation learning and repeated routes",
       "category": "Travel & stations"
@@ -57,6 +62,16 @@
     {
       "id": "propellant-and-people",
       "title": "Propellant and people",
+      "category": "Travel & stations"
+    },
+    {
+      "id": "raids-during-a-voyage",
+      "title": "Raids during a voyage",
+      "category": "Travel & stations"
+    },
+    {
+      "id": "regional-access",
+      "title": "Regional access",
       "category": "Travel & stations"
     },
     {
@@ -105,6 +120,21 @@
       "category": "Trade & freight"
     },
     {
+      "id": "station-storage-limits",
+      "title": "Station storage limits",
+      "category": "Trade & freight"
+    },
+    {
+      "id": "freight-dispatch-and-receiving-needs",
+      "title": "Freight dispatch and receiving needs",
+      "category": "Trade & freight"
+    },
+    {
+      "id": "raw-resources-and-local-processing",
+      "title": "Raw resources and local processing",
+      "category": "Trade & freight"
+    },
+    {
       "id": "trading-seasons-and-cargo-leads",
       "title": "Trading seasons and cargo leads",
       "category": "Trade & freight"
@@ -133,6 +163,11 @@
       "id": "goods-exchange-mechanics",
       "title": "Goods & exchange mechanics",
       "category": "Trade & freight"
+    },
+    {
+      "id": "diplomatic-missions",
+      "title": "Diplomatic missions",
+      "category": "Work & people"
     },
     {
       "id": "continuing-personal-and-regional-stories",
@@ -215,6 +250,16 @@
       "category": "Work & people"
     },
     {
+      "id": "receiving-inquiries-dated-leads",
+      "title": "Receiving inquiries & dated leads",
+      "category": "Work & people"
+    },
+    {
+      "id": "talking-with-travelling-specialists",
+      "title": "Talking with travelling specialists",
+      "category": "Work & people"
+    },
+    {
       "id": "warehouses-inventory-transfers",
       "title": "Warehouses & inventory transfers",
       "category": "Banking & property"
@@ -290,63 +335,18 @@
       "category": "World & science"
     },
     {
-      "id": "establishment-controls",
-      "title": "Establishment controls",
-      "category": "World & science"
-    },
-    {
       "id": "government-treaties",
       "title": "Government & treaties",
       "category": "World & science"
     },
     {
-      "id": "diplomatic-missions",
-      "title": "Diplomatic missions",
-      "category": "World & science"
-    },
-    {
-      "id": "resources-and-fiction",
-      "title": "Resources and fiction",
-      "category": "World & science"
-    },
-    {
-      "id": "station-storage-limits",
-      "title": "Station storage limits",
-      "category": "World & science"
-    },
-    {
-      "id": "freight-dispatch-and-receiving-needs",
-      "title": "Freight dispatch and receiving needs",
-      "category": "World & science"
-    },
-    {
-      "id": "raids-during-a-voyage",
-      "title": "Raids during a voyage",
-      "category": "World & science"
-    },
-    {
-      "id": "raw-resources-and-local-processing",
-      "title": "Raw resources and local processing",
-      "category": "World & science"
-    },
-    {
-      "id": "regional-access",
-      "title": "Regional access",
+      "id": "resources-and-settlement",
+      "title": "Resources and settlement",
       "category": "World & science"
     },
     {
       "id": "science-references",
       "title": "Science references",
-      "category": "World & science"
-    },
-    {
-      "id": "receiving-inquiries-dated-leads",
-      "title": "Receiving inquiries & dated leads",
-      "category": "World & science"
-    },
-    {
-      "id": "talking-with-travelling-specialists",
-      "title": "Talking with travelling specialists",
       "category": "World & science"
     }
   ]
