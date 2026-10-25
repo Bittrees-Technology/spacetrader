@@ -52,8 +52,7 @@ def page(text, section):
     spec = importlib.util.spec_from_file_location('public_catalogue_shell', ROOT / 'Local/catalogue_shell.py')
     shell = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(shell)
-    header = public_links(shell.header(active)).replace('class="catalogue-brand" href="/"',
-                                                        'class="catalogue-brand" href="/play/"')
+    header = public_links(shell.header(active))
     text, count = re.subn(r'<header class="catalogue-header">.*?</header>',
                          lambda _: header, text, count=1, flags=re.S)
     if count != 1:
@@ -129,10 +128,28 @@ def build():
     if app.count(form) != 1:
         raise ValueError('Review the browser-save notice location')
     app = app.replace(form, '<p class="muted">Progress saves in this browser on this device. Wallet saves and agent play are coming later.</p>' + form)
+    # A fresh engine state is an unsigned template, not an existing captain.
+    # Keep its placeholder name, balances and map out of the first-visit UI.
+    render_start = "function render(){\n if(blocked||!state)return;"
+    if app.count(render_start) != 1:
+        raise ValueError('Review the public charter setup adapter')
+    app = app.replace(render_start, render_start + "if(!state.profile.created){$('app').innerHTML='<header><a class=\"brand charter-home\" href=\"/\"><img src=\"icon.svg\" alt=\"\"><h1>Spacetrader</h1></a></header><main id=\"main\" class=\"charter-welcome\" aria-label=\"New charter\"></main>';scheduleMainModal();return;}")
+    creator_head = "modalHead('Your independent charter')"
+    close_start = 'function closeModal(force=false){'
+    loaded_notice = 'saveFeedback=`Loaded ${state.profile.name} · day ${state.day}. Your previous voyage is kept.`;'
+    for expected in [creator_head, close_start, loaded_notice]:
+        if app.count(expected) != 1:
+            raise ValueError('Review public charter navigation')
+    app = app.replace(creator_head, "modalHead('Your independent charter',false)+ '<p><a href=\"/\">Back to site</a></p>'")
+    app = app.replace(close_start, close_start + "if(!force&&modalKind==='creator'&&!state.profile.created){location.assign('/');return;}")
+    app = app.replace(loaded_notice, "saveFeedback=state.profile.created?`Loaded ${state.profile.name} · day ${state.day}. Your previous voyage is kept.`:'Ready to create your captain. Your previous voyage is kept.';")
     write('play/app.js', app)
+    clone(SITE / 'onboarding.css', 'play/onboarding.css')
     index = (browser / 'index.html').read_text()
     index = index.replace('connect-src \'self\' ipc: http://ipc.localhost', "connect-src 'self'")
-    index = index.replace('</head>', '<meta name="description" content="Explore the solar system in Spacetrader, a single-player space-trading game. Free browser play with local saves."></head>')
+    public_revision = sha(app.encode() + (SITE / 'onboarding.css').read_bytes())[:12]
+    index = index.replace('app.js?v=0.72.257', 'app.js?v=' + public_revision)
+    index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><meta name="description" content="Explore the solar system in Spacetrader, a single-player space-trading game. Free browser play with local saves."></head>')
     write('play/index.html', index)
     clone(browser / 'icon.svg', 'icon.svg')
     files = {
@@ -174,14 +191,14 @@ def build():
     write('goods/stock-pricing.js', verified(approved / 'stock-pricing.js', manifest['files']['stock-pricing.js']))
     for name in ['LICENSE', 'THIRD_PARTY_NOTICES.md']:
         clone(ROOT / name, name)
-    write('index.html', '<!doctype html><html lang="en"><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/play/"><title>Spacetrader</title><a href="/play/">Play Spacetrader</a></html>')
+    for name in ['index.html', 'landing.css']:
+        clone(SITE / name, name)
     write('404.html', '<!doctype html><html lang="en"><meta charset="utf-8"><title>Page not found · Spacetrader</title><h1>Page not found</h1><p><a href="/play/">Return to Spacetrader</a></p></html>')
     write('robots.txt', 'User-agent: *\nAllow: /\n')
     csp = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
     routes = [{'src': '/(.*)', 'headers': {'X-Content-Type-Options': 'nosniff',
                'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY',
                'Content-Security-Policy': csp, 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'}, 'continue': True},
-              {'src': '/', 'status': 307, 'headers': {'Location': '/play/'}},
               *[{'src': '/' + s, 'status': 308, 'headers': {'Location': '/' + s + '/'}} for s in ['play', 'guide', 'characters', 'ships', 'goods']],
               *[{'src': '/goods/' + n, 'dest': '/goods/' + n + '.html'} for n in ['curves', 'formulas', 'mechanics']],
               {'handle': 'filesystem'}, {'src': '/.*', 'dest': '/404.html', 'status': 404}]

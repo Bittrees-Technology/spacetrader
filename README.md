@@ -20,7 +20,7 @@ needed for the static build.
 ```sh
 node Tools/check_balance.cjs
 python3 Web/build.py
-python3 -m http.server 8903 --bind 127.0.0.1 --directory Web/.vercel/output/static
+python3 Web/serve.py
 ```
 
 Open `/play/`, `/guide/`, `/characters/`, `/ships/` or `/goods/`. The static build

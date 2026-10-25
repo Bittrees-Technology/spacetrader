@@ -5,7 +5,6 @@
   "outputDirectory": "Web/.vercel/output/static",
   "cleanUrls": false,
   "redirects": [
-    {"source": "/", "destination": "/play/", "permanent": false},
     {"source": "/play", "destination": "/play/", "permanent": true},
     {"source": "/guide", "destination": "/guide/", "permanent": true},
     {"source": "/characters", "destination": "/characters/", "permanent": true},

@@ -1,5 +1,5 @@
 'use strict';
-const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),vm=require('node:vm');
 const root=path.resolve(__dirname,'../..'),out=path.join(root,'Web/.vercel/output'),base=path.join(out,'static');
 const read=p=>fs.readFileSync(path.join(base,p),'utf8'),sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const manifest=JSON.parse(fs.readFileSync(path.join(out,'build-manifest.json'),'utf8'));
@@ -23,10 +23,20 @@ for(const section of ['guide','characters','ships','goods']){
 }
 assert(read('play/app.js').includes("window.open('/guide/'"));
 assert(read('play/app.js').includes('Progress saves in this browser on this device.'));
+const app=read('play/app.js'),guard=app.slice(app.indexOf('function render(){'),app.indexOf('\n const p=E.port(state.location)',app.indexOf('function render(){')));
+let scheduled=0;const target={innerHTML:'unchanged'},context={blocked:false,state:{profile:{created:false,name:'Alex Rivera'}},$:()=>target,scheduleMainModal:()=>scheduled++};
+vm.createContext(context);vm.runInContext(guard+'\n}',context);context.render();
+assert(target.innerHTML.includes('charter-welcome'));assert(!target.innerHTML.includes('Alex Rivera'));assert(!target.innerHTML.includes('<aside'));assert.equal(scheduled,1);
+const home=read('index.html');
+assert(!home.includes('http-equiv="refresh"'));assert(!home.includes('<script'));assert(home.includes('href="/play/"'));
+for(const target of ['guide','characters','ships','goods'])assert(home.includes('href="/'+target+'/'),target);
+assert(read('play/index.html').includes('onboarding.css?v='));
+assert(read('play/onboarding.css').includes('min-width:0'));
 assert(read('characters/catalogue.js').includes("'/characters/'+P.source(v)"));
 assert(read('goods/catalogue.js').includes("fetch('/goods/data/goods.json')"));
 assert(read('goods/curves.js').includes("fetch('/goods/data/bonding-curves.json')"));
 assert.equal(read('goods/stock-pricing.js'),fs.readFileSync(path.join(root,'Balance/approved-v95/stock-pricing.js'),'utf8'));
 const config=JSON.parse(fs.readFileSync(path.join(out,'config.json'),'utf8'));
 assert.equal(config.version,3);assert(config.routes.some(r=>r.src==='/goods/curves'&&r.dest==='/goods/curves.html'));
+assert(!config.routes.some(r=>r.src==='/'&&r.headers?.Location));
 console.log('PASS public static build: '+Object.keys(manifest.files).length+' verified files; unchanged engine and approved pricing; no save/service payloads; public reference routes.');
