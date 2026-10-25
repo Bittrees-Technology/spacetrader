@@ -1,4 +1,6 @@
 /* The public cockpit follows the visible browser viewport, including tablet chrome. */
+/* Repeated control taps are clicks; scrolling and pinch zoom remain available. */
+button,[role="button"],input[type="button"],input[type="submit"],a[href],summary{touch-action:manipulation}
 html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
 html:has(#modal[open]){scrollbar-gutter:auto}
 body:has(.game-shell),body:has(.charter-welcome){min-width:0;min-height:0;overflow:hidden}
