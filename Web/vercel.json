@@ -5,6 +5,9 @@
   "outputDirectory": "Web/.vercel/output/static",
   "cleanUrls": false,
   "redirects": [
+    {"source": "/index.html", "destination": "/", "permanent": true},
+    {"source": "/:section(play|guide|characters|ships|goods)/index.html", "destination": "/:section/", "permanent": true},
+    {"source": "/goods/:tool(curves|formulas|mechanics).html", "destination": "/goods/:tool", "permanent": true},
     {"source": "/play", "destination": "/play/", "permanent": true},
     {"source": "/guide", "destination": "/guide/", "permanent": true},
     {"source": "/characters", "destination": "/characters/", "permanent": true},

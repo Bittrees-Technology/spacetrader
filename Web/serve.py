@@ -4,6 +4,8 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
+import json
+import re
 
 STATIC = Path(__file__).resolve().parent / '.vercel/output/static'
 
@@ -14,12 +16,20 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         path = urlsplit(self.path).path
+        config = json.loads((STATIC.parent / 'config.json').read_text())
+        for route in config['routes']:
+            if route.get('status') == 308 and re.fullmatch(route['src'], path):
+                self.send_response(308)
+                self.send_header('Location', route['headers']['Location'])
+                self.end_headers()
+                return
         if path in ['/goods/curves', '/goods/formulas', '/goods/mechanics']:
             self.path = path + '.html'
         super().do_GET()
 
     def end_headers(self):
-        self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
+        config = json.loads((STATIC.parent / 'config.json').read_text())
+        self.send_header('Content-Security-Policy', config['routes'][0]['headers']['Content-Security-Policy'])
         self.send_header('X-Content-Type-Options', 'nosniff')
         super().end_headers()
 

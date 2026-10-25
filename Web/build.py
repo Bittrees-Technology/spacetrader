@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Build the public guest edition without opening a voyage or running local services."""
 from pathlib import Path
-import argparse, hashlib, importlib.util, json, re, shutil, subprocess
+import argparse, base64, hashlib, importlib.util, json, re, shutil, subprocess
+from html import escape
+import seo
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(__file__).resolve().parent
@@ -193,12 +195,53 @@ def build():
         clone(ROOT / name, name)
     for name in ['index.html', 'landing.css']:
         clone(SITE / name, name)
-    write('404.html', '<!doctype html><html lang="en"><meta charset="utf-8"><title>Page not found · Spacetrader</title><h1>Page not found</h1><p><a href="/play/">Return to Spacetrader</a></p></html>')
-    write('robots.txt', 'User-agent: *\nAllow: /\n')
-    csp = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+    for name in ['favicon.svg', 'favicon.ico', 'favicon-96.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'spacetrader-social.png']:
+        clone(SITE / 'assets' / name, 'social/spacetrader.png' if name == 'spacetrader-social.png' else name)
+    write('site.webmanifest', json.dumps({'name': 'Spacetrader', 'short_name': 'Spacetrader', 'id': '/', 'start_url': '/play/',
+          'display': 'browser', 'background_color': '#101f2c', 'theme_color': '#101f2c',
+          'icons': [{'src': '/icon-' + str(size) + '.png', 'sizes': str(size) + 'x' + str(size), 'type': 'image/png'} for size in [192, 512]]}) + '\n')
+    # Human-readable reference introductions remain available without JavaScript.
+    intros = {
+        'characters/index.html': '<section class="search-intro"><h1>Characters &amp; station crews</h1><p>Explore the human, Ilyri, Veyr and robot designs of Spacetrader. Use the establishment roster to find the people working at each station, or browse the full character design library.</p></section>',
+        'ships/index.html': '<section class="search-intro"><h1>Ships &amp; configurations</h1><p>Compare ship classes and inspect their 3D hulls, cargo capacity, fittings and upgrades. Switch to armament and defenses to compare loadouts before choosing your next ship.</p></section>',
+    }
+    for name, intro in intros.items():
+        text = (STATIC / name).read_text().replace('<main>', '<main>' + intro, 1)
+        if name == 'ships/index.html':
+            text = text.replace('<h1>Armament &amp; defenses</h1>', '<h2>Armament &amp; defenses</h2>')
+            text = text.replace('<h1 id="detailTitle"></h1>', '<h2 id="detailTitle"></h2>')
+        write(name, text)
+    goods = json.loads((approved / 'goods.json').read_text())
+    products = {r['item']: r for r in goods['rows'] if r['category'] == 'Exchange goods'}
+    entries = ''.join('<li><a href="/goods/curves?item=' + escape(key, quote=True) + '">' + escape(row['product']) + '</a><p>' + escape(row['note']) + '</p></li>'
+                      for key, row in sorted(products.items(), key=lambda pair: pair[1]['product']))
+    goods_text = (STATIC / 'goods/index.html').read_text()
+    goods_text = goods_text.replace('</main>', '<details class="search-reference"><summary>Goods reference index</summary><p>Browse all exchange commodities. Each link opens the pricing tool for that good; the figures above are generic reference data.</p><ul>' + entries + '</ul></details></main>', 1)
+    write('goods/index.html', goods_text)
+    clone(SITE / 'search.css', 'search.css')
+    hashes = []
+    for name in seo.PAGES:
+        text = (STATIC / name).read_text()
+        # Link to clean public tool URLs rather than their duplicate .html forms.
+        text = re.sub(r'(/goods/(?:curves|formulas|mechanics))\.html', r'\1', text)
+        text, digest = seo.decorate(text, name)
+        source = "'sha256-" + base64.b64encode(digest).decode() + "'"
+        hashes.append(source)
+        if name == 'play/index.html':
+            text = text.replace("script-src 'self';", "script-src 'self' " + source + ';')
+            text = text.replace('<noscript>Spacetrader needs JavaScript to run its local simulation. It makes no external requests.</noscript>', '<noscript><main id="main"><h1>Play Spacetrader</h1><p>Enable JavaScript to create your captain, trade goods and explore the solar system. Progress saves in this browser on this device.</p><p><a href="/guide/">Read the game guide</a> or <a href="/">return to the main site</a>.</p></main></noscript>')
+        text = text.replace('</head>', '<link rel="stylesheet" href="/search.css"></head>')
+        write(name, text)
+    write('404.html', '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/landing.css"><title>Page not found · Spacetrader</title><main style="padding:40px"><h1>Page not found</h1><p><a href="/">Return to Spacetrader</a></p></main></html>')
+    write('robots.txt', 'User-agent: *\nAllow: /\n\nSitemap: ' + seo.ORIGIN + '/sitemap.xml\n')
+    write('sitemap.xml', seo.sitemap())
+    csp = "default-src 'self'; script-src 'self' " + ' '.join(hashes) + "; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
     routes = [{'src': '/(.*)', 'headers': {'X-Content-Type-Options': 'nosniff',
                'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY',
                'Content-Security-Policy': csp, 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'}, 'continue': True},
+              {'src': '/index.html', 'status': 308, 'headers': {'Location': '/'}},
+              *[{'src': '/' + s + '/index.html', 'status': 308, 'headers': {'Location': '/' + s + '/'}} for s in ['play', 'guide', 'characters', 'ships', 'goods']],
+              *[{'src': '/goods/' + n + '(?:\\.html|/)', 'status': 308, 'headers': {'Location': '/goods/' + n}} for n in ['curves', 'formulas', 'mechanics']],
               *[{'src': '/' + s, 'status': 308, 'headers': {'Location': '/' + s + '/'}} for s in ['play', 'guide', 'characters', 'ships', 'goods']],
               *[{'src': '/goods/' + n, 'dest': '/goods/' + n + '.html'} for n in ['curves', 'formulas', 'mechanics']],
               {'handle': 'filesystem'}, {'src': '/.*', 'dest': '/404.html', 'status': 404}]

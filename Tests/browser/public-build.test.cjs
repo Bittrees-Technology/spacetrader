@@ -28,7 +28,7 @@ let scheduled=0;const target={innerHTML:'unchanged'},context={blocked:false,stat
 vm.createContext(context);vm.runInContext(guard+'\n}',context);context.render();
 assert(target.innerHTML.includes('charter-welcome'));assert(!target.innerHTML.includes('Alex Rivera'));assert(!target.innerHTML.includes('<aside'));assert.equal(scheduled,1);
 const home=read('index.html');
-assert(!home.includes('http-equiv="refresh"'));assert(!home.includes('<script'));assert(home.includes('href="/play/"'));
+assert(!home.includes('http-equiv="refresh"'));assert(!/<script(?! type="application\/ld\+json")/.test(home));assert(home.includes('href="/play/"'));
 for(const target of ['guide','characters','ships','goods'])assert(home.includes('href="/'+target+'/'),target);
 assert(read('play/index.html').includes('onboarding.css?v='));
 assert(read('play/onboarding.css').includes('min-width:0'));
