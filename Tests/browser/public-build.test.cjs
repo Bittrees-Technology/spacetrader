@@ -33,7 +33,8 @@ for(const target of ['guide','characters','ships','goods'])assert(home.includes(
 assert(read('play/index.html').includes('onboarding.css?v='));
 assert(read('play/onboarding.css').includes('min-width:0'));
 assert(read('characters/catalogue.js').includes("'/characters/'+P.source(v)"));
-assert(read('goods/catalogue.js').includes("fetch('/goods/data/goods.json')"));
+assert(!read('goods/catalogue.js').includes("fetch('/goods/data/goods.json')"));
+assert(read('goods/catalogue.js').includes('goodsData.load()'));
 assert(read('goods/curves.js').includes("fetch('/goods/data/bonding-curves.json')"));
 assert.equal(read('goods/stock-pricing.js'),fs.readFileSync(path.join(root,'Balance/approved-v95/stock-pricing.js'),'utf8'));
 const config=JSON.parse(fs.readFileSync(path.join(out,'config.json'),'utf8'));

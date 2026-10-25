@@ -4,6 +4,7 @@ from pathlib import Path
 import argparse, base64, hashlib, importlib.util, json, re, shutil, subprocess
 from html import escape
 import seo
+import goods_delivery
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = Path(__file__).resolve().parent
@@ -212,6 +213,23 @@ def build():
             text = text.replace('<h1 id="detailTitle"></h1>', '<h2 id="detailTitle"></h2>')
         write(name, text)
     goods = json.loads((approved / 'goods.json').read_text())
+    delivery = goods_delivery.package(goods, write)
+    for name in ['goods-codec.js', 'goods-loader.js', 'goods-worker.js']:
+        clone(SITE / name, 'goods/' + name)
+    delivery_version = sha(b''.join((SITE / name).read_bytes() for name in ['goods-codec.js', 'goods-loader.js', 'goods-worker.js']) + (STATIC / 'goods/quote-prices.js').read_bytes() + (STATIC / 'goods/goods-view.js').read_bytes())[:12]
+    worker_url = '/goods/goods-worker.js?v=' + delivery_version
+    catalogue = goods_delivery.adapt((STATIC / 'goods/catalogue.js').read_text(), delivery['indexURL'], worker_url)
+    write('goods/catalogue.js', catalogue)
+    catalogue_version = sha(catalogue.encode())[:12]
+    goods_page = (STATIC / 'goods/index.html').read_text()
+    script_tag = '<script defer src="/goods/catalogue.js"></script>'
+    error_tag = '<p id="error" hidden role="alert"></p>'
+    if goods_page.count(script_tag) != 1 or goods_page.count(error_tag) != 1:
+        raise ValueError('Review public catalogue loading controls')
+    goods_page = goods_page.replace(script_tag, ''.join('<script defer src="/goods/' + name + '?v=' + (catalogue_version if name == 'catalogue.js' else delivery_version) + '"></script>' for name in ['goods-codec.js', 'goods-loader.js', 'catalogue.js']))
+    goods_page = goods_page.replace(error_tag, error_tag + '<button id="summary-retry" hidden type="button">Retry item summary</button>')
+    write('goods/index.html', goods_page)
+    (OUTPUT / 'catalogue-delivery.json').write_text(json.dumps(delivery, indent=2) + '\n')
     products = {r['item']: r for r in goods['rows'] if r['category'] == 'Exchange goods'}
     entries = ''.join('<li><a href="/goods/curves?item=' + escape(key, quote=True) + '">' + escape(row['product']) + '</a><p>' + escape(row['note']) + '</p></li>'
                       for key, row in sorted(products.items(), key=lambda pair: pair[1]['product']))
