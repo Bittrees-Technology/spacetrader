@@ -32,6 +32,9 @@ assert(!home.includes('http-equiv="refresh"'));assert(!/<script(?! type="applica
 for(const target of ['guide','characters','ships','goods'])assert(home.includes('href="/'+target+'/'),target);
 assert(read('play/index.html').includes('onboarding.css?v='));
 assert(read('play/onboarding.css').includes('min-width:0'));
+assert(read('play/index.html').includes('play-viewport.css?v='));
+assert.equal(read('play/play-viewport.css'),fs.readFileSync(path.join(root,'Web/play-viewport.css'),'utf8'));
+assert(!fs.readFileSync(path.join(root,'Browser/index.html'),'utf8').includes('play-viewport.css'));
 assert(read('characters/catalogue.js').includes("'/characters/'+P.source(v)"));
 assert(!read('goods/catalogue.js').includes("fetch('/goods/data/goods.json')"));
 assert(read('goods/catalogue.js').includes('goodsData.load()'));

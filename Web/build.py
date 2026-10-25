@@ -148,11 +148,12 @@ def build():
     app = app.replace(loaded_notice, "saveFeedback=state.profile.created?`Loaded ${state.profile.name} · day ${state.day}. Your previous voyage is kept.`:'Ready to create your captain. Your previous voyage is kept.';")
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')
+    clone(SITE / 'play-viewport.css', 'play/play-viewport.css')
     index = (browser / 'index.html').read_text()
     index = index.replace('connect-src \'self\' ipc: http://ipc.localhost', "connect-src 'self'")
-    public_revision = sha(app.encode() + (SITE / 'onboarding.css').read_bytes())[:12]
+    public_revision = sha(app.encode() + (SITE / 'onboarding.css').read_bytes() + (SITE / 'play-viewport.css').read_bytes())[:12]
     index = index.replace('app.js?v=0.72.257', 'app.js?v=' + public_revision)
-    index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><meta name="description" content="Explore the solar system in Spacetrader, a single-player space-trading game. Free browser play with local saves."></head>')
+    index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><link rel="stylesheet" href="play-viewport.css?v=' + public_revision + '"><meta name="description" content="Explore the solar system in Spacetrader, a single-player space-trading game. Free browser play with local saves."></head>')
     write('play/index.html', index)
     clone(browser / 'icon.svg', 'icon.svg')
     files = {

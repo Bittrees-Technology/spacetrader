@@ -1,0 +1,49 @@
+/* The public cockpit follows the visible browser viewport, including tablet chrome. */
+html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+html:has(#modal[open]){scrollbar-gutter:auto}
+body:has(.game-shell),body:has(.charter-welcome){min-width:0;min-height:0;overflow:hidden}
+#app{display:grid;grid-template-rows:auto minmax(0,1fr);height:100vh;height:100dvh;min-height:0;overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#app>header{min-width:0}
+#app>.game-shell{min-height:0;height:100%;overflow:hidden}
+.game-shell>aside,body:has(#modal[open]) .game-shell>aside{position:static;align-self:stretch;height:100%;min-height:0;max-height:100%;overflow:hidden}
+body:has(#modal[open]) .game-shell::before{content:none}
+.game-shell>.screen-main,.game-shell>.screen-main:has(.navigation-deck){height:100%;min-height:0;overflow:auto;overscroll-behavior:contain}
+.screen-main>.navigation-deck>.orbital-view{grid-template-rows:auto minmax(0,1fr)}
+.game-shell>aside .sidebar-fleet>.ship-title,.game-shell>aside .sidebar-gauges{flex:0 0 auto}
+.game-shell>aside .sidebar-fleet>.flagship-preview{flex:1 1 80px;min-height:32px;height:auto}
+.charter-welcome{min-height:0}
+
+@media(max-width:1366px){
+ .sidebar-content>.sidebar-navigation>button,.sidebar-content>.sidebar-fleet-links>button,
+ .sidebar-content>.sidebar-record-links>button.sidebar-record-button,
+ .sidebar-actions .sidebar-record-links>button.sidebar-record-button,.sidebar-actions>.sidebar-menu{min-height:44px}
+}
+
+/* Short tablet viewports retain touch targets by pairing related record buttons. */
+@media(max-height:800px){
+ .sidebar-content>.sidebar-record-links{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .game-shell>aside>.sidebar-actions{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;padding-bottom:8px}
+ .sidebar-actions>.sidebar-record-links{min-width:0}
+ .sidebar-actions>.sidebar-menu{margin:0}
+ .sidebar-content>.sidebar-navigation{margin-bottom:4px;padding-bottom:4px}
+ .game-shell>aside .captain-profile{min-height:44px;gap:8px}
+ .game-shell>aside .captain-profile>.captain-profile-portrait{width:36px;flex-basis:36px}
+ .game-shell>aside .captain-profile h2{font-size:18px}
+ .game-shell>aside .captain-profile .captain-role{font-size:11px;margin-top:2px}
+ .game-shell>aside .captain-profile .pilot-tag{font-size:10px;margin-top:2px}
+ .game-shell>aside .sidebar-fleet>.ship-title h2{font-size:20px}
+ .game-shell>aside>.sidebar-content>.sidebar-fleet{gap:4px;margin-top:6px}
+ .game-shell>aside .sidebar-gauges{gap:4px;margin-top:4px}
+ .game-shell>aside .sidebar-gauges .gauge-label{font-size:11px}
+ .sidebar-content>.sidebar-funds{margin-top:6px;padding-top:4px}
+ .sidebar-content .sidebar-balances>div{min-height:28px;padding-block:3px}
+ .sidebar-content .sidebar-balances dt{font-size:11px}
+ .sidebar-content .sidebar-balances dd{font-size:13px}
+}
+
+@media(max-height:650px){
+ .sidebar-content>.sidebar-funds{margin-top:4px;padding-top:2px}
+ .game-shell>aside>.sidebar-content>.sidebar-fleet{margin-top:4px;gap:2px}
+ .game-shell>aside .sidebar-fleet>.ship-title h2{font-size:18px}
+ .game-shell>aside .sidebar-fleet>.ship-title small{font-size:11px;margin-top:1px}
+}
