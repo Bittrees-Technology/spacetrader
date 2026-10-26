@@ -13,8 +13,17 @@ const saveOutbox=createSaveOutbox();
 let localRequest,account=null,configured=false,dialog,reactRoot,cloudActive=false,pinned=null,cloudSync=null;
 const getMode=()=>{try{return localStorage.getItem(MODE)||'device';}catch{return 'device';}};
 const setMode=value=>{try{localStorage.setItem(MODE,value);}catch{throw Error('This browser could not save the account preference. Your voyages are preserved.');}};
-function getPin(owner){if(pinned?.account===owner)return pinned.id;try{const value=JSON.parse(sessionStorage.getItem(PIN)||'null');if(value?.account===owner)return value.id;}catch{}return null;}
-function setPin(owner,id){pinned={account:owner,id};try{sessionStorage.setItem(PIN,JSON.stringify(pinned));}catch{/* The in-memory tab remains pinned even if preferences cannot persist. */}}
+function getPin(owner){
+ if(pinned?.account===owner)return pinned.id;
+ // A live tab keeps its own selection; a new tab resumes this account's last voyage on this device.
+ for(const [storage,key]of [['sessionStorage',PIN],['localStorage',PIN+'.'+owner]])try{const value=JSON.parse(host[storage].getItem(key)||'null');if(value?.account===owner&&typeof value.id==='string')return value.id;}catch{}
+ return null;
+}
+function setPin(owner,id){
+ pinned={account:owner,id};const value=JSON.stringify(pinned);
+ try{sessionStorage.setItem(PIN,value);}catch{/* Keep the tab selection in memory. */}
+ if(!document.hidden)try{localStorage.setItem(PIN+'.'+owner,value);}catch{/* Save content remains in IndexedDB and the account. */}
+}
 async function chooseVoyage(id){
  if(host.SpacetraderAccountBridge&&!host.SpacetraderAccountBridge.canSwitch())throw Error('Finish the current encounter before changing voyages.');
  await host.SpacetraderAccountBridge?.settled();await call('/api/voyages/select',{id},true);setPin(account.account,id);setMode('account');location.assign('/play/');
@@ -158,9 +167,16 @@ host.openBrowserVoyageLedger=async options=>{
   const cached={};
   const send=(path,options)=>fetch(path,{...options,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(30000)});
   const legacy=createSyncTransport({fetch:send,owner,voyage,outbox:saveOutbox,onVoyage:id=>{voyage=id;setPin(owner,id);},onConflict:()=>{setTimeout(open,0);}});
-  const cloudFetch=createBatchTransport({fallback:legacy,fetch:send,owner,voyage,outbox:saveOutbox,onConflict:()=>{setTimeout(open,0);},onStatus:()=>{host.dispatchEvent(new Event('spacetrader-sync-status'));}});cloudSync=cloudFetch;
-  host.addEventListener('online',()=>{void cloudFetch.flush().catch(()=>{});});
-  host.addEventListener('pagehide',()=>{void cloudFetch.flush().catch(()=>{});});
+  const cloudFetch=createBatchTransport({fallback:legacy,fetch:send,owner,voyage,outbox:saveOutbox,isHidden:()=>document.hidden,onConflict:()=>{setTimeout(open,0);},onStatus:()=>{host.dispatchEvent(new Event('spacetrader-sync-status'));}});cloudSync=cloudFetch;
+  const syncBeforeSleep=()=>{
+   // Start existing work immediately, then include any action still completing its device write.
+   void cloudFetch.flush().catch(()=>{});
+   void host.SpacetraderAccountBridge?.settled().catch(()=>{});
+  };
+  host.addEventListener('online',syncBeforeSleep);
+  host.addEventListener('pagehide',syncBeforeSleep);
+  host.addEventListener('pageshow',event=>{if(event.persisted)syncBeforeSleep();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)syncBeforeSleep();});
   return async(path,options={})=>{
    const response=await cloudFetch(path,options),value=await response.clone().json();
    if(response.ok&&value.voyage){if(voyage&&voyage!==value.voyage)throw Error('The selected voyage changed. Reopen Saved voyages.');voyage=value.voyage;setPin(owner,voyage);}

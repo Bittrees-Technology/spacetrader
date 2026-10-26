@@ -5,7 +5,7 @@ const defaultHash=async raw=>Array.from(new Uint8Array(await crypto.subtle.diges
 const uuid=()=>crypto.randomUUID();
 const response=value=>new Response(JSON.stringify(value),{status:200,headers:{'Content-Type':'application/json'}});
 const tail=record=>({...record.batch.base,...record.batch.latest,raw:record.body.raw,batchSaves:true,checkpointLimit:0,pending:record.batch.events.length});
-export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:initial,onStatus=()=>{},onConflict=()=>{},hash=defaultHash,delay=2500,schedule=setTimeout,cancel=clearTimeout}){
+export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:initial,onStatus=()=>{},onConflict=()=>{},isHidden=()=>false,hash=defaultHash,delay=2500,schedule=setTimeout,cancel=clearTimeout}){
  let voyage=initial,current=null,enabled=false,inFlight=null,timer=null,retries=0,disposed=false,blocked=false,lastError=null,status={pending:0,syncing:false,conflict:false,error:null};
  function notify(record,error=blocked?lastError:null){status={pending:record?.batch?.events.length||0,syncing:Boolean(inFlight),conflict:record?.status==='conflict',error:error?.message||null};onStatus(status);}
  function plan(record){
@@ -40,7 +40,7 @@ export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:in
    const sequence=base.sequence+1;
    return {...value,body:{raw:body.raw,action:body.action},batch:{...value.batch,events:[...value.batch.events,event],latest:{revision:rawHash+':'+sequence,sequence}}};
   });
-  current=tail(record);notify(record);later(record.batch.events.length>=16?0:delay);return response(current);
+  current=tail(record);notify(record);if(isHidden()&&timer!==null){cancel(timer);timer=null;}later(isHidden()||record.batch.events.length>=16?0:delay);return response(current);
  }
  async function perform(){
   const opening=await outbox.get(owner,voyage),target=opening?.batch?.latest.sequence||0;
@@ -49,7 +49,10 @@ export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:in
    if(record.status==='conflict')throw Error('Pending actions need review in Account & saves.');
    if(!record.batch.flight){const proposed=plan(record);record=await outbox.change(owner,voyage,value=>value?.batch&&!value.batch.flight?{...value,batch:{...value.batch,flight:{id:proposed.request.id,count:proposed.count,revision:proposed.revision}}}:value);if(!record?.batch)continue;}
    const flight=plan(record);notify(record);
-   const result=await send('/api/voyage/batch',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-Spacetrader':'shared-save-v1','X-Spacetrader-Storage':'compact-v1','X-Spacetrader-Account':owner,'X-Spacetrader-Voyage':voyage},body:JSON.stringify(flight.request)}),value=await result.json();
+   const body=JSON.stringify(flight.request);
+   // Keep small in-flight saves alive across navigation. Larger batches stay in the durable outbox;
+   // browsers cap keepalive bodies at 64 KiB, shared across outstanding requests.
+   const result=await send('/api/voyage/batch',{method:'POST',credentials:'same-origin',cache:'no-store',keepalive:bytes(body)<=60_000,headers:{'Content-Type':'application/json','X-Spacetrader':'shared-save-v1','X-Spacetrader-Storage':'compact-v1','X-Spacetrader-Account':owner,'X-Spacetrader-Voyage':voyage},body}),value=await result.json();
    if(!result.ok){
     if(result.status===409){await outbox.hold(owner,voyage);onConflict();}
     throw Object.assign(Error(value.error||'Cloud synchronization is delayed. Device progress is preserved.'),{status:result.status});
