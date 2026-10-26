@@ -20,8 +20,8 @@ const source=JSON.parse(await readFile(join(directory,'shared/provenance.json'))
 for(const [file,hash] of Object.entries(source.files))if(createHash('sha256').update(await readFile(join(directory,'shared',file))).digest('hex')!==hash)throw Error('Canonical shared sign-in source changed: '+file);
 const {build}=require('esbuild');
 const common={bundle:true,logLevel:'warning',logLimit:4,nodePaths:[dependencies],legalComments:'eof'};
-if(process.argv.includes('--test')||process.argv.includes('--ui-test')||process.argv.includes('--compact-test')||process.argv.includes('--efficient-test')){
- const ui=process.argv.includes('--ui-test'),name=process.argv.includes('--efficient-test')?'efficient-saves':ui?'account-ui':process.argv.includes('--compact-test')?'compact-saves':'account-saves';
+if(process.argv.includes('--test')||process.argv.includes('--ui-test')||process.argv.includes('--compact-test')||process.argv.includes('--efficient-test')||process.argv.includes('--boundary-test')){
+ const ui=process.argv.includes('--ui-test'),name=process.argv.includes('--boundary-test')?'storage-boundaries':process.argv.includes('--efficient-test')?'efficient-saves':ui?'account-ui':process.argv.includes('--compact-test')?'compact-saves':'account-saves';
  const output=join(root,'Research/AccountSaves-2026-10-26',name+'.cjs');await mkdir(dirname(output),{recursive:true});
  await build({...common,platform:'node',target:'node24',format:'cjs',external:['@electric-sql/pglite','playwright-core'],entryPoints:[join(root,'Tests/browser',name+'.test.mjs')],outfile:output});
  const test=spawnSync(process.execPath,[output],{stdio:'inherit',cwd:root,env:{...process.env,NODE_PATH:dependencies}});if(test.error)throw test.error;process.exitCode=test.status??1;
