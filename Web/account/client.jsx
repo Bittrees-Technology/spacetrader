@@ -91,12 +91,13 @@ function Account(){
  useEffect(()=>{void refresh(true);},[]);
  async function run(job){if(busy)return;setBusy(true);setError('');try{await job();}catch(e){setError(e.message);}finally{setBusy(false);}}
  if(phase==='signin')return <SignIn onSignedIn={()=>refresh()}/>;
+ const savedCaptain=head?.raw?host.Heliocline?.parse(head.raw):null;
  return <section className="captain-account-panel" aria-labelledby="captain-account-title"><div className="captain-account-brand"><img src="/favicon.svg" alt="" width="28" height="28"/><span>Spacetrader</span></div><h2 id="captain-account-title">Account &amp; saves</h2>
   {phase==='checking'&&<p role="status">Checking your account…</p>}
   {phase==='unavailable'&&<p>Account saves are not available yet. Your voyage still saves on this device.</p>}
   {phase==='error'&&<button onClick={()=>void refresh()}>Retry connection</button>}
   {phase==='account'&&<><p className="captain-account-identity">{account.label}</p><p>{cloudActive?'Your voyage and checkpoints save to this account.':head?.raw?'An account voyage is available. Your device voyage is kept separately.':'Your account is ready for a voyage.'}</p>
-   {head?.raw?<><p><strong>{host.Heliocline?.parse(head.raw).profile.name||'Your captain'}</strong> · {head.sequence.toLocaleString()} recorded actions</p>{!cloudActive&&<button disabled={busy} onClick={()=>void run(async()=>{if(host.SpacetraderAccountBridge&&!host.SpacetraderAccountBridge.canSwitch())throw Error('Finish the current encounter before changing voyages.');setMode('account');location.assign('/play/');})}>Continue account voyage</button>}</>:<>{device?.profile.created&&<button disabled={busy} onClick={()=>void run(()=>transfer(setProgress))}>Transfer device voyage &amp; history</button>}<button disabled={busy} onClick={()=>{setMode('account');location.assign('/play/');}}>Start a new account voyage</button></>}
+   {head?.raw?<><p><strong>{savedCaptain?.profile.created?savedCaptain.profile.name:'New charter'}</strong> · {head.sequence.toLocaleString()} recorded actions</p>{!cloudActive&&<button disabled={busy} onClick={()=>void run(async()=>{if(host.SpacetraderAccountBridge&&!host.SpacetraderAccountBridge.canSwitch())throw Error('Finish the current encounter before changing voyages.');setMode('account');location.assign('/play/');})}>Continue account voyage</button>}</>:<>{device?.profile.created&&<button disabled={busy} onClick={()=>void run(()=>transfer(setProgress))}>Transfer device voyage &amp; history</button>}<button disabled={busy} onClick={()=>{setMode('account');location.assign('/play/');}}>Start a new account voyage</button></>}
    {progress&&<p role="status">{progress}</p>}
    <p className="captain-account-note">Account saves include your journal, action history and three checkpoint slots. The original device voyage is retained.</p>
    {cloudActive&&<p className="captain-account-note">A connection is needed to record account actions. A newer save from another device is checked before every write.</p>}
@@ -110,12 +111,12 @@ function open(){
  if(!reactRoot){reactRoot=createRoot(dialog.querySelector('[data-account-root]'));reactRoot.render(<Account/>);}
  if(!dialog.open)dialog.showModal();
 }
-host.spacetraderAccountMenuHTML=()=>'<button type="button" class="game-button game-menu-item" data-spacetrader-account><strong>Account &amp; saves</strong><small>Continue across devices</small></button>';
+host.spacetraderAccountMenuHTML=(entry=false)=>'<button type="button" class="game-button game-menu-item" data-spacetrader-account><strong>'+(entry&&!account?.signedIn?'Sign in &amp; load voyage':'Account &amp; saves')+'</strong><small>Continue across devices</small></button>';
 document.addEventListener('click',event=>{if(event.target.closest('[data-spacetrader-account]')){event.preventDefault();open();}});
 const original=host.openBrowserVoyageLedger;
 host.openBrowserVoyageLedger=async options=>{
  localRequest=await original(options);
- try{await status();}catch{if(getMode()==='account')throw Error('Reconnect and sign in to load your account voyage. Your device voyage remains intact.');return localRequest;}
+ try{await status();}catch{account=null;return localRequest;}
  const localHead=await (await localRequest('/api/voyage')).json();
  const hasDeviceVoyage=Boolean(localHead.raw&&host.Heliocline.parse(localHead.raw).profile.created);
  if(account.signedIn&&(getMode()==='account'||!hasDeviceVoyage)){
@@ -138,10 +139,9 @@ host.openBrowserVoyageLedger=async options=>{
    return new Response(JSON.stringify(value),{status:response.status,headers:response.headers});
   };
  }
- if(getMode()==='account'&&!account.signedIn){setTimeout(open,0);throw Error('Sign in to reconnect to your account voyage. Your device voyage remains intact.');}
  if(new URLSearchParams(location.search).get('account')==='1')setTimeout(open,0);
  return localRequest;
 };
-host.SpacetraderAccount={open,isCloud:()=>cloudActive};
+host.SpacetraderAccount={open,isCloud:()=>cloudActive,useDevice:()=>setMode('device')};
 const deviceHealth=host.spacetraderSaveHealthHTML;
 host.spacetraderSaveHealthHTML=()=>cloudActive?'<details class="browser-save-health"><summary>Account save storage</summary><p>Your voyage, history and checkpoints save to your signed-in account after each confirmed action.</p><button type="button" data-spacetrader-account>Account &amp; saves</button></details>':deviceHealth?.()||'';

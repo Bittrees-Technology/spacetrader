@@ -10,6 +10,7 @@ import {parseSiweMessage} from 'viem/siwe';
 import {createApi} from '../../Web/account/api.mjs';
 import {createStorage} from '../../Web/account/storage.mjs';
 import engine from '../../Browser/engine.js';
+import combatFixture from './combat-v2-balance.cjs';
 
 (async()=>{
 const database=new PGlite();await database.exec(await readFile('Web/account/schema.sql','utf8'));await database.exec('SET search_path=pg_catalog,spacetrader,pg_temp');
@@ -39,7 +40,16 @@ const output=resolve('Research/AccountSaves-2026-10-26');await mkdir(output,{rec
 const errors=[];
 try{
  const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
- await page.goto(origin+'/play/');await page.locator('#captain-name').fill('Persistence QA');await page.locator('#character-form').evaluate(form=>form.requestSubmit());
+ await page.goto(origin+'/play/');await page.getByRole('navigation',{name:'Game menu',exact:true}).waitFor();
+ assert.equal(await page.locator('#character-form').count(),0);assert.equal(await page.locator('.game-shell').count(),0);
+ for(const [name,width,height] of [['phone',390,844],['ipad-portrait',768,1024],['ipad-landscape',1024,680],['desktop',1440,900]]){
+  await page.setViewportSize({width,height});await page.waitForFunction(()=>{const r=document.querySelector('#modal').getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;});
+  assert(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight&&document.documentElement.scrollWidth<=innerWidth),'Entry menu fits the viewport');
+  if(name==='phone'||name==='desktop')await page.screenshot({path:join(output,'menu-'+name+'.png')});
+ }
+ await page.getByRole('button',{name:'New charter',exact:false}).click();await page.locator('#captain-name').waitFor();assert.equal(await page.locator('#captain-name').inputValue(),'');
+ await page.getByRole('button',{name:'Back to menu',exact:true}).click();await page.getByRole('navigation',{name:'Game menu',exact:true}).waitFor();
+ await page.getByRole('button',{name:'New charter',exact:false}).click();await page.locator('#captain-name').fill('Persistence QA');await page.locator('#character-form').evaluate(form=>form.requestSubmit());
  await page.waitForFunction(()=>state?.profile.created);
  assert(await page.evaluate(()=>sharedCheckpoint('slot2',JSON.stringify(state))));
  await page.evaluate(()=>{closeModal(true);SpacetraderAccount.open();});
@@ -57,6 +67,7 @@ try{
  const saves=createStorage(sql,{parse:engine.parse,accountLimit:16777216,totalLimit:134217728});assert.equal((await saves.snapshot(account.id)).raw,null,'Sign-in alone never uploads or replaces a voyage');
  const localSequence=await page.evaluate(()=>sharedSession.snapshot.sequence);
  await page.getByRole('button',{name:'Transfer device voyage & history',exact:true}).click();await page.waitForFunction(()=>window.SpacetraderAccount?.isCloud()&&state?.profile.name==='Persistence QA');
+ await page.getByRole('button',{name:'Continue voyage',exact:false}).click();await page.locator('.game-shell').waitFor();
  assert.equal((await saves.snapshot(account.id)).sequence,localSequence);
  assert((await saves.snapshot(account.id)).slots.slot2,'Transfer includes the original device checkpoint');
  const timings=[];
@@ -64,17 +75,35 @@ try{
  assert(await page.evaluate(()=>sharedCheckpoint('slot1',JSON.stringify(state))));
  const expected=await saves.snapshot(account.id);assert(expected.slots.slot1);
  await page.close();const reopened=await context.newPage();await reopened.goto(origin+'/play/');await reopened.waitForFunction(()=>window.SpacetraderAccount?.isCloud()&&state?.profile.name==='Persistence QA');
+ assert.equal(await reopened.locator('.game-shell').count(),0);await reopened.getByRole('button',{name:'Load checkpoint',exact:false}).click();await reopened.getByRole('heading',{name:'Load checkpoint',exact:true}).waitFor();await reopened.getByRole('button',{name:'Back to previous popout',exact:true}).click();await reopened.getByRole('button',{name:'Continue voyage',exact:false}).click();await reopened.locator('.game-shell').waitFor();
  assert.equal(await reopened.evaluate(()=>sharedSession.snapshot.revision),expected.revision,'Closing a game tab preserves its account voyage');
- const device=await browser.newContext({viewport:{width:768,height:1024}}),other=await device.newPage();await other.goto(origin+'/play/');await other.getByRole('button',{name:'Sign in for account saves',exact:true}).click();
+ const device=await browser.newContext({viewport:{width:768,height:1024}}),other=await device.newPage();await other.goto(origin+'/play/');await other.getByRole('button',{name:'Sign in & load voyage',exact:false}).click();
  await other.getByLabel('Email address',{exact:true}).fill('persistence-qa@example.org');await other.getByRole('button',{name:'Send verification code',exact:true}).click();await other.getByLabel('Verification code',{exact:true}).fill(codes.at(-1).code);await other.getByRole('button',{name:'Verify and continue',exact:true}).click();await other.getByRole('button',{name:'Continue account voyage',exact:true}).click();
  await other.waitForFunction(()=>window.SpacetraderAccount?.isCloud()&&state?.profile.name==='Persistence QA');assert.equal(await other.evaluate(()=>sharedSession.snapshot.revision),expected.revision,'A separate browser device loads the same head and checkpoints');
+ await other.getByRole('button',{name:'Continue voyage',exact:false}).click();await other.locator('.game-shell').waitFor();
  assert(await reopened.evaluate(()=>sharedAction('buy',{good:'water',units:1})));
  const fresh=await saves.snapshot(account.id);assert.equal(await other.evaluate(()=>sharedAction('buy',{good:'water',units:1})),false,'A stale device cannot repeat a choice against newer progress');
  assert.equal((await saves.snapshot(account.id)).sequence,fresh.sequence);
  assert.equal(await other.evaluate(()=>sharedSession.snapshot.revision),fresh.revision);
- const badWallet=await browser.newContext({viewport:{width:390,height:740}}),walletPage=await badWallet.newPage();await walletPage.clock.install();await walletPage.addInitScript(()=>{window.ethereum={request:()=>new Promise(()=>{})};});await walletPage.goto(origin+'/play/');await walletPage.getByRole('button',{name:'Sign in for account saves',exact:true}).click();await walletPage.getByRole('button',{name:'Sign in with Ethereum',exact:true}).click();await walletPage.clock.fastForward(61000);await walletPage.getByRole('alert').filter({hasText:'wallet did not respond'}).waitFor();assert(await walletPage.getByLabel('Email address',{exact:true}).isEnabled(),'Wallet timeout must restore email controls');
+ // Loading from the entry menu uses the existing confirmed checkpoint flow.
+ await other.reload();await other.getByRole('button',{name:'Load checkpoint',exact:false}).click();
+ await other.locator('.checkpoint-slot').filter({has:other.getByRole('heading',{name:'Slot 1',exact:true})}).getByRole('button',{name:'Load…',exact:true}).click();
+ await other.getByRole('button',{name:'Load checkpoint',exact:true}).click();await other.locator('.game-shell').waitFor();
+ assert.equal(await other.evaluate(()=>state.credits),engine.parse(expected.slots.slot1).credits);
+ assert((await saves.snapshot(account.id)).sequence>fresh.sequence,'A checkpoint restore records an action without losing later history');
+ // A saved live battle must not exchange fire on a menu or its Audio subpage.
+ let battle=combatFixture.start(combatFixture.ready('osprey',3,2),2);
+ battle=engine.transact(battle,'battle-plan',{battle:battle.battle.id,step:0,revision:0,realtime:true,engage:true});
+ const beforeBattle=await saves.snapshot(account.id),idleBattle=await saves.append(account.id,{key:'auto',raw:JSON.stringify(battle),revision:beforeBattle.revision,action:{id:'qa-menu-battle',type:'qa-fixture',args:{},version:'0.72.257'}});
+ await reopened.reload();await reopened.getByRole('button',{name:'Continue voyage',exact:false}).waitFor();
+ await reopened.getByRole('button',{name:'Audio',exact:false}).click();await reopened.getByRole('button',{name:'Back to previous popout',exact:true}).click();
+ await new Promise(resolve=>setTimeout(resolve,1100));assert.equal((await saves.snapshot(account.id)).revision,idleBattle.revision);assert.equal(await reopened.evaluate(()=>state.battle.live.step),0);assert.equal(await reopened.locator('.game-shell').count(),0);assert(await reopened.evaluate(()=>SpacetraderAccountBridge.canSwitch()),'An idle saved battle does not block choosing an account at the entry menu');
+ const expired=await browser.newContext(),expiredPage=await expired.newPage();await expiredPage.addInitScript(()=>localStorage.setItem('spacetrader.account-save-mode.v1','account'));await expiredPage.goto(origin+'/play/');
+ await expiredPage.getByRole('button',{name:'Sign in & load voyage',exact:false}).waitFor();assert.equal(await expiredPage.locator('#character-form').count(),0);
+ await expiredPage.getByRole('button',{name:'New charter',exact:false}).click();await expiredPage.locator('#captain-name').waitFor();assert.equal(await expiredPage.evaluate(()=>localStorage.getItem('spacetrader.account-save-mode.v1')),'device');
+ const badWallet=await browser.newContext({viewport:{width:390,height:740}}),walletPage=await badWallet.newPage();await walletPage.clock.install();await walletPage.addInitScript(()=>{window.ethereum={request:()=>new Promise(()=>{})};});await walletPage.goto(origin+'/play/');await walletPage.getByRole('button',{name:'Sign in & load voyage',exact:false}).click();await walletPage.getByRole('button',{name:'Sign in with Ethereum',exact:true}).click();await walletPage.clock.fastForward(61000);await walletPage.getByRole('alert').filter({hasText:'wallet did not respond'}).waitFor();assert(await walletPage.getByLabel('Email address',{exact:true}).isEnabled(),'Wallet timeout must restore email controls');
  assert.equal(errors.length,0,errors.join('; '));
- await writeFileSafe(join(output,'ui-verification.json'),{passed:true,layouts:4,closeTabPersistence:true,separateDevicePersistence:true,fullHistoryTransferred:true,checkpoints:true,staleDeviceRejected:true,walletTimeoutRecovery:true,localActionMilliseconds:timings,realEmailsSent:0,externalWalletRPCRequests:0,errors});
+ await writeFileSafe(join(output,'ui-verification.json'),{passed:true,layouts:4,entryMenu:true,checkpointLoadFromMenu:true,battleIdleOnMenu:true,expiredSignInMenu:true,closeTabPersistence:true,separateDevicePersistence:true,fullHistoryTransferred:true,checkpoints:true,staleDeviceRejected:true,walletTimeoutRecovery:true,localActionMilliseconds:timings,realEmailsSent:0,externalWalletRPCRequests:0,errors});
  console.log('PASS account UI: four responsive layouts, actual email flow, complete guest-history transfer, checkpoint persistence, closed-tab reopening, second device, stale-device rejection and wallet timeout recovery; zero live emails.');
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));await database.close();}
 })().catch(error=>{console.error(String(error.stack||error).slice(0,2500));process.exitCode=1;});

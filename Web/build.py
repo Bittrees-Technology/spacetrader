@@ -140,15 +140,15 @@ def build():
     render_start = "function render(){\n if(blocked||!state)return;"
     if app.count(render_start) != 1:
         raise ValueError('Review the public charter setup adapter')
-    app = app.replace(render_start, render_start + "if(!state.profile.created){$('app').innerHTML='<header><a class=\"brand charter-home\" href=\"/\"><img src=\"icon.svg\" alt=\"\"><h1>Spacetrader</h1></a></header><main id=\"main\" class=\"charter-welcome\" aria-label=\"New charter\"></main>';scheduleMainModal();return;}")
+    app = app.replace(render_start, render_start + "if(publicStartMenu||!state.profile.created){$('app').innerHTML='<header><a class=\"brand charter-home\" href=\"/\"><img src=\"icon.svg\" alt=\"\"><h1>Spacetrader</h1></a></header><main id=\"main\" class=\"charter-welcome\" aria-label=\"Game menu\"></main>';scheduleMainModal();return;}")
     creator_head = "modalHead('Your independent charter')"
     close_start = 'function closeModal(force=false){'
     loaded_notice = 'saveFeedback=`Loaded ${state.profile.name} · day ${state.day}. Your previous voyage is kept.`;'
     for expected in [creator_head, close_start, loaded_notice]:
         if app.count(expected) != 1:
             raise ValueError('Review public charter navigation')
-    app = app.replace(creator_head, "modalHead('Your independent charter',false)+ '<p><a href=\"/\">Back to site</a></p>'")
-    app = app.replace(close_start, close_start + "if(!force&&modalKind==='creator'&&!state.profile.created){location.assign('/');return;}")
+    app = app.replace(creator_head, "modalHead('Your independent charter',false)+ '<p>'+btn('Back to menu','public-menu')+'</p>'")
+    app = app.replace(close_start, close_start + "if(publicStartMenu&&!force&&modalKind==='menu')return;if(!force&&modalKind==='creator'&&!state.profile.created){publicReturnToMenu();return;}")
     app = app.replace(loaded_notice, "saveFeedback=state.profile.created?`Loaded ${state.profile.name} · day ${state.day}. Your previous voyage is kept.`:'Ready to create your captain. Your previous voyage is kept.';")
     modal_bounds = 'bounds=mainModalBounds(main?.getBoundingClientRect(),width,height)'
     if app.count(modal_bounds) != 1:
@@ -160,7 +160,22 @@ def build():
     app=app.replace(menu_item,menu_item+"${window.spacetraderAccountMenuHTML?.()||''}")
     app=app.replace('function sharedStatus(){',"function sharedStatus(){if(window.SpacetraderAccount?.isCloud())return 'Account action ledger · saved';")
     app=app.replace('setInterval(sharedPoll,1500)',"setInterval(sharedPoll,window.SpacetraderAccount?.isCloud()?15000:1500)")
-    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!state?.battle&&!journey&&!sharedBusy&&!queuedActions,settled:()=>actionQueue};\n"
+    entry_markers={
+        'function gameMenuHTML(){': "function gameMenuHTML(){if(publicStartMenu)return publicStartMenuHTML();",
+        'function showCreator(){': "function showCreator(){if(publicStartMenu){showGameMenu();return;}",
+        'function showEncounter(){': "function showEncounter(){if(publicStartMenu)return;",
+        'function scheduleInspectionNotice(){': "function scheduleInspectionNotice(){if(publicStartMenu)return;",
+        'function scheduleCharterNotice(){': "function scheduleCharterNotice(){if(publicStartMenu)return;",
+        'function publishLoaded(next,label,backup){': "function publishLoaded(next,label,backup){publicStartMenu=false;if(!window.SpacetraderAccount?.isCloud())window.SpacetraderAccount?.useDevice();",
+        'collectArrivalInspections(previousState,next);render();if(state.incident)': 'collectArrivalInspections(previousState,next);render();if(publicStartMenu){showGameMenu();return;}if(state.incident)',
+        'if(a===\'menu\'){showGameMenu();return;}': "if(a==='public-continue'){publicEnterVoyage();return;}if(a==='public-menu'){publicReturnToMenu();return;}if(a==='menu'){showGameMenu();return;}"
+    }
+    for old,new in entry_markers.items():
+        if app.count(old)!=1:
+            raise ValueError('Review the public entry-menu adapter: '+old)
+        app=app.replace(old,new)
+    app="'use strict';\n"+(SITE/'start-menu.js').read_text()+'\n'+app
+    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:()=>actionQueue};\n"
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')
     clone(SITE / 'play-viewport.css', 'play/play-viewport.css')

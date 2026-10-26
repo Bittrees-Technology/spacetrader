@@ -24,9 +24,10 @@ for(const section of ['guide','characters','ships','goods']){
 assert(read('play/app.js').includes("window.open('/guide/'"));
 assert(read('play/app.js').includes('Sign in to continue across devices.'));
 const app=read('play/app.js'),guard=app.slice(app.indexOf('function render(){'),app.indexOf('\n const p=E.port(state.location)',app.indexOf('function render(){')));
-let scheduled=0;const target={innerHTML:'unchanged'},context={blocked:false,state:{profile:{created:false,name:'Alex Rivera'}},$:()=>target,scheduleMainModal:()=>scheduled++};
+let scheduled=0;const target={innerHTML:'unchanged'},context={blocked:false,publicStartMenu:true,state:{profile:{created:false,name:'Alex Rivera'}},$:()=>target,scheduleMainModal:()=>scheduled++};
 vm.createContext(context);vm.runInContext(guard+'\n}',context);context.render();
 assert(target.innerHTML.includes('charter-welcome'));assert(!target.innerHTML.includes('Alex Rivera'));assert(!target.innerHTML.includes('<aside'));assert.equal(scheduled,1);
+context.state.profile.created=true;context.render();assert(!target.innerHTML.includes('<aside'));assert.equal(scheduled,2,'Returning captains also start at the menu');
 const home=read('index.html');
 assert(!home.includes('http-equiv="refresh"'));assert(!/<script(?! type="application\/ld\+json")/.test(home));assert(home.includes('href="/play/"'));
 for(const target of ['guide','characters','ships','goods'])assert(home.includes('href="/'+target+'/'),target);

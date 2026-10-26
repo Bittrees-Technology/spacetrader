@@ -8,6 +8,15 @@ The game stays playable as a guest. Account saves are optional and do not requir
 an NFT. Future NFT ownership can attach to the stable voyage UUID; this release
 does not mint, transfer, rank or grant agent control of any captain.
 
+`/play/` opens the game menu before rendering the cockpit or resuming an encounter.
+Choose Sign in & load voyage on a new device and use the original verified email
+or wallet identity. Continue voyage opens the selected account/device head; Load
+checkpoint appears when that voyage has saved slots. Account & saves can select
+an existing account voyage when a separate device voyage is present. Only choosing
+New charter opens captain creation. An expired account session returns to the
+menu; continuing a labelled device voyage is an explicit choice, never an automatic
+replacement for a cloud save.
+
 ## Integration requiring the existing service owners
 
 - Register SSO client `spacetrader` at `https://captain.bittrees.org`, with callback
