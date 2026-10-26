@@ -1,5 +1,5 @@
 import {createHash} from 'node:crypto';
-import {deflateSync,inflateSync} from 'node:zlib';
+import {deflateSync,inflateSync,brotliCompressSync,brotliDecompressSync,constants} from 'node:zlib';
 
 export const MAX_SAVE=2_000_000;
 export const digest=raw=>createHash('sha256').update(raw).digest('hex');
@@ -7,10 +7,10 @@ export function boundedRaw(raw){
  if(typeof raw!=='string'||Buffer.byteLength(raw)>=MAX_SAVE)throw Error('The voyage exceeds the save limit. Your existing saves are preserved.');
  return Buffer.from(raw);
 }
-export const full=raw=>deflateSync(boundedRaw(raw),{level:1}).toString('base64');
+export const full=raw=>'B1:'+brotliCompressSync(boundedRaw(raw),{params:{[constants.BROTLI_PARAM_QUALITY]:4}}).toString('base64');
 export function inflate(payload,limit=MAX_SAVE){
  if(typeof payload!=='string'||payload.length>limit*2)throw Error('Invalid saved payload.');
- return inflateSync(Buffer.from(payload,'base64'),{maxOutputLength:limit});
+ return payload.startsWith('B1:')?brotliDecompressSync(Buffer.from(payload.slice(3),'base64'),{maxOutputLength:limit}):inflateSync(Buffer.from(payload,'base64'),{maxOutputLength:limit});
 }
 function changes(before,after,path=[],out=[]){
  if(before===after)return out;

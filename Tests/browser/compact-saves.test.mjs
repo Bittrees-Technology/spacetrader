@@ -5,12 +5,21 @@ import engine from '../../Browser/engine.js';
 import J from '../../Browser/journal-feed.js';
 import {createStorage} from '../../Web/account/storage.mjs';
 import {createAuth} from '../../Web/account/auth.mjs';
-import {digest} from '../../Web/account/codec.mjs';
+import {digest,full,inflate} from '../../Web/account/codec.mjs';
+import {encodeJournal,decodeJournal} from '../../Web/account/journal-codec.mjs';
+import {deflateSync} from 'node:zlib';
 import {journalRecord,readChunk,expandRecord} from '../../Web/account/compact.mjs';
 import {installJournalReader} from '../../Web/account/journal-reader.mjs';
 
 let activeDatabase;
 (async()=>{
+ for(let i=0;i<300;i++){
+  const value=JSON.parse(JSON.stringify([{a:['conversation',{id:'bank',topic:'rates'}],at:1793000000000+i,r:{sequence:i+1,title:'Conversation',notes:['旅 🪐 café \u0000','Repeated character response','Repeated character response'],changes:[{key:'accounts/credits',before:100000.125+i,after:99999.875+i}],custom:JSON.parse('{"__proto__":{"polluted":true},"constructor":"safe"}')},f:[{text:'Repeated character response',day:i},null,[true,false,0,-.125]]}]));
+  const encoded=encodeJournal(value);assert.deepEqual(decodeJournal(encoded),value);assert.equal(JSON.stringify(decodeJournal(encoded)),JSON.stringify(value));
+  const raw=JSON.stringify(value);assert.equal(inflate(full(raw)).toString(),raw);assert.equal(inflate(deflateSync(Buffer.from(raw),{level:1}).toString('base64')).toString(),raw);
+ }
+ assert.equal({}.polluted,undefined);assert.throws(()=>decodeJournal({v:2,k:['duplicate','duplicate'],s:[],d:[0]}));assert.throws(()=>decodeJournal({v:2,k:[],s:[],d:[2,999]}));
+ assert.throws(()=>inflate(full('x'.repeat(100000)),100));
  const db=activeDatabase=new PGlite();
  for(const file of ['schema.sql','migrations/002-voyage-library.sql','migrations/003-compact-journal.sql'])await db.exec(await readFile('Web/account/'+file,'utf8'));
  await db.exec('SET search_path=pg_catalog,spacetrader,pg_temp');
@@ -35,6 +44,7 @@ let activeDatabase;
  assert.equal((await sql`SELECT count(*)::int AS n FROM spacetrader_entries WHERE voyage_id=${id}`)[0].n,1,'No new world-state payloads accumulate per action');
  const chunkRows=await sql`SELECT * FROM spacetrader_journal_chunks WHERE voyage_id=${id} ORDER BY first_sequence`;
  assert.equal(chunkRows.length,3);assert.equal(chunkRows.flatMap(readChunk).length,270);
+ assert(chunkRows.some(row=>row.payload.startsWith('B1:')),'Repeated journals use the smaller dictionary encoding');assert.throws(()=>readChunk({...chunkRows[0],digest:'bad'}),/integrity/);assert.throws(()=>readChunk({...chunkRows[0],payload:'B1:invalid'}));
  const savedBeforeReplay=await bytes(),replayed=await saves.append(owner,last,id);assert.equal(replayed.revision,head.revision);assert.equal(await bytes(),savedBeforeReplay);
  await assert.rejects(saves.append(owner,{...last,action:{...last.action,args:{changed:true}}},id),/operation_reused/);
  await assert.rejects(saves.append(owner,{...last,action:{...last.action,id:'stale'},revision:'old'},id),e=>e.status===409);
@@ -95,5 +105,5 @@ let activeDatabase;
  await assert.rejects(db.query('CREATE TABLE public.not_allowed(n int)'),/permission denied/);
  await db.exec('RESET ROLE');
  const afterMigration=await saves.snapshot(owner,id);await db.exec(await readFile('Web/account/migrations/003-compact-journal.sql','utf8'));assert.deepEqual(await saves.snapshot(owner,id),afterMigration);
- await db.close();console.log('PASS compact saves: 270 actions in3chunks with no historical world payloads, complete paginated journal, no state fetches for new history, CAS/idempotency/quota atomicity,2bounded checkpoint slots, legacy third-slot/history preservation, full imports and restricted grants.');
+ await db.close();console.log('PASS compact saves: 300 exact lossless dictionary/Unicode/numeric/prototype/legacy-codec round trips, bounded decompression, 270 actions in3chunks with no historical world payloads, complete paginated journal, no state fetches for new history, CAS/idempotency/quota atomicity,2bounded checkpoint slots, legacy third-slot/history preservation, full imports and restricted grants.');
 })().catch(async error=>{await activeDatabase?.close();console.error(String(error.stack||error).slice(0,3000));process.exitCode=1;});

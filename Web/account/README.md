@@ -108,3 +108,11 @@ an unrelated guest voyage, and signing out returns to the separate device save.
 New private save requests require `X-Spacetrader-Storage: compact-v1`; older
 open clients must reload. Read-only history does not authorize arbitrary state
 restoration. Guest and native ledgers retain their existing format in this pass.
+
+Snapshot payloads use bounded Brotli quality 4 (`B1:` prefix); legacy zlib payloads
+remain readable. Journal blocks additionally share field names and repeated
+strings through a versioned lossless dictionary. The stored block digest always
+checks the exact decoded canonical record array. No dialogue, numeric change or
+event is discarded. Every newly encoded block is round-tripped before committing.
+Keep the dual-codec reader in any server rollback; older readers fail closed on
+new payloads. This encoding change needs no schema, quota or infrastructure change.
