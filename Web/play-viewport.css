@@ -79,6 +79,32 @@ body:has(.charter-welcome) #modal:has(#character-form){max-height:calc(var(--mod
  #modal .exchange-inline .exchange-list{overflow:visible;max-height:none}
 }
 
+/* Portrait tablets have room for one compact order row, with full-size touch controls. */
+@media(min-width:700px) and (max-width:1100px) and (orientation:portrait){
+ #modal.establishment-dialog:has(.exchange-inline) .establishment-layout{display:block;overflow-y:auto;overflow-x:hidden}
+ #modal.establishment-dialog:has(.exchange-inline) .visit-people,
+ #modal.establishment-dialog:has(.exchange-inline) .visit-services{overflow:visible;max-height:none}
+ #modal .exchange-services:has(.exchange-inline) .venue-service-features,#modal .exchange-inline{display:block;min-height:0;height:auto}
+ #modal .exchange-inline .exchange-list{overflow:visible;max-height:none}
+ #modal .exchange-inline .market-ledger{display:table}
+ #modal .exchange-inline .market-ledger tbody{display:table-row-group}
+ #modal .exchange-inline .market-ledger colgroup{display:table-column-group}
+ #modal .exchange-inline .market-ledger thead{display:table-header-group;position:static;width:auto;height:auto;overflow:visible;clip-path:none}
+ #modal .exchange-inline .market-ledger .ledger-price-col{width:70px}
+ #modal .exchange-inline .market-ledger .ledger-count-col{width:52px}
+ #modal .exchange-inline .market-ledger .ledger-quantity-col{width:188px}
+ #modal .exchange-inline .market-ledger .ledger-action-col{width:88px}
+ #modal .exchange-inline .market-ledger tr.market-product{display:table-row;height:56px;padding:0;border:0}
+ #modal .exchange-inline .market-ledger tr.market-product>th,
+ #modal .exchange-inline .market-ledger tr.market-product>td{display:table-cell;padding:6px 4px;border-bottom:1px solid #718b963b;vertical-align:middle}
+ #modal .exchange-inline .market-ledger tr.market-product>th{padding-left:0}
+ #modal .exchange-inline .market-item-name{font-size:13px;line-height:1.35}
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(2),
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(3){text-align:right}
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(2)::before,
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(3)::before{content:none}
+}
+
 @media(max-width:360px){
  .exchange-inline .market-ledger tr.market-product>td:nth-child(4){grid-column:1/-1;grid-row:3}
  .exchange-inline .market-ledger tr.market-product>td:nth-child(5){grid-column:1/-1;grid-row:4}
