@@ -1,6 +1,8 @@
 from pathlib import Path
 from html.parser import HTMLParser
 import html,re,json,hashlib,sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from formula_notation import typeset
 site=Path(__file__).parent;root=site.parents[1];source=(site/'fragment.html').read_text()
 class Blocks(HTMLParser):
  def __init__(self):
@@ -51,6 +53,7 @@ for block in p.blocks:
   return wrapped
  body=re.sub(r'<table\b.*?</table>',format_table,body,flags=re.S)
  body=re.sub(r'<p>\s*</p>','',body)
+ if title=='Bank rate model':body=typeset(body,'guide')
  rows.append({'id':slug,'title':title,'category':group,'html':'<section class="guide-topic" id="'+slug+'" data-category="'+html.escape(group,quote=True)+'">'+body+'</section>'})
 rows.sort(key=lambda r:categories.index(r['category']))
 nav=''.join('<div class="guide-nav-group" data-group="'+html.escape(c,quote=True)+'"><h3>'+html.escape(c)+'</h3>'+''.join('<a href="#'+r['id']+'">'+html.escape(r['title'])+'</a>' for r in rows if r['category']==c)+'</div>' for c in categories)
@@ -60,4 +63,4 @@ from catalogue_shell import header as reference_header
 header=reference_header('guide')
 page='''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0c1d28"><title>Spacetrader · Guide</title><link rel="stylesheet" href="/guide.css"><link rel="stylesheet" href="/catalogue-shell.css"><script defer src="/guide.js"></script></head><body><a class="skip" href="#guide-content">Skip to guide</a><div class="catalogue-shell">'''+header+'''</div><main><header class="guide-heading"><h1>Game guide</h1><p>Plan a voyage, manage your fleet and find your way around station life.</p></header><section class="guide-tools" aria-label="Find guide topics"><label for="guide-search">Search the guide<input id="guide-search" type="search" placeholder="Freight, licences, crew, interest…" autocomplete="off"></label><label for="guide-category">Topic<select id="guide-category"><option value="">All topics</option>'''+''.join('<option>'+html.escape(c)+'</option>' for c in categories)+'''</select></label><button id="guide-clear">Clear filters</button></section><p id="guide-status" role="status">'''+str(len(rows))+''' topics</p><div class="guide-layout"><details class="guide-contents" open><summary>Guide contents</summary><nav class="guide-index" aria-label="Guide contents">'''+nav+'''</nav></details><article id="guide-content"><p id="guide-empty" hidden>No topics match. Try another word or clear the filters.</p>'''+content+'''</article></div></main></body></html>'''
 (site/'index.html').write_text(page)
-manifest=json.loads((site/'reference-manifest.json').read_text());manifest.update({'indexSHA256':hashlib.sha256(page.encode()).hexdigest(),'builderSHA256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'headerSHA256':hashlib.sha256((root/'Local/catalogue_shell.py').read_bytes()).hexdigest(),'topics':[{k:r[k] for k in ['id','title','category']} for r in rows]});(site/'reference-manifest.json').write_text(json.dumps(manifest,indent=2));print(f'Static Guide built: {len(rows)} topics, {len(categories)} categories.')
+manifest=json.loads((site/'reference-manifest.json').read_text());manifest.update({'indexSHA256':hashlib.sha256(page.encode()).hexdigest(),'builderSHA256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),'notationSHA256':hashlib.sha256((root/'Local/formula_notation.py').read_bytes()).hexdigest(),'notationWitnessSHA256':hashlib.sha256((root/'Local/formula-notation-witness.json').read_bytes()).hexdigest(),'headerSHA256':hashlib.sha256((root/'Local/catalogue_shell.py').read_bytes()).hexdigest(),'topics':[{k:r[k] for k in ['id','title','category']} for r in rows]});(site/'reference-manifest.json').write_text(json.dumps(manifest,indent=2));print(f'Static Guide built: {len(rows)} topics, {len(categories)} categories.')

@@ -176,6 +176,13 @@ def build():
         source_dir = ROOT / 'Local' / (source_dirs[section] + '-catalogue')
         for name in names:
             data = (source_dir / name).read_text()
+            if section == 'goods' and name == 'formulas.html':
+                presentation = json.loads((source_dir / 'formula-presentation-manifest.json').read_text())
+                verified(source_dir / name, presentation['sourceSHA256'])
+                verified(ROOT / 'Local/formula_notation.py', presentation['notationSHA256'])
+                verified(ROOT / 'Local/formula-notation-witness.json', presentation['witnessSHA256'])
+                verified(ROOT / 'Tools/typeset_formulas.py', presentation['builderSHA256'])
+                data = verified(source_dir / 'formulas-presented.html', presentation['outputSHA256']).decode()
             write(section + '/' + name, page(data, section) if name.endswith('.html') else
                   script(data, section) if name.endswith('.js') else data)
         clone(ROOT / 'Local/catalogue-shell.css', section + '/catalogue-shell.css')

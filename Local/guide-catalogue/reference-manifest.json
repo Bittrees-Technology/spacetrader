@@ -10,9 +10,9 @@
     "bankRateRanges": "70a3d8e980400ef7f4695182f96614a3b6234ea199a0e1fd44e31e0865259d6c"
   },
   "fragmentSHA256": "a22c6e3407bced852343d57d45964acbe5a63bf5a3f4bc3b9ff6a4bbe7e40080",
-  "indexSHA256": "c08730faab74474186c879163bc65dffef958b39b731134e75b07ed7fc9746da",
-  "builderSHA256": "0a48284537ce0656f17fb7d8039d66bd978c2694a34ce1482fbdc28bec6eb830",
-  "headerSHA256": "96f54354d34a7bbd441d9ee7c19d2367b6667b2f6dde3704a72371a75d6c7e58",
+  "indexSHA256": "75063ab1e24bbee688c0b0358c65f97c5dad06e70b7d20b62a227b4b10820f26",
+  "builderSHA256": "376136c9bbc3562c6721e8ee6c601cf05901d22bf551e1cb5ce9441070ac6989",
+  "headerSHA256": "8ef01068e23512299ec7a63635744171bc84c7fa195712d024924bed9e95c6ce",
   "topics": [
     {
       "id": "your-first-run",
@@ -349,5 +349,7 @@
       "title": "Science references",
       "category": "World & science"
     }
-  ]
+  ],
+  "notationSHA256": "b4485024244e704a0b7460a0b665f99b28344f9e02778358788d6bd74fbd3537",
+  "notationWitnessSHA256": "470384aab6a9c3114ffa653b64555e7afc45d48d27f5cce0d3df2667b1703542"
 }

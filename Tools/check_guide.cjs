@@ -2,6 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
 const root=path.resolve(__dirname,'..'),site=path.join(root,'Local/guide-catalogue'),sha=v=>crypto.createHash('sha256').update(v).digest('hex'),read=p=>fs.readFileSync(p),m=JSON.parse(read(path.join(site,'reference-manifest.json')));
 assert.equal(m.mode,'reference');assert.equal(sha(read(path.join(root,'Local/catalogue_shell.py'))),m.headerSHA256);assert.equal(sha(read(path.join(site,'index.html'))),m.indexSHA256);assert.equal(sha(read(path.join(site,'guide-template.cjs'))),m.inputs.template);assert.equal(sha(read(path.join(site,'export.cjs'))),m.inputs.exporter);assert.equal(sha(read(path.join(site,'build.py'))),m.builderSHA256);assert.equal(sha(read(path.join(root,'Browser/engine.js'))),m.inputs.engine);
+assert.equal(sha(read(path.join(root,'Local/formula_notation.py'))),m.notationSHA256);assert.equal(sha(read(path.join(root,'Local/formula-notation-witness.json'))),m.notationWitnessSHA256);
 const src=read(path.join(root,'Browser/app.js')).toString(),helpers=[];
 assert.equal(sha(read(path.join(root,'Local/goods-catalogue/mechanics-fragment.html'))),m.inputs.goodsMechanics);
 assert.equal(sha(read(path.join(site,'bank-rate-ranges.json'))),m.inputs.bankRateRanges);

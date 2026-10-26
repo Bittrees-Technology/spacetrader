@@ -1,0 +1,182 @@
+{
+  "formulas": [
+    {
+      "firstLine": "logistics = 1 + .018 \u00d7 tanh(ln(G)) + .01 \u00d7 tanh(ln(1 + AU) / 3)",
+      "sha256": "8487c3ae7a956c6dc42de4e8c3fd5fe8cc10dfc8f52b5db9903094a0f3f3a1c1"
+    },
+    {
+      "firstLine": "base = round(80 \u00d7 1.25^tier / 5) \u00d7 5",
+      "sha256": "da64fa5f70304ab3ed5924b5f9caec969b82737af3b6d13e248806e53b29b5d8"
+    },
+    {
+      "firstLine": "localWeight = 0.16 + 0.12 \u00d7 min(1, sqrt(orbitalRadiusKm / 1,000,000))",
+      "sha256": "362de2bc20feeb163254895d5dc0bcf3463c0254848a7078660753c77c281a22"
+    },
+    {
+      "firstLine": "R = 0.90 + ln(1 + AU) \u00d7 0.025    if any station in the system exports it",
+      "sha256": "454bfadfe19bbe6d6bce07a8e77878d05fd1d9bbe5652e11cae65183f3aef976"
+    },
+    {
+      "firstLine": "stationSells = production > 0 OR declared retail import OR transit stock",
+      "sha256": "ec01f8139329dbeb9cfd3ec8b3836a7ab420e09c8efb49f61aa9af0256ef94a7"
+    },
+    {
+      "firstLine": "process capacity x[j] = reviewed mean main-output batches/day",
+      "sha256": "6539798dd42c2b2f4b56561dbe3330ad0054bf8dd29045bf32ae34590795ed2f"
+    },
+    {
+      "firstLine": "\u03c9 = 2\u03c0 / 1440",
+      "sha256": "4939793cedcdec517a6253bed4d809dce86c09aea431700f8e9783941b7747c2"
+    },
+    {
+      "firstLine": "P(t) \u2212 C(t) = P\u2080 \u2212 C\u2080 + X \u00d7 cos(\u03c9t) + Y \u00d7 sin(\u03c9t)",
+      "sha256": "930069374ed67e54d821a1ae63230def12cb89996aa7da7cb4d1e1bced53a1de"
+    },
+    {
+      "firstLine": "roleAvailability = export ? 1.48 : transit ? 1.18 : import ? 1.15 : 0.72",
+      "sha256": "c585978003a4c12995a3a505062e22ef7ae236494260b3027a771b020e4fe1ec"
+    },
+    {
+      "firstLine": "quantity[d+1] = quantity[d] + actualProduction \u2212 actualUse",
+      "sha256": "aec38c093d37bd562e3358ae231ee4abf360a355e4c7c89457c5420c06bcaad2"
+    },
+    {
+      "firstLine": "source cost = sum(source bid total for every product)",
+      "sha256": "b9637e9e2428ee94c53a8ae74d4cba81c016230b6e2fff66ae3aa6089b8a25b0"
+    },
+    {
+      "firstLine": "cycle = floor(day / 14)",
+      "sha256": "cc1eb652e6dffad61d61ac7bd065fe0117a5688a9ccff664281601d0b37eafd3"
+    },
+    {
+      "firstLine": "buy = ceil(base \u00d7 1.12); sell = floor(base \u00d7 0.88)",
+      "sha256": "34a476a9f7d5ab8c52299ac7a5533b2b09ef14c6c68d4657153d74655ce33b30"
+    },
+    {
+      "firstLine": "stock for package index i = 1 + floor(seed / (359 + i \u00d7 42)) mod 3 \u2212 bought",
+      "sha256": "1208b9e3d9e466471fa60b999e7d1dd67bdba6f779d48f6db506ec40f9d6416c"
+    },
+    {
+      "firstLine": "distanceFactor = 1 + min(1, max(0, systemAU \u2212 1) \u00d7 0.025)",
+      "sha256": "ac21712193cf926746cac22c73110d5fed47e6bce6012ecd6bc4dce9e5d0c51a"
+    },
+    {
+      "firstLine": "fuelCost = ceil(max(0, tonnes \u00d7 stationFuelPrice \u00d7 (1 \u2212 discount) \u2212 10\u207b\u2078))",
+      "sha256": "5e2010f2f7e54e33fb6293670c51ca74821679187f241ded5b1e54c56e97bef9"
+    },
+    {
+      "firstLine": "stepCost = round(ceil(hullPrice / 200) \u00d7 200 \u00d7 moduleRate \u00d7 0.005 \u00d7 levelMultiplier)",
+      "sha256": "f6c40a313f51212c27bbb3cdfc1bd64da87a265dba22042170eadc78424b5432"
+    },
+    {
+      "firstLine": "effectiveStanding = clamp(localScore + round(widerScore \u00d7 0.25), \u2212100, 100)",
+      "sha256": "67300d575222b78fd6332a02abdd2690577efe466bac8389aab247adf32de63f"
+    },
+    {
+      "firstLine": "unit = max(10, ceil(hullPrice \u00d7 0.0005))",
+      "sha256": "7f4f1bd2c61ec0776dc1f0a810b8d26feef1fe033a38ba983fbde232263072ed"
+    },
+    {
+      "firstLine": "projectReduction = qualifying final project ? floor(baseFee \u00d7 0.05) : 0",
+      "sha256": "3dbe63d4ce49abdc23acdf2a97a81fd2e208d37fa13335acefc9ebaa4c613fb4"
+    },
+    {
+      "firstLine": "allocated property = station bay price \u00d7 cargo units / 40",
+      "sha256": "52996b8bb2265e02ab1111cb0fab0387f818e70dbd9ecb430cd7dfc6a381877f"
+    },
+    {
+      "firstLine": "daily reserve fee = sum(station daily rate for each chargeable reserve ship)",
+      "sha256": "66a3442e22fa2523c60cb922d1c0ebf9195f7684383ec7312a5cc03e6b158f78"
+    },
+    {
+      "firstLine": "unit = max(todaySell + 1, ceil(todayBuy \u00d7 (1 \u2212 discount)))",
+      "sha256": "50be12e309245a62815c6bd4185771cb59df70b245894ef6661298414e01a960"
+    },
+    {
+      "firstLine": "buy = ceil(relicBase \u00d7 (0.85 + (floor(seed / 193) mod 31) / 100))",
+      "sha256": "e64342284b90b1e2108764aa833d18e9b99db5e7b4c345ffff113ca128d93ef9"
+    },
+    {
+      "firstLine": "authenticityFactor = unappraised ? 0.50 : genuine ? 1.00 : 0.15",
+      "sha256": "e727606206d90105f2f6b09e4d2f672a5e5a2a1159808f1482b45ab5e0948056"
+    },
+    {
+      "firstLine": "max gain = max(0, highest sell \u2212 lowest buy)",
+      "sha256": "1256d3da499dfa0e3c51d28d9a1769512a5e07e23cfb33e1b5836d9d9957669b"
+    },
+    {
+      "firstLine": "pair margin = sell \u2212 buy",
+      "sha256": "dc34820e418f5a0f2f5a06b8fdc2d60b158b10a34ef77fbf9441cda5b346b3c2"
+    },
+    {
+      "firstLine": "Buy population = { ask(station, day) for every listed station, day = 0\u20261,439 }",
+      "sha256": "66e0600302f855dd5dc0b8a6a2140b4c3de306105ad945c9c3704c6fea16a21e"
+    },
+    {
+      "firstLine": "lowBuy = min(buy(day)); highBuy = max(buy(day))",
+      "sha256": "2daa8fb3fd5cff523b25a6b5c27b218fc2d79566dc2cc54598a7c1e6df55f5fc"
+    },
+    {
+      "firstLine": "commodity XP = earned Commerce XP",
+      "sha256": "c56b6a5cc8ef43711f89bb9021e29cad93dfd7916068a46fffa15e1ff018c766"
+    },
+    {
+      "firstLine": "buy maximum = min(available stock, affordable units, compatible free hold units)",
+      "sha256": "c8b056f0e0a74b5ce3da151d811bd3d021372e11876c0774b9044e8715527494"
+    },
+    {
+      "firstLine": "relic liquidation reference = floor(catalogue relic value \u00d7 0.45)",
+      "sha256": "5b09c5d7fabc6318d44e852cd05355901b018a0d47795063d9b1fc1db341394b"
+    },
+    {
+      "firstLine": "experience = max(earned skill levels) / 10",
+      "sha256": "d8eaabb621958f57747e7dac8f556aa0ed7b1e75c8806b3a22a5fb77ab8003cf"
+    },
+    {
+      "firstLine": "crew ability = tier rank \u00d7 specialty step, only while on duty",
+      "sha256": "9b120b044331301fe09af9b7627353b987a04f2103ca6fb776b3d89473c0eeaf"
+    },
+    {
+      "firstLine": "report period = floor(ship-day / 30)",
+      "sha256": "9181feae3e9d1eb0b46e393878cfd639b04493d14fa9ca69f507ba71d734f4e2"
+    },
+    {
+      "firstLine": "threat = 1 for orbit distance \u2264 2 AU; 2 for \u2264 12 AU; otherwise 3",
+      "sha256": "7e3cfbf87f65a3e7807243bec9b0c892aed1b36c5dcaf3c45de7013eef3dfe21"
+    },
+    {
+      "firstLine": "age = ship-day \u2212 liberation day",
+      "sha256": "0f78e212171e74f5f2c8d1b053f07b85b83e538f6a237c8ede016f50e642b489"
+    },
+    {
+      "firstLine": "public step(s) = 400 + 20 \u00d7 max(0,s) + 10 \u00d7 max(0,s\u221270)\u00b2",
+      "sha256": "d64f207c33a5fd483811b5930d6d212d71e116edac040d5ecb703c5ee6e9837b"
+    },
+    {
+      "firstLine": "F(d) = 0.026 + 0.020 sin(2\u03c0d / 1440) + 0.006 sin(2\u03c0d / 330)",
+      "sha256": "da55c2c5aa95b9b8c9307d9e751725a2dfaafa6bf0ca29fc57a36d0bbb62daae"
+    },
+    {
+      "firstLine": "H32: start 2,166,136,261; for each character c:",
+      "sha256": "b1f76e424c1db898c2ad60bd2d82360a9b67d4612873810ccff6652606658168"
+    }
+  ],
+  "guide": [
+    {
+      "firstLine": "F = 0.026 + 0.020 \u00d7 sin(2\u03c0 \u00d7 day / 1440)",
+      "sha256": "5912639777ec430e73d48356fcfc7e7b22070b2261d239842abfa07a814d43dc"
+    },
+    {
+      "firstLine": "Loan target = max(0.012,",
+      "sha256": "f7f741120a4d957c6c8a34ee38969e291739c76c7acfca783d39b3d203c84be9"
+    },
+    {
+      "firstLine": "a = clamp(0.0144 \u00d7 (target \u2212 rate) \u2212 0.24 \u00d7 velocity,",
+      "sha256": "4e75837325ec4730179b39a6974310b5176562d07126d91e45b7efc8062426b0"
+    },
+    {
+      "firstLine": "L = clamp((resupply lead days \u2212 24) / 86, 0, 1)",
+      "sha256": "dd0c6ab41fac8cf9d1c9578cb52e8504de024845c6447778662eca5bb85f61df"
+    }
+  ]
+}

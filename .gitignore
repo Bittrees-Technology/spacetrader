@@ -13,6 +13,8 @@
 /Local/*
 !/Local/catalogue_shell.py
 !/Local/catalogue-shell.css
+!/Local/formula_notation.py
+!/Local/formula-notation-witness.json
 !/Local/character-catalogue/
 !/Local/ship-catalogue/
 !/Local/goods-catalogue/
