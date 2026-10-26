@@ -114,7 +114,9 @@ discovery_urls = re.findall(r'\]\((https://[^)]+)\)', discovery)
 assert len(discovery_urls) == len(set(discovery_urls))
 assert set(discovery_urls) == set(locations) | {seo.ORIGIN + '/sitemap.xml', seo.ORIGIN + '/robots.txt'}
 assert 'localhost' not in discovery and '127.0.0.1' not in discovery
-assert 'no remote agent-control API or cloud-save API' in discovery
+assert 'Account saves are private and require sign-in' in discovery
+assert not robots.can_fetch('OAI-SearchBot',seo.ORIGIN+'/api/voyage')
+assert not robots.can_fetch('Googlebot',seo.ORIGIN+'/api/ledger')
 for name,size in [('favicon-96.png',96),('apple-touch-icon.png',180),('icon-192.png',192),('icon-512.png',512)]:
     data=(STATIC/name).read_bytes();assert data[:8]==b'\x89PNG\r\n\x1a\n';assert struct.unpack('>II',data[16:24])==(size,size),name
 assert struct.unpack('>II',(STATIC/'social/spacetrader.png').read_bytes()[16:24])==(1200,630)

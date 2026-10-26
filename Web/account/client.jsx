@@ -1,0 +1,147 @@
+import React,{useState,useEffect,useRef} from 'react';
+import {createRoot} from 'react-dom/client';
+import {createSiweMessage} from 'viem/siwe';
+import {LoginPanel,EmailSignIn,EthereumSignIn} from './shared/login/LoginPanel.jsx';
+import './theme.css';
+
+const host=window,MODE='spacetrader.account-save-mode.v1';
+let localRequest,account=null,configured=false,dialog,reactRoot,cloudActive=false;
+const getMode=()=>{try{return localStorage.getItem(MODE)||'device';}catch{return 'device';}};
+const setMode=value=>{try{localStorage.setItem(MODE,value);}catch{throw Error('This browser could not save the account preference. Your voyages are preserved.');}};
+async function call(path,body,owner=false){
+ const headers={'Content-Type':'application/json',...(owner?{'X-Spacetrader':'shared-save-v1','X-Spacetrader-Account':account?.account||''}:{})};
+ const result=await fetch(path,{method:body===undefined?'GET':'POST',headers,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(30000),...(body===undefined?{}:{body:JSON.stringify(body)})});
+ const value=await result.json();if(!result.ok)throw Error(value.error||'The account request could not be completed.');return value;
+}
+const rawHash=async raw=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw)))).map(v=>v.toString(16).padStart(2,'0')).join('');
+async function status(){account=await call('/api/account/status');configured=account.configured;return account;}
+async function handoff(){
+ const value=await call('/api/sso/status');
+ if(value.configured&&['publish','resume'].includes(value.action)){
+  const query=new URLSearchParams({mode:value.action,return_to:'/play/?account=1'});location.assign('/api/sso/start?'+query);return true;
+ }
+ return false;
+}
+async function transfer(setProgress){
+ if(!localRequest)throw Error('The device ledger is not ready.');
+ if(host.SpacetraderAccountBridge&&!host.SpacetraderAccountBridge.canSwitch())throw Error('Finish the current encounter or action before transferring your voyage.');
+ await host.SpacetraderAccountBridge?.settled();
+ const local=await (await localRequest('/api/voyage')).json();
+ if(!local.raw)throw Error('Create a captain before transferring a device voyage.');
+ async function exportPage(after){const result=await localRequest('/api/ledger-export?after='+after+'&until='+local.sequence);if(!result.ok)throw Error('Device history could not be read.');return result.json();}
+ const first=await exportPage(0),total=first.total;
+ if(!total)throw Error('The device action history is unavailable. Your save has not been replaced.');
+ const hash=await rawHash(local.raw),source='device-'+await rawHash(local.revision+'|'+JSON.stringify(local.slots));
+ const staged=await call('/api/import/start',{source,total,hash},true);
+ let revision=staged.revision,processed=0,after=0,page=first;
+ do{
+  for(const row of page.entries){
+   if(!dialog?.open)throw Error('Transfer paused. Reopen Account & saves to resume; your device voyage is unchanged.');
+   after=row.sequence;if(processed++<staged.sequence)continue;
+   const response=await localRequest('/api/ledger/'+row.sequence);if(!response.ok)throw Error('A device action could not be transferred.');
+   const {raw,event,created}=await response.json(),id='import-'+await rawHash(source+'|'+row.sequence);
+   const result=await call('/api/import/batch',{id:staged.id,records:[{key:'auto',raw,revision,created,action:{id,type:event?.type||'legacy-import',args:event?.args||{},version:event?.version||'imported-browser-history',source:'browser'}}]},true);
+   revision=result.revision;setProgress(`Transferring action ${processed} of ${total}…`);
+  }
+  if(processed>=total)break;page=await exportPage(after);
+ }while(page.entries.length);
+ const latest=await (await localRequest('/api/voyage')).json();
+ if(latest.revision!==local.revision)throw Error('The device voyage changed during transfer. Retry to include the newest actions; no active cloud save was replaced.');
+ // Separate requests keep three near-limit checkpoint saves below hosting body limits.
+ for(const [key,raw] of Object.entries(local.slots||{}).filter(([key])=>/^slot[123]$/.test(key))){
+  if(!dialog?.open)throw Error('Transfer paused. Reopen Account & saves to resume.');
+  await call('/api/import/checkpoint',{id:staged.id,key,raw},true);
+ }
+ await call('/api/import/finish',{id:staged.id},true);
+ if(dialog?.open){setMode('account');location.assign('/play/');}
+}
+function SignIn({onSignedIn}){
+ const [email,setEmail]=useState(''),[challenge,setChallenge]=useState(''),[code,setCode]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const active=useRef(true);useEffect(()=>()=>{active.current=false;},[]);
+ async function run(job){if(busy)return;setBusy(true);setError('');try{await job();}catch(e){setError(e.message||'Sign-in could not be completed.');}finally{setBusy(false);}}
+ async function finished(){if(!active.current)return;await status();if(!active.current)return;if(!await handoff())await onSignedIn();}
+ async function wallet(){
+  if(!host.ethereum?.request)throw Error('Open this page in your Ethereum wallet’s browser, or use email here.');
+  const timed=promise=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error('The wallet did not respond. You can try again or use email.')),60000))]);
+  const addresses=await timed(host.ethereum.request({method:'eth_requestAccounts'}));if(!addresses?.[0])throw Error('Choose an Ethereum account.');
+  if(!active.current)return;
+  const value=await call('/api/auth/nonce',{}),message=createSiweMessage({address:addresses[0],chainId:1,domain:value.domain,uri:value.uri,nonce:value.nonce,version:'1',issuedAt:new Date(),statement:'Sign in to Spacetrader to save your voyage. This does not authorize a transaction.'});
+  const signature=await timed(host.ethereum.request({method:'personal_sign',params:['0x'+Array.from(new TextEncoder().encode(message),v=>v.toString(16).padStart(2,'0')).join(''),addresses[0]]}));
+  if(!active.current)return;
+  await call('/api/auth/wallet',{message,signature});await finished();
+ }
+ return <LoginPanel product="Spacetrader" icon="/favicon.svg" title="Continue your voyage" description="Sign in to save your voyage and continue on another device."
+  email={<EmailSignIn email={email} onEmailChange={setEmail} challenge={challenge} code={code} onCodeChange={setCode} busy={busy} disabled={!account?.emailEnabled} onReset={()=>{setChallenge('');setCode('');setError('');}} onSubmit={event=>{event.preventDefault();void run(async()=>{if(challenge){await call('/api/auth/verify-email',{challenge,code});await finished();}else{const result=await call('/api/auth/email',{email});setChallenge(result.challenge);}});}}/>}
+  wallet={<EthereumSignIn busy={busy} onClick={()=>void run(wallet)}/>}
+  notice={error?<p role="alert">{error}</p>:!account?.emailEnabled?<p>Email sign-in is temporarily unavailable. Your device voyage is preserved.</p>:null}
+  footer={<p>Your device voyage stays separate until you choose to transfer it. Email and wallet identities are not automatically merged.</p>}/>;
+}
+function Account(){
+ const [phase,setPhase]=useState('checking'),[error,setError]=useState(''),[head,setHead]=useState(null),[device,setDevice]=useState(null),[progress,setProgress]=useState(''),[busy,setBusy]=useState(false);
+ async function refresh(resume=false){
+  try{
+   const state=await status();
+   if(!state.configured){setPhase('unavailable');return;}
+   if(!state.signedIn){if(resume&&await handoff())return;setPhase('signin');return;}
+   setHead(await call('/api/voyage',undefined,true));
+   if(localRequest){const local=await (await localRequest('/api/voyage')).json();setDevice(local.raw?host.Heliocline.parse(local.raw):null);}
+   setPhase('account');
+  }catch(e){setError(e.message);setPhase('error');}
+ }
+ useEffect(()=>{void refresh(true);},[]);
+ async function run(job){if(busy)return;setBusy(true);setError('');try{await job();}catch(e){setError(e.message);}finally{setBusy(false);}}
+ if(phase==='signin')return <SignIn onSignedIn={()=>refresh()}/>;
+ return <section className="captain-account-panel" aria-labelledby="captain-account-title"><div className="captain-account-brand"><img src="/favicon.svg" alt="" width="28" height="28"/><span>Spacetrader</span></div><h2 id="captain-account-title">Account &amp; saves</h2>
+  {phase==='checking'&&<p role="status">Checking your account…</p>}
+  {phase==='unavailable'&&<p>Account saves are not available yet. Your voyage still saves on this device.</p>}
+  {phase==='error'&&<button onClick={()=>void refresh()}>Retry connection</button>}
+  {phase==='account'&&<><p className="captain-account-identity">{account.label}</p><p>{cloudActive?'Your voyage and checkpoints save to this account.':head?.raw?'An account voyage is available. Your device voyage is kept separately.':'Your account is ready for a voyage.'}</p>
+   {head?.raw?<><p><strong>{host.Heliocline?.parse(head.raw).profile.name||'Your captain'}</strong> · {head.sequence.toLocaleString()} recorded actions</p>{!cloudActive&&<button disabled={busy} onClick={()=>void run(async()=>{if(host.SpacetraderAccountBridge&&!host.SpacetraderAccountBridge.canSwitch())throw Error('Finish the current encounter before changing voyages.');setMode('account');location.assign('/play/');})}>Continue account voyage</button>}</>:<>{device?.profile.created&&<button disabled={busy} onClick={()=>void run(()=>transfer(setProgress))}>Transfer device voyage &amp; history</button>}<button disabled={busy} onClick={()=>{setMode('account');location.assign('/play/');}}>Start a new account voyage</button></>}
+   {progress&&<p role="status">{progress}</p>}
+   <p className="captain-account-note">Account saves include your journal, action history and three checkpoint slots. The original device voyage is retained.</p>
+   {cloudActive&&<p className="captain-account-note">A connection is needed to record account actions. A newer save from another device is checked before every write.</p>}
+   <button disabled={busy} className="captain-account-secondary" onClick={()=>void run(async()=>{await host.SpacetraderAccountBridge?.settled();await call('/api/auth/logout',{});setMode('device');location.assign('/play/');})}>Sign out &amp; return to device voyage</button>
+  </>}
+  {error&&<p role="alert">{error}</p>}
+ </section>;
+}
+function open(){
+ if(!dialog){dialog=document.createElement('dialog');dialog.id='captain-account-dialog';dialog.className='spacetrader-account';dialog.setAttribute('aria-label','Account & saves');dialog.innerHTML='<button type="button" class="captain-account-close" aria-label="Back to game">Back to game</button><div data-account-root></div>';document.body.append(dialog);dialog.querySelector('button').onclick=()=>dialog.close();dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});dialog.addEventListener('close',()=>{reactRoot?.unmount();reactRoot=null;});}
+ if(!reactRoot){reactRoot=createRoot(dialog.querySelector('[data-account-root]'));reactRoot.render(<Account/>);}
+ if(!dialog.open)dialog.showModal();
+}
+host.spacetraderAccountMenuHTML=()=>'<button type="button" class="game-button game-menu-item" data-spacetrader-account><strong>Account &amp; saves</strong><small>Continue across devices</small></button>';
+document.addEventListener('click',event=>{if(event.target.closest('[data-spacetrader-account]')){event.preventDefault();open();}});
+const original=host.openBrowserVoyageLedger;
+host.openBrowserVoyageLedger=async options=>{
+ localRequest=await original(options);
+ try{await status();}catch{if(getMode()==='account')throw Error('Reconnect and sign in to load your account voyage. Your device voyage remains intact.');return localRequest;}
+ const localHead=await (await localRequest('/api/voyage')).json();
+ const hasDeviceVoyage=Boolean(localHead.raw&&host.Heliocline.parse(localHead.raw).profile.created);
+ if(account.signedIn&&(getMode()==='account'||!hasDeviceVoyage)){
+  cloudActive=true;
+  setMode('account');
+  const owner=account.account;
+  const cached={};
+  const cloudFetch=(path,options={})=>fetch(path,{...options,credentials:'same-origin',cache:'no-store',headers:{...options.headers,'X-Spacetrader-Account':owner},signal:AbortSignal.timeout(30000)});
+  return async(path,options={})=>{
+   const response=await cloudFetch(path,options),value=await response.clone().json();
+   if(!value.checkpointDigests)return response;
+   const slots={};
+   await Promise.all(Object.entries(value.checkpointDigests).map(async([key,hash])=>{
+    let slot=cached[key];
+    if(slot?.digest!==hash){const result=await cloudFetch('/api/checkpoint?slot='+encodeURIComponent(key));const body=await result.json();if(!result.ok)throw Error(body.error||'A checkpoint could not be loaded.');slot=body;if(slot.digest!==hash)throw Error('A checkpoint changed on another device. Reload before continuing.');cached[key]=slot;}
+    slots[key]=slot.raw;
+   }));
+   for(const key of Object.keys(cached))if(!(key in slots))delete cached[key];
+   value.slots=slots;delete value.checkpointDigests;
+   return new Response(JSON.stringify(value),{status:response.status,headers:response.headers});
+  };
+ }
+ if(getMode()==='account'&&!account.signedIn){setTimeout(open,0);throw Error('Sign in to reconnect to your account voyage. Your device voyage remains intact.');}
+ if(new URLSearchParams(location.search).get('account')==='1')setTimeout(open,0);
+ return localRequest;
+};
+host.SpacetraderAccount={open,isCloud:()=>cloudActive};
+const deviceHealth=host.spacetraderSaveHealthHTML;
+host.spacetraderSaveHealthHTML=()=>cloudActive?'<details class="browser-save-health"><summary>Account save storage</summary><p>Your voyage, history and checkpoints save to your signed-in account after each confirmed action.</p><button type="button" data-spacetrader-account>Account &amp; saves</button></details>':deviceHealth?.()||'';

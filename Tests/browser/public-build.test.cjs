@@ -3,14 +3,14 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const root=path.resolve(__dirname,'../..'),out=path.join(root,'Web/.vercel/output'),base=path.join(out,'static');
 const read=p=>fs.readFileSync(path.join(base,p),'utf8'),sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 const manifest=JSON.parse(fs.readFileSync(path.join(out,'build-manifest.json'),'utf8'));
-assert.equal(manifest.mode,'public-guest-static');
+assert.equal(manifest.mode,'public-browser-with-account-saves');
 assert.equal(sha(fs.readFileSync(path.join(root,'Browser/engine.js'))),manifest.engineSHA256);
 assert.equal(sha(fs.readFileSync(path.join(base,'play/engine.js'))),manifest.engineSHA256);
 for(const [name,digest] of Object.entries(manifest.files)){
  assert(!/(?:^|\/)(?:\.env|voyage\.json|actions\.sqlite3|checkpoint\.json|slot[123]\.json|Research|Build)(?:\/|$)/i.test(name),name);
  assert.equal(sha(fs.readFileSync(path.join(base,name))),digest,name);
 }
-assert.equal(fs.existsSync(path.join(out,'functions')),false);
+assert.equal(sha(fs.readFileSync(path.join(out,'functions/api/index.func/index.cjs'))),manifest.accountFunctionSHA256);
 for(const section of ['guide','characters','ships','goods']){
  const html=read(section+'/index.html');
  assert(!/127\.0\.0\.1|localhost/.test(html),section);
@@ -22,7 +22,7 @@ for(const section of ['guide','characters','ships','goods']){
  }
 }
 assert(read('play/app.js').includes("window.open('/guide/'"));
-assert(read('play/app.js').includes('Progress saves in this browser on this device.'));
+assert(read('play/app.js').includes('Sign in to continue across devices.'));
 const app=read('play/app.js'),guard=app.slice(app.indexOf('function render(){'),app.indexOf('\n const p=E.port(state.location)',app.indexOf('function render(){')));
 let scheduled=0;const target={innerHTML:'unchanged'},context={blocked:false,state:{profile:{created:false,name:'Alex Rivera'}},$:()=>target,scheduleMainModal:()=>scheduled++};
 vm.createContext(context);vm.runInContext(guard+'\n}',context);context.render();
@@ -37,6 +37,10 @@ assert.equal(read('play/play-viewport.css'),fs.readFileSync(path.join(root,'Web/
 const playIndex=read('play/index.html');
 assert(playIndex.indexOf('browser-ledger.js?v=')<playIndex.indexOf('browser-save-safety.js?v='));
 assert(playIndex.indexOf('browser-save-safety.js?v=')<playIndex.indexOf('app.js?v='));
+assert(playIndex.indexOf('browser-save-safety.js?v=')<playIndex.indexOf('account-client.js?v='));
+assert(playIndex.indexOf('account-client.js?v=')<playIndex.indexOf('app.js?v='));
+assert(app.includes('spacetraderAccountMenuHTML'));
+assert(configuredAccountFunction());
 assert.equal(read('play/browser-save-safety.js'),fs.readFileSync(path.join(root,'Web/browser-save-safety.js'),'utf8'));
 assert(playIndex.includes('play-layout.js?v='));
 assert(playIndex.indexOf('play-layout.js?v=')<playIndex.indexOf('app.js?v='));
@@ -56,3 +60,4 @@ const config=JSON.parse(fs.readFileSync(path.join(out,'config.json'),'utf8'));
 assert.equal(config.version,3);assert(config.routes.some(r=>r.src==='/goods/curves'&&r.dest==='/goods/curves.html'));
 assert(!config.routes.some(r=>r.src==='/'&&r.headers?.Location));
 console.log('PASS public static build: '+Object.keys(manifest.files).length+' verified files; unchanged engine and approved pricing; no save/service payloads; public reference routes.');
+function configuredAccountFunction(){const config=JSON.parse(fs.readFileSync(path.join(out,'functions/api/index.func/.vc-config.json'),'utf8'));return config.runtime==='nodejs24.x'&&config.handler==='index.cjs';}

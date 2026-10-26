@@ -1,0 +1,25 @@
+/* Shared controls and card metrics; Spacetrader explicitly supplies its theme. */
+dialog.spacetrader-account{box-sizing:border-box;width:min(440px,calc(100vw - 24px));max-width:440px;max-height:calc(100dvh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:0;border:1px solid #49606e;border-radius:10px;background:#192f40;color:#e4e9e9;overflow:auto;overscroll-behavior:contain;box-shadow:0 18px 70px #0008}
+.spacetrader-account::backdrop{background:#07131cbd}
+.spacetrader-account .captain-account-close{display:block;margin:12px 12px 0 auto;min-height:44px;padding:8px 14px;border:1px solid #49606e;border-radius:6px;background:#213b4c;color:#e4e9e9;font:600 14px/1.5 Arial,Helvetica,sans-serif;cursor:pointer;touch-action:manipulation}
+.spacetrader-account .bt-login-panel{--bt-ink:#e4e9e9;--bt-muted:#afc4ce;--bt-line:#49606e;--bt-green:#d5ae68;--bt-dark:#e7c68e;border:0;border-radius:0;background:#192f40;color-scheme:dark;box-shadow:none}
+.spacetrader-account .bt-login-panel .bt-login-title{font-family:Georgia,serif;font-weight:600;letter-spacing:-.3px}
+.spacetrader-account .bt-login-panel .bt-login-brand strong{font-family:Georgia,serif}
+.spacetrader-account .bt-login-panel input:not([type=checkbox]),.spacetrader-account .bt-login-panel .bt-login-wallet .bt-login-ethereum-submit{background:#101f2c;color:#e4e9e9}
+.spacetrader-account .bt-login-panel input:disabled{background:#213b4c}
+.spacetrader-account .bt-login-panel input::placeholder{color:#9fb8c5}
+.spacetrader-account .bt-login-panel .bt-login-email-form .bt-login-email-submit{background:#d5ae68;color:#101f2c}
+.spacetrader-account .bt-login-panel button:not(:disabled):hover{background:#28485d;color:#e4e9e9}
+.spacetrader-account .bt-login-panel .bt-login-email button:not([type=button]):not(:disabled):hover{background:#e7c68e;color:#101f2c}
+.spacetrader-account .bt-login-panel [role=alert],.captain-account-panel [role=alert]{background:#432c2c;border:1px solid #946a64;color:#ffe4dc;padding:12px;border-radius:6px}
+.spacetrader-account .bt-login-context{padding:0 32px 24px;color:#afc4ce}
+.captain-account-panel{padding:28px 32px 32px;font:16px/1.6 Arial,Helvetica,sans-serif}
+.captain-account-brand{display:flex;gap:10px;align-items:center;color:#d5ae68;font:22px Georgia,serif;margin-bottom:24px}
+.captain-account-panel h2{font:600 28px/1.2 Georgia,serif;margin:0 0 16px;color:#e4e9e9}
+.captain-account-panel p{margin:0 0 16px;color:#afc4ce;overflow-wrap:anywhere}
+.captain-account-panel button{display:block;width:100%;min-height:48px;border:1px solid #d5ae68;border-radius:8px;background:#d5ae68;color:#101f2c;padding:12px 16px;font:600 14px/1.5 Arial,Helvetica,sans-serif;cursor:pointer;touch-action:manipulation;margin:12px 0}
+.captain-account-panel button:disabled{opacity:.55;cursor:wait}
+.captain-account-panel .captain-account-secondary{background:#101f2c;border-color:#49606e;color:#e4e9e9}
+.captain-account-panel .captain-account-note{font-size:13px}
+.spacetrader-account :is(button,input,a):focus-visible{outline:3px solid #d5ae68;outline-offset:3px}
+@media(max-width:480px){.spacetrader-account .bt-login-context{padding:0 24px 24px}.captain-account-panel{padding:24px}}

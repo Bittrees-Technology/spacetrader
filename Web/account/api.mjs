@@ -1,0 +1,83 @@
+import {neon} from '@neondatabase/serverless';
+import {createPublicClient,http} from 'viem';
+import {mainnet} from 'viem/chains';
+import engine from '../../Browser/engine.js';
+import {createAuth} from './auth.mjs';
+import {createStorage,fail} from './storage.mjs';
+import {digest} from './codec.mjs';
+import {createSsoClient,nodeRequest,nodeResponse,json,identity} from './shared/sso/client.mjs';
+
+export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,sendMail}={}){
+ const origin=env.APP_ORIGIN||'https://captain.bittrees.org';
+ const configured=env.SPACETRADER_ACCOUNTS_ENABLED==='1'&&Boolean(env.SPACETRADER_DATABASE_URL||sql);
+ const accountLimit=Number(env.SPACETRADER_ACCOUNT_STORAGE_BYTES),totalLimit=Number(env.SPACETRADER_TOTAL_STORAGE_BYTES);
+ if(configured&&!sql)sql=(strings,...values)=>neon(env.SPACETRADER_DATABASE_URL,{fetchOptions:{signal:AbortSignal.timeout(12000)}})(strings,...values);
+ if(!verifyWallet)verifyWallet=parameters=>createPublicClient({chain:mainnet,transport:http(env.ETH_RPC_URL||'https://ethereum-rpc.publicnode.com',{timeout:10000,retryCount:0})}).verifySiweMessage(parameters);
+ const emailLimit=Number(env.SPACETRADER_EMAIL_DAILY_LIMIT||0);
+ const monthlyLimit=Number(env.SPACETRADER_EMAIL_MONTHLY_LIMIT||0);
+ if(!sendMail&&env.RESEND_API_KEY&&env.SPACETRADER_MAIL_FROM)sendMail=async(email,code)=>{
+  const result=await fetch('https://api.resend.com/emails',{method:'POST',signal:AbortSignal.timeout(10000),headers:{Authorization:'Bearer '+env.RESEND_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({from:env.SPACETRADER_MAIL_FROM,to:[email],subject:'Your Spacetrader sign-in code',text:`Your Spacetrader verification code is ${code}. It expires in 10 minutes and works once. If you did not request this code, you can ignore this email.`})});
+  if(!result.ok)throw Error('Email unavailable');
+ };
+ const auth=configured?createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit:emailLimit,emailMonthlyLimit:monthlyLimit,maxAccounts:Number(env.SPACETRADER_MAX_ACCOUNTS||10000)}):null;
+ const saves=configured?createStorage(sql,{parse,accountLimit,totalLimit}):null;
+ // A head plus three near-limit checkpoints exceeds function response limits.
+ // Return slot hashes here; the browser retrieves changed slots individually.
+ const saveJson=(value,status=200)=>json(value.slots?{...value,slots:{},checkpointDigests:Object.fromEntries(Object.entries(value.slots).map(([key,raw])=>[key,digest(raw)]))}:value,status);
+ const shared=createSsoClient({clientId:'spacetrader',origin,issuer:env.BITTREES_SSO_ISSUER||'https://roles.bittrees.org',secret:env.BITTREES_SSO_CLIENT_SECRET,enabled:configured&&env.BITTREES_SSO_ENABLED==='1',cookiePrefix:'captain-sso',adapter:auth||{}});
+ return async function handle(req){
+  const url=new URL(req.url),path=url.pathname;
+  try{
+   if(url.origin!==origin)throw fail('Unexpected application origin.',403);
+   if(!/^\/api\/(?:sso\/(?:status|start|callback|publish|profile)|auth\/(?:email|verify-email|nonce|wallet|logout)|account\/status|voyage|checkpoint|ledger(?:\/[1-9]\d*)?|backups|import\/(?:start|batch|checkpoint|finish))$/.test(path))throw fail('Not found.',404);
+   if(path.startsWith('/api/sso/'))return shared(req);
+   if(path==='/api/account/status'){
+    if(req.method!=='GET')throw fail('Method not allowed.',405);
+    if(!configured)return json({configured:false,signedIn:false});
+    const session=await auth.current(req);
+    return json({configured:true,signedIn:Boolean(session),emailEnabled:Boolean(sendMail)&&emailLimit>0&&monthlyLimit>0,...(session?{account:session.account,label:session.identity}:{}),sharedEnabled:env.BITTREES_SSO_ENABLED==='1'});
+   }
+   if(!configured)throw fail('Account saves are not configured yet. Your device saves are unchanged.',503);
+   if(!['GET','POST'].includes(req.method))throw fail('Method not allowed.',405);
+   if(req.method==='POST'&&(req.headers.get('origin')!==origin||req.headers.get('sec-fetch-site')==='cross-site'))throw fail('Request origin rejected.',403);
+   let body={};if(req.method==='POST'){
+    if(Number(req.headers.get('content-length')||0)>4_200_000)throw fail('Request too large.',413);
+    const text=await req.text();if(Buffer.byteLength(text)>4_200_000)throw fail('Request too large.',413);
+    try{body=JSON.parse(text);}catch{throw fail('Invalid request.');}
+    if(!body||typeof body!=='object'||Array.isArray(body))throw fail('Invalid request.');
+   }
+   if(path.startsWith('/api/auth/')){
+    const result=await auth.handle(req,path.split('/').pop(),body),response=json(result.body);
+    for(const value of result.cookies||[])response.headers.append('Set-Cookie',value);return response;
+   }
+   const session=await auth.current(req);if(!session)throw fail('Sign in to reconnect to your account voyage.',401);
+   if(req.headers.get('x-spacetrader-account')!==session.account)throw fail('The signed-in account changed. Reopen Account & saves before continuing.',401);
+   if(req.method==='POST'&&req.headers.get('x-spacetrader')!=='shared-save-v1')throw fail('Save request rejected.',403);
+   const owner=session.account;
+   if(path==='/api/voyage'){
+    if(req.method==='POST')return saveJson(await saves.append(owner,body));
+    if(url.searchParams.has('since')){const current=await saves.position(owner);if(url.searchParams.get('since')===current.revision)return json({...current,unchanged:true});}
+    return saveJson(await saves.snapshot(owner));
+   }
+   if(path==='/api/checkpoint'&&req.method==='POST')return saveJson(await saves.checkpoint(owner,body));
+   if(path==='/api/checkpoint'&&req.method==='GET')return json(await saves.readCheckpoint(owner,url.searchParams.get('slot')));
+   if(path==='/api/ledger'&&req.method==='GET')return json({entries:await saves.history(owner,url.searchParams.has('before')?Number(url.searchParams.get('before')):undefined)});
+   if(/^\/api\/ledger\/[1-9]\d*$/.test(path)&&req.method==='GET')return json(await saves.recorded(owner,Number(path.split('/').pop())));
+   if(path==='/api/backups'&&req.method==='GET')return json({backups:[]});
+   if(path==='/api/import/start'&&req.method==='POST')return json(await saves.startImport(owner,body));
+   if(path==='/api/import/batch'&&req.method==='POST')return json(await saves.importBatch(owner,body));
+   if(path==='/api/import/checkpoint'&&req.method==='POST')return saveJson(await saves.importCheckpoint(owner,body));
+   if(path==='/api/import/finish'&&req.method==='POST')return saveJson(await saves.finishImport(owner,body));
+   throw fail('Not found.',404);
+  }catch(error){
+   if(error.snapshot)return saveJson({...error.snapshot,error:error.message},409);
+   const quota=String(error.message).includes('storage_limit');
+   return json({error:quota?'Account save storage is full. Existing progress is preserved. Try again later or return to your separate device voyage.':error.status?error.message:'Account saves are temporarily unavailable. Your existing progress is preserved.'},quota?507:error.status||503);
+  }
+ };
+}
+let api;
+export default async function handler(req,res){
+ try{const origin=process.env.APP_ORIGIN||'https://captain.bittrees.org';if(req.headers.host?.toLowerCase()!==new URL(origin).host.toLowerCase())return nodeResponse(json({error:'Unexpected application host'},403),res);api||=createApi();return nodeResponse(await api(await nodeRequest(req,origin)),res);}
+ catch{return nodeResponse(json({error:'Account saves are temporarily unavailable. Device saves are preserved.'},503),res);}
+}

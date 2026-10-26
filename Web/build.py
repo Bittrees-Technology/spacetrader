@@ -130,7 +130,7 @@ def build():
     form = '<form id="character-form">'
     if app.count(form) != 1:
         raise ValueError('Review the browser-save notice location')
-    app = app.replace(form, '<p class="muted">Progress saves in this browser on this device.</p>' + form)
+    app = app.replace(form, '<p class="muted">Progress saves on this device. Sign in to continue across devices.</p><p><button type="button" class="game-button" data-spacetrader-account>Sign in for account saves</button></p>' + form)
     checkpoint_marker = '<div class="checkpoint-slots">'
     if app.count(checkpoint_marker) != 1:
         raise ValueError('Review browser save-storage status placement')
@@ -154,6 +154,13 @@ def build():
     if app.count(modal_bounds) != 1:
         raise ValueError('Review the public visible-viewport popout adapter')
     app = app.replace(modal_bounds, 'bounds=SpacetraderPlayLayout.modalBounds(main?.getBoundingClientRect(),width,height,window.visualViewport,SpacetraderPlayLayout.safeInsets(),$(\'app\').getBoundingClientRect())')
+    menu_item="${item('Progress','Action history','ledger')}"
+    if app.count(menu_item)!=1 or app.count('function sharedStatus(){')!=1 or app.count('setInterval(sharedPoll,1500)')!=1:
+        raise ValueError('Review account-menu and save transport integration')
+    app=app.replace(menu_item,menu_item+"${window.spacetraderAccountMenuHTML?.()||''}")
+    app=app.replace('function sharedStatus(){',"function sharedStatus(){if(window.SpacetraderAccount?.isCloud())return 'Account action ledger · saved';")
+    app=app.replace('setInterval(sharedPoll,1500)',"setInterval(sharedPoll,window.SpacetraderAccount?.isCloud()?15000:1500)")
+    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!state?.battle&&!journey&&!sharedBusy&&!queuedActions,settled:()=>actionQueue};\n"
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')
     clone(SITE / 'play-viewport.css', 'play/play-viewport.css')
@@ -166,11 +173,14 @@ def build():
     if index.count(ledger_script) != 1:
         raise ValueError('Review browser save-safety initialization order')
     index = index.replace(ledger_script, ledger_script + '<script defer src="browser-save-safety.js?v=' + public_revision + '"></script>')
-    index = index.replace('<script defer src="app.js?', '<script defer src="play-layout.js?v=' + public_revision + '"></script><script defer src="app.js?')
+    account_revision=sha(b''.join(p.read_bytes() for p in sorted((SITE/'account').rglob('*')) if p.is_file() and 'node_modules' not in p.parts))[:12]
+    index = index.replace('<script defer src="app.js?', '<script defer src="play-layout.js?v=' + public_revision + '"></script><script defer src="account-client.js?v='+account_revision+'"></script><script defer src="app.js?')
     index = index.replace('width=device-width, initial-scale=1', 'width=device-width, initial-scale=1, viewport-fit=cover')
     index = index.replace('app.js?v=0.72.257', 'app.js?v=' + public_revision)
-    index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><link rel="stylesheet" href="play-viewport.css?v=' + public_revision + '"><meta name="description" content="Trade goods, defend your cargo from raiders and build a fleet across the solar system in Spacetrader."></head>')
+    index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><link rel="stylesheet" href="play-viewport.css?v=' + public_revision + '"><link rel="stylesheet" href="account-client.css?v='+account_revision+'"><meta name="description" content="Trade goods, defend your cargo from raiders and build a fleet across the solar system in Spacetrader."></head>')
     write('play/index.html', index)
+    for license_file in sorted((SITE / 'account/licenses').glob('*.txt')):
+        clone(license_file, 'play/licenses/' + license_file.name)
     clone(browser / 'icon.svg', 'icon.svg')
     files = {
         'guide': ['index.html', 'guide.js', 'guide.css'],
@@ -293,10 +303,13 @@ def build():
     write('robots.txt', seo.robots())
     write('llms.txt', seo.llms())
     write('sitemap.xml', seo.sitemap())
+    accounts=subprocess.run(['node','Web/account/build.mjs'],cwd=ROOT,capture_output=True,text=True)
+    if accounts.returncode:raise RuntimeError(accounts.stdout+accounts.stderr)
     csp = "default-src 'self'; script-src 'self' " + ' '.join(hashes) + "; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
     routes = [{'src': '/(.*)', 'headers': {'X-Content-Type-Options': 'nosniff',
                'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY',
                'Content-Security-Policy': csp, 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'}, 'continue': True},
+              {'src': '/api/(.*)', 'dest': '/api/index'},
               {'src': '/index.html', 'status': 308, 'headers': {'Location': '/'}},
               *[{'src': '/' + s + '/index.html', 'status': 308, 'headers': {'Location': '/' + s + '/'}} for s in ['play', 'guide', 'characters', 'ships', 'goods']],
               *[{'src': '/goods/' + n + '(?:\\.html|/)', 'status': 308, 'headers': {'Location': '/goods/' + n}} for n in ['curves', 'formulas', 'mechanics']],
@@ -306,9 +319,10 @@ def build():
     OUTPUT.mkdir(parents=True, exist_ok=True)
     (OUTPUT / 'config.json').write_text(json.dumps({'version': 3, 'routes': routes}, indent=2) + '\n')
     built = {str(p.relative_to(STATIC)): sha(p.read_bytes()) for p in sorted(STATIC.rglob('*')) if p.is_file()}
-    receipt = {'version': 1, 'mode': 'public-guest-static', 'gameVersion': re.search(r'application-version" content="([^"]+)', index)[1],
+    receipt = {'version': 1, 'mode': 'public-browser-with-account-saves', 'gameVersion': re.search(r'application-version" content="([^"]+)', index)[1],
                'balance': pointer['revision'], 'engineSHA256': sha((browser / 'engine.js').read_bytes()),
-               'bytes': sum(p.stat().st_size for p in STATIC.rglob('*') if p.is_file()), 'files': built}
+               'bytes': sum(p.stat().st_size for p in STATIC.rglob('*') if p.is_file()), 'files': built,
+               'accountFunctionSHA256':sha((OUTPUT/'functions/api/index.func/index.cjs').read_bytes())}
     (OUTPUT / 'build-manifest.json').write_text(json.dumps(receipt, indent=2) + '\n')
     print(json.dumps({k: v for k, v in receipt.items() if k != 'files'} | {'fileCount': len(built)}, indent=2))
 

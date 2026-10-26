@@ -62,9 +62,13 @@ Daily pricing statistics load by commodity group only when item summaries are
 requested, and run in a worker. `Web/goods_delivery.py` builds these derived files
 from the approved reference; the original snapshot remains available unchanged.
 
-Vercel releases use the generated Build Output API directory in `Web/.vercel`;
-no Functions, database, analytics or paid integrations are required by this guest
-edition. Public hosting still has the selected provider's usage limits and terms.
+Vercel releases use the generated Build Output API directory in `Web/.vercel`.
+Guest play saves locally in browser IndexedDB. Optional account saves use the
+isolated Node function and existing restricted PostgreSQL, email and Bittrees SSO
+services described in `Web/account/README.md`. The account interface reuses the
+canonical shared sign-in components with the requested Spacetrader theme. Builds
+reuse compatible pinned dependencies; they do not provision services or install
+packages automatically. Public hosting and account storage retain provider limits.
 
 ## Licensing
 

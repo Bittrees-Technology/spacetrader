@@ -1,0 +1,12 @@
+{
+  "repository": "Bittrees-Technology/roles",
+  "commit": "8ca9f844467aa6e94eeb49bad4a1b01319ee3f3d",
+  "source": "shared",
+  "files": {
+    "login/LoginPanel.jsx": "5768fd45886fe99226ea77fa29362b7c3015391d37d1a13bf2521864a828267b",
+    "login/LoginPanel.d.ts": "6940430a45109f02f001d403cd8ff27b996fdcd3d9c23f8acff558ae7a0831b0",
+    "login/login.css": "9a83fb7a5e54a7d13702233b345cfa2e4e3b6c5d38f59c7a43ddeb7b2da8df08",
+    "sso/client.mjs": "edfe77608af4b044fc7b13be09c987fa0dce057de26b610fc375a498e3c1eb7f",
+    "sso/profile-model.mjs": "fbb8e9416f73f7486797fc73e897d02f62d91ca3c1668bf9199a4569ebf0f4b2"
+  }
+}

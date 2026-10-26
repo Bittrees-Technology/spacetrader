@@ -2,16 +2,18 @@
   "mode": "reference",
   "source": "guide-template.cjs",
   "inputs": {
-    "template": "7e630d5b5aa84c7f7cc854dfe95ad6c70f4ab8ef5715ee4861eb9f40666f19c9",
+    "template": "da8e6c5210b800bf1a3d20f18797ccc86cf371ced7620c5bccb2526b74d19576",
     "engine": "85d5b149e0e4773d4dbcefa03d8144117a42ab673734446b655e761b108ff7f1",
     "helpers": "7a9b7a0981d552961f5c9513892010f54b7a81e109c9d47c4bb57e2188bc37e0",
     "exporter": "8f86387412a114fcbd8f3cee61229edcb9f2430d5fe462372b8b91ba632cddb8",
     "goodsMechanics": "c1439facc76b9abe0e53f1a01f3764b8772b2175eb47b8af06447c8314cb5fdb",
     "bankRateRanges": "70a3d8e980400ef7f4695182f96614a3b6234ea199a0e1fd44e31e0865259d6c"
   },
-  "fragmentSHA256": "a22c6e3407bced852343d57d45964acbe5a63bf5a3f4bc3b9ff6a4bbe7e40080",
-  "indexSHA256": "75063ab1e24bbee688c0b0358c65f97c5dad06e70b7d20b62a227b4b10820f26",
+  "fragmentSHA256": "d5a9dc796bf615cd6cb6f07a2575acb55b190d7fa4aba2b2d577bb86e7b5df16",
+  "indexSHA256": "e593faf3f68e3621ee4987b8b9b8192619a7e5b0224e55bec9c57825db09883f",
   "builderSHA256": "376136c9bbc3562c6721e8ee6c601cf05901d22bf551e1cb5ce9441070ac6989",
+  "notationSHA256": "b4485024244e704a0b7460a0b665f99b28344f9e02778358788d6bd74fbd3537",
+  "notationWitnessSHA256": "470384aab6a9c3114ffa653b64555e7afc45d48d27f5cce0d3df2667b1703542",
   "headerSHA256": "8ef01068e23512299ec7a63635744171bc84c7fa195712d024924bed9e95c6ce",
   "topics": [
     {
@@ -349,7 +351,5 @@
       "title": "Science references",
       "category": "World & science"
     }
-  ],
-  "notationSHA256": "b4485024244e704a0b7460a0b665f99b28344f9e02778358788d6bd74fbd3537",
-  "notationWitnessSHA256": "470384aab6a9c3114ffa653b64555e7afc45d48d27f5cce0d3df2667b1703542"
+  ]
 }

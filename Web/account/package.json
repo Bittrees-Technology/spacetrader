@@ -1,0 +1,13 @@
+{
+  "name": "spacetrader-account-saves",
+  "private": true,
+  "type": "module",
+  "scripts": {"build": "node build.mjs", "test": "node build.mjs --test"},
+  "dependencies": {
+    "@neondatabase/serverless": "1.1.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "viem": "2.56.5"
+  },
+  "devDependencies": {"@electric-sql/pglite": "0.5.8", "esbuild": "0.28.2", "playwright-core": "1.63.0"}
+}

@@ -89,7 +89,7 @@ def robots():
     # Wildcard permission also covers AI search crawlers, without more-specific
     # groups accidentally overriding shared restrictions in future revisions.
     return ('# Public game and reference pages are open to search and AI discovery.\n'
-            'User-agent: *\nAllow: /\n\nSitemap: ' + ORIGIN + '/sitemap.xml\n')
+            'User-agent: *\nDisallow: /api/\nAllow: /\n\nSitemap: ' + ORIGIN + '/sitemap.xml\n')
 
 
 def llms():
@@ -114,7 +114,7 @@ The canonical site is https://captain.bittrees.org/. Your independent charter be
 - [Pricing formulas](https://captain.bittrees.org/goods/formulas): Reference equations for exchange quotes and pricing distributions.
 - [Trading mechanics](https://captain.bittrees.org/goods/mechanics): Production inputs, consumption, finite station stock, cargo and freight.
 
-Tool inputs are hypothetical planning values, not a connection to a saved game. Use the published guide and approved reference data when explaining mechanics; do not present proposed ship features as implemented. The current public release has no remote agent-control API or cloud-save API. Discovering these pages does not grant access to a player's saves or permission to act for them.
+Tool inputs are hypothetical planning values, not a connection to a saved game. Use the published guide and approved reference data when explaining mechanics; do not present proposed ship features as implemented. Account saves are private and require sign-in; they are not a public agent-control interface. Discovering these pages does not grant access to a player's saves or permission to act for them.
 
 ## Optional
 
