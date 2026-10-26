@@ -31,6 +31,10 @@ screens. Editable mobile controls use at least 16 px text without disabling
 pinch zoom. Run `node Tests/browser/play-layout.test.cjs` and the public build
 checks, then inspect phone/tablet portrait and landscape layouts. Desktop
 viewport checks do not replace physical iOS keyboard and touch acceptance.
+Touch layouts cap the cockpit at Safari's small viewport and reserve a 6 px
+bottom inset. Popouts share the fitted cockpit height, including while keyboard
+panning changes its offset. Tablet windows below 620 px reflow navigation before
+the sidebar's contents become crowded.
 
 ## Run locally
 

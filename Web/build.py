@@ -153,7 +153,7 @@ def build():
     modal_bounds = 'bounds=mainModalBounds(main?.getBoundingClientRect(),width,height)'
     if app.count(modal_bounds) != 1:
         raise ValueError('Review the public visible-viewport popout adapter')
-    app = app.replace(modal_bounds, 'bounds=SpacetraderPlayLayout.modalBounds(main?.getBoundingClientRect(),width,height,window.visualViewport,SpacetraderPlayLayout.safeInsets())')
+    app = app.replace(modal_bounds, 'bounds=SpacetraderPlayLayout.modalBounds(main?.getBoundingClientRect(),width,height,window.visualViewport,SpacetraderPlayLayout.safeInsets(),$(\'app\').getBoundingClientRect())')
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')
     clone(SITE / 'play-viewport.css', 'play/play-viewport.css')

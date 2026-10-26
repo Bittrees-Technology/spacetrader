@@ -7,8 +7,10 @@
   const top=zoomed?0:Math.max(0,Math.min(height-1,visual?.offsetTop||0));
   return {left,top,right:zoomed?width:Math.min(width,left+(visual?.width||width)),bottom:zoomed?height:Math.min(height,top+(visual?.height||height))};
  }
- function modalBounds(rect,width,height,visual,safe={}){
+ function modalBounds(rect,width,height,visual,safe={},cockpit){
   const view=viewport(width,height,visual),compact=width<=900||(width<=1200&&view.bottom-view.top<=500);
+  // Safari's toolbar can leave the fitted cockpit shorter than its reported window.
+  if(cockpit?.height>0)view.bottom=Math.min(view.bottom,view.top+cockpit.height);
   view.left+=Math.max(0,safe.left||0);view.right-=Math.max(0,safe.right||0);
   view.top+=Math.max(0,safe.top||0);view.bottom-=Math.max(0,safe.bottom||0);
   let left=compact?view.left:Math.max(view.left,Math.min(view.right-1,rect?.left||0));
@@ -20,7 +22,9 @@
  }
  function safeInsets(){
   const style=root.getComputedStyle(root.document.documentElement);
-  return Object.fromEntries(['top','right','bottom','left'].map(side=>[side,parseFloat(style.getPropertyValue('--play-safe-'+side))||0]));
+  const safe=Object.fromEntries(['top','right','bottom','left'].map(side=>[side,parseFloat(style.getPropertyValue('--play-safe-'+side))||0]));
+  safe.bottom+=parseFloat(style.getPropertyValue('--play-bottom-gap'))||0;
+  return safe;
  }
  function keepFieldVisible(doc,styleOf=element=>root.getComputedStyle(element)){
   const field=doc.activeElement,dialog=doc.getElementById('modal');
@@ -39,7 +43,7 @@
   function update(){
    frame=0;
    const view=viewport(host.innerWidth,host.innerHeight,host.visualViewport);
-   host.document.documentElement.style.setProperty('--play-height',(view.bottom-view.top)+'px');
+   host.document.documentElement.style.setProperty('--play-height',Math.floor(view.bottom-view.top)+'px');
    host.positionMainModal?.();
    keepFieldVisible(host.document);
   }
