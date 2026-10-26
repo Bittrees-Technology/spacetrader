@@ -1,25 +1,47 @@
 import {randomUUID} from 'node:crypto';
 import {digest,full,pack,unpack,inflate,boundedRaw} from './codec.mjs';
+import {journalRecord,expandRecord,readChunk,extendChunk} from './compact.mjs';
 
 export const fail=(message,status=400)=>Object.assign(Error(message),{status});
-export function createStorage(sql,{parse,accountLimit,totalLimit}){
+export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false}){
  if(!Number.isSafeInteger(accountLimit)||!Number.isSafeInteger(totalLimit)||accountLimit<2_000_000||totalLimit<accountLimit)throw Error('A reviewed save-storage budget is required.');
  const valid=raw=>{boundedRaw(raw);return parse(raw);};
+ const capabilities=compact?{restoreActions:false,checkpointLimit:2,storageFormat:'compact-v1'}:{};
+ async function slotRecords(voyage){
+  const old=await sql`SELECT slot,digest,payload FROM spacetrader_checkpoints WHERE voyage_id=${voyage} AND current`;
+  if(!compact)return old;
+  const recent=await sql`SELECT slot,digest,payload FROM spacetrader_snapshot_slots WHERE voyage_id=${voyage}`;
+  const map=new Map(old.map(r=>[r.slot,r]));for(const r of recent)map.set(r.slot,r);return [...map.values()];
+ }
  async function snapshot(owner,target=null,includeSlots=true){
   const [row]=await sql`SELECT v.id,v.sequence,v.revision,v.head_payload,v.head_digest,v.import_total,v.import_source FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage)`;
-  if(!row)return {raw:null,revision:null,sequence:0,slots:{},ledger:true};
+  if(!row)return {raw:null,revision:null,sequence:0,slots:{},ledger:true,...capabilities};
   const raw=row.head_payload?inflate(row.head_payload).toString('utf8'):null;
   if(raw&&digest(raw)!==row.head_digest)throw fail('The saved voyage failed its integrity check; nothing was replaced.',503);
-  if(!includeSlots)return {raw,revision:row.revision,sequence:Number(row.sequence),voyage:row.id,ledger:true};
-  const records=await sql`SELECT slot,digest,payload FROM spacetrader_checkpoints WHERE voyage_id=${row.id} AND current AND payload IS NOT NULL`;
-  const slots={};for(const r of records){const value=inflate(r.payload).toString('utf8');if(digest(value)!==r.digest)throw fail('A checkpoint failed its integrity check.',503);slots[r.slot]=value;}
-  return {raw,revision:row.revision,sequence:Number(row.sequence),voyage:row.id,slots,ledger:true};
+  if(!includeSlots)return {raw,revision:row.revision,sequence:Number(row.sequence),voyage:row.id,ledger:true,...capabilities};
+  const records=await slotRecords(row.id);
+  const slots={};for(const r of records){if(!r.payload)continue;const value=inflate(r.payload).toString('utf8');if(digest(value)!==r.digest)throw fail('A checkpoint failed its integrity check.',503);slots[r.slot]=value;}
+  return {raw,revision:row.revision,sequence:Number(row.sequence),voyage:row.id,slots,ledger:true,...capabilities};
  }
  function action(value){
   if(!value||!/^[A-Za-z0-9_-]{1,100}$/.test(value.id||'')||!/^[A-Za-z0-9_-]{1,60}$/.test(value.type||'')||!value.args||typeof value.args!=='object'||Array.isArray(value.args)||Buffer.byteLength(JSON.stringify(value.args))>16384||typeof value.version!=='string'||value.version.length>40)throw fail('Invalid action record.');
   return {id:value.id,type:value.type,args:value.args,version:value.version,source:'browser'};
  }
+ async function compactAppend(owner,body,target,importing){
+  if(body.key!=='auto'||!target)throw fail('Choose a saved voyage before continuing.',428);
+  const state=valid(body.raw),event=action(body.action),current=await snapshot(owner,target,false);
+  if(!current.voyage)throw fail('That voyage is unavailable.',404);
+  const sequence=current.sequence+1,created=importing&&Number.isSafeInteger(body.created)&&body.created>=946684800000&&body.created<=Date.now()+30000?body.created:Date.now();
+  const meta={sequence,type:event.type,args:event.args,created,name:state.profile.name,day:state.day,location:state.location,credits:state.credits,fleet:state.fleet.length+1};
+  const [prior]=await sql`SELECT first_sequence,last_sequence,digest,payload FROM spacetrader_journal_chunks WHERE voyage_id=${target} ORDER BY first_sequence DESC LIMIT 1`;
+  const chunk=extendChunk(prior,journalRecord(meta,state,current.raw?parse(current.raw):null)),hash=digest(body.raw),eventHash=digest(JSON.stringify(event));
+  const summary={name:state.profile.name,created:state.profile.created,day:state.day,location:state.location,credits:state.credits,fleet:state.fleet.length+1};
+  const [result]=await sql`SELECT spacetrader_compact_append(${owner}::uuid,${target}::uuid,${body.revision??null},${event.id},${eventHash},${hash},${full(body.raw)},${JSON.stringify(summary)}::jsonb,${chunk.first},${chunk.last},${chunk.previous},${chunk.hash},${chunk.payload},${accountLimit},${totalLimit},${importing}) AS result`;
+  if(result.result.conflict)throw Object.assign(fail('A newer voyage is saved. Review it before continuing.',409),{snapshot:await snapshot(owner,target)});
+  return result.result.replayed?await snapshot(owner,target,false):{raw:body.raw,revision:hash+':'+result.result.sequence,sequence:Number(result.result.sequence),voyage:target,ledger:true,...capabilities};
+ }
  async function append(owner,body,target=null,importing=false){
+  if(compact)return compactAppend(owner,body,target,importing);
   if(body.key!=='auto')throw fail('Unknown save location.');
   const state=valid(body.raw),event=action(body.action),current=await snapshot(owner,target,false),hash=digest(body.raw),encoded=pack(body.raw,current.raw,current.sequence+1);
   if(target&&!current.voyage)throw fail('That voyage is unavailable.',404);
@@ -31,18 +53,24 @@ export function createStorage(sql,{parse,accountLimit,totalLimit}){
   return {...latest,backup:body.preserve&&current.raw?'ledger:'+current.sequence:null};
  }
  async function checkpoint(owner,body,target=null,importing=false){
+  if(compact&&!importing&&body.key==='slot3'&&body.raw!==null)throw fail('Account voyages have two checkpoint slots. Earlier third-slot saves remain available to load or delete.');
   if(!['slot1','slot2','slot3'].includes(body.key))throw fail('Unknown checkpoint slot.');
   const next=body.raw===null?null:(valid(body.raw),digest(body.raw)),expected=body.expected===null?null:digest(boundedRaw(body.expected));
-  const [result]=target?await sql`SELECT spacetrader_checkpoint_v2(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},${target}::uuid,${importing}) AS result`:await sql`SELECT spacetrader_checkpoint(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},NULL::uuid) AS result`;
+  const [result]=compact&&!importing?await sql`SELECT spacetrader_compact_checkpoint(${owner}::uuid,${target}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit}) AS result`:target?await sql`SELECT spacetrader_checkpoint_v2(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},${target}::uuid,${importing}) AS result`:await sql`SELECT spacetrader_checkpoint(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},NULL::uuid) AS result`;
   const latest=await snapshot(owner,target);if(result.result.conflict)throw Object.assign(fail('That checkpoint changed. Review it before trying again.',409),{snapshot:latest});return latest;
  }
  async function history(owner,before=Number.MAX_SAFE_INTEGER,target=null){
   if(!Number.isSafeInteger(before)||before<1)throw fail('Invalid action-history page.');
   const rows=await sql`SELECT e.sequence,e.event,e.summary,e.created_ms FROM spacetrader_entries e JOIN spacetrader_voyages v ON v.id=e.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND e.sequence<${before} ORDER BY e.sequence DESC LIMIT 31`;
-  return rows.map(r=>({sequence:Number(r.sequence),type:r.event.type,args:r.event.args,created:Number(r.created_ms),...r.summary}));
+  const legacy=rows.map(r=>({sequence:Number(r.sequence),type:r.event.type,args:r.event.args,created:Number(r.created_ms),...r.summary}));
+  if(!compact)return legacy;
+  const chunks=await sql`SELECT c.first_sequence,c.last_sequence,c.digest,c.payload FROM spacetrader_journal_chunks c JOIN spacetrader_voyages v ON v.id=c.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND c.first_sequence<${before} AND c.last_sequence>=greatest(1,least(${before},v.sequence+1)-31) ORDER BY c.first_sequence DESC LIMIT 31`;
+  const recent=chunks.flatMap(c=>readChunk(c).filter(r=>r.r.sequence<before).map(r=>({sequence:r.r.sequence,type:r.a[0],day:r.r.day,record:expandRecord(r)})));
+  return [...legacy,...recent].sort((a,b)=>b.sequence-a.sequence).slice(0,31);
  }
  async function recorded(owner,sequence,target=null){
   if(!Number.isSafeInteger(sequence)||sequence<1)throw fail('Invalid recorded action.');
+  if(compact){const [v]=await sql`SELECT v.sequence,v.compact_start FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage)`;if(v?.compact_start&&sequence>=Number(v.compact_start)){if(sequence===Number(v.sequence))return {raw:(await snapshot(owner,target,false)).raw,sequence};throw fail('This action remains in your journal. Load a checkpoint to restore earlier progress.',410);}}
   const rows=await sql`SELECT e.sequence,e.codec,e.payload,e.digest FROM spacetrader_entries e JOIN spacetrader_voyages v ON v.id=e.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND e.sequence<=${sequence} ORDER BY e.sequence DESC LIMIT 40`;
   if(Number(rows[0]?.sequence)!==sequence)throw fail('That recorded action is unavailable.',404);
   const base=rows.findIndex(r=>r.codec==='full');if(base<0)throw fail('Earlier save data is unavailable; history is preserved.',503);
@@ -82,7 +110,8 @@ export function createStorage(sql,{parse,accountLimit,totalLimit}){
  async function position(owner,target=null){const [row]=await sql`SELECT v.id,v.sequence,v.revision FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage)`;return {revision:row?.revision||null,sequence:Number(row?.sequence||0),voyage:row?.id||null,ledger:true};}
  async function readCheckpoint(owner,key,target=null){
   if(!['slot1','slot2','slot3'].includes(key))throw fail('Unknown checkpoint slot.');
-  const [row]=await sql`SELECT c.payload,c.digest FROM spacetrader_checkpoints c JOIN spacetrader_voyages v ON v.id=c.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND c.slot=${key} AND c.current AND c.payload IS NOT NULL`;
+  const [voyage]=await sql`SELECT v.id FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage)`;
+  const row=voyage?(await slotRecords(voyage.id)).find(r=>r.slot===key&&r.payload):null;
   if(!row)throw fail('That checkpoint changed. Reload your account voyage.',409);
   const raw=inflate(row.payload).toString('utf8');if(digest(raw)!==row.digest)throw fail('Checkpoint integrity check failed.',503);
   return {raw,digest:row.digest};
@@ -101,7 +130,7 @@ export function createStorage(sql,{parse,accountLimit,totalLimit}){
  }
  async function library(owner,after=null){
   if(after!==null)await selected(owner,after);
-  const rows=await sql`SELECT v.id,v.sequence,v.created_at,v.updated_at,e.summary,e.event->>'type' AS type,(SELECT count(*)::int FROM spacetrader_checkpoints c WHERE c.voyage_id=v.id AND c.current AND c.payload IS NOT NULL) AS checkpoints FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id JOIN spacetrader_entries e ON e.voyage_id=v.id AND e.sequence=v.sequence WHERE a.id=${owner} AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id) AND (${after}::uuid IS NULL OR (v.created_at,v.id)<(SELECT x.created_at,x.id FROM spacetrader_voyages x WHERE x.id=${after}::uuid AND x.account_id=${owner})) ORDER BY v.created_at DESC,v.id DESC LIMIT 21`;
+  const rows=await sql`SELECT v.id,v.sequence,v.created_at,v.updated_at,coalesce(v.compact_summary,e.summary) AS summary,e.event->>'type' AS type,(SELECT count(*)::int FROM spacetrader_checkpoints c WHERE c.voyage_id=v.id AND c.current AND c.payload IS NOT NULL AND NOT EXISTS(SELECT 1 FROM spacetrader_snapshot_slots n WHERE n.voyage_id=v.id AND n.slot=c.slot))+(SELECT count(*)::int FROM spacetrader_snapshot_slots n WHERE n.voyage_id=v.id AND n.payload IS NOT NULL) AS checkpoints FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id LEFT JOIN spacetrader_entries e ON e.voyage_id=v.id AND e.sequence=v.sequence WHERE a.id=${owner} AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id) AND (${after}::uuid IS NULL OR (v.created_at,v.id)<(SELECT x.created_at,x.id FROM spacetrader_voyages x WHERE x.id=${after}::uuid AND x.account_id=${owner})) ORDER BY v.created_at DESC,v.id DESC LIMIT 21`;
   const [account]=await sql`SELECT active_voyage,stored_bytes FROM spacetrader_accounts WHERE id=${owner}`;
   return {voyages:rows.slice(0,20).map(r=>({id:r.id,name:r.summary.created===false||r.summary.created===undefined&&r.type==='new-voyage'?'New captain':r.summary.name,day:r.summary.day,location:r.summary.location,sequence:Number(r.sequence),created:r.created_at,updated:r.updated_at,checkpoints:r.checkpoints})),next:rows.length>20?rows[19].id:null,selected:account?.active_voyage||null,usedBytes:Number(account?.stored_bytes||0),limitBytes:accountLimit};
  }

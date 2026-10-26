@@ -20,7 +20,7 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
   if(!result.ok)throw Error('Email unavailable');
  };
  const auth=configured?createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit:emailLimit,emailMonthlyLimit:monthlyLimit,maxAccounts:Number(env.SPACETRADER_MAX_ACCOUNTS||10000)}):null;
- const saves=configured?createStorage(sql,{parse,accountLimit,totalLimit}):null;
+ const saves=configured?createStorage(sql,{parse,accountLimit,totalLimit,compact:true}):null;
  // A head plus three near-limit checkpoints exceeds function response limits.
  // Return slot hashes here; the browser retrieves changed slots individually.
  const saveJson=(value,status=200)=>json(value.slots?{...value,slots:{},checkpointDigests:Object.fromEntries(Object.entries(value.slots).map(([key,raw])=>[key,digest(raw)]))}:value,status);
@@ -61,6 +61,7 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
    if(path==='/api/import/batch'&&req.method==='POST')return json(await saves.importBatch(owner,body));
    if(path==='/api/import/checkpoint'&&req.method==='POST')return saveJson(await saves.importCheckpoint(owner,body));
    if(path==='/api/import/finish'&&req.method==='POST')return saveJson(await saves.finishImport(owner,body));
+   if(req.headers.get('x-spacetrader-storage')!=='compact-v1')throw fail('Reload the game to use the smaller save format. Existing progress is preserved.',428);
    const header=req.headers.get('x-spacetrader-voyage');
    const target=path==='/api/voyage'&&req.method==='GET'&&!header?null:await saves.selected(owner,header);
    if(path==='/api/voyage'){

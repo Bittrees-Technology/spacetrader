@@ -3,6 +3,8 @@ import {createRoot} from 'react-dom/client';
 import {createSiweMessage} from 'viem/siwe';
 import {LoginPanel,EmailSignIn,EthereumSignIn} from './shared/login/LoginPanel.jsx';
 import './theme.css';
+import {installJournalReader} from './journal-reader.mjs';
+installJournalReader(window.SpacetraderJournalFeed);
 
 const host=window,MODE='spacetrader.account-save-mode.v1',PIN='spacetrader.account-voyage.v2',NEW='spacetrader.new-charter.v2',PENDING='spacetrader.pending-charter.v2';
 let localRequest,account=null,configured=false,dialog,reactRoot,cloudActive=false,pinned=null;
@@ -25,7 +27,7 @@ async function newVoyage(){
 }
 function consumeNewIntent(id){try{const intent=JSON.parse(sessionStorage.getItem(NEW)||'null');if(intent?.account===account?.account&&intent.id===id){sessionStorage.removeItem(NEW);return true;}}catch{}return false;}
 async function call(path,body,owner=false){
- const headers={'Content-Type':'application/json',...(owner?{'X-Spacetrader':'shared-save-v1','X-Spacetrader-Account':account?.account||''}:{})};
+ const headers={'Content-Type':'application/json','X-Spacetrader-Storage':'compact-v1',...(owner?{'X-Spacetrader':'shared-save-v1','X-Spacetrader-Account':account?.account||''}:{})};
  const result=await fetch(path,{method:body===undefined?'GET':'POST',headers,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(30000),...(body===undefined?{}:{body:JSON.stringify(body)})});
  const value=await result.json();if(!result.ok)throw Error(value.error||'The account request could not be completed.');return value;
 }
@@ -123,7 +125,7 @@ function Account(){
    <button disabled={busy} onClick={()=>void run(newVoyage)}>New account voyage</button>
    {device?.profile.created&&<button disabled={busy} className="captain-account-secondary" onClick={()=>void run(()=>transfer(setProgress))}>Transfer device voyage &amp; history</button>}
    {progress&&<p role="status">{progress}</p>}
-   <p className="captain-account-note">Each voyage keeps its own journal, action history and three checkpoint slots. Starting another voyage preserves the earlier ones.</p>
+   <p className="captain-account-note">Each voyage keeps its own journal, action history and two checkpoint slots. Starting another voyage preserves the earlier ones.</p>
    {library&&<p className="captain-account-note">Account storage: {(library.usedBytes/1048576).toFixed(1)} of {(library.limitBytes/1048576).toFixed(0)} MiB across all voyages.</p>}
    <button disabled={busy} className="captain-account-secondary" onClick={()=>void run(async()=>{await host.SpacetraderAccountBridge?.settled();await call('/api/auth/logout',{});setMode('device');location.assign('/play/');})}>Sign out &amp; return to device voyage</button>
   </>}
@@ -149,7 +151,7 @@ host.openBrowserVoyageLedger=async options=>{
   const owner=account.account;
   let voyage=getPin(owner);
   const cached={};
-  const cloudFetch=(path,options={})=>fetch(path,{...options,credentials:'same-origin',cache:'no-store',headers:{...options.headers,'X-Spacetrader-Account':owner,...(voyage?{'X-Spacetrader-Voyage':voyage}:{})},signal:AbortSignal.timeout(30000)});
+  const cloudFetch=(path,options={})=>fetch(path,{...options,credentials:'same-origin',cache:'no-store',headers:{...options.headers,'X-Spacetrader-Account':owner,'X-Spacetrader-Storage':'compact-v1',...(voyage?{'X-Spacetrader-Voyage':voyage}:{})},signal:AbortSignal.timeout(30000)});
   return async(path,options={})=>{
    const response=await cloudFetch(path,options),value=await response.clone().json();
    if(response.ok&&value.voyage){if(voyage&&voyage!==value.voyage)throw Error('The selected voyage changed. Reopen Saved voyages.');voyage=value.voyage;setPin(owner,voyage);}

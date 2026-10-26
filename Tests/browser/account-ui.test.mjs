@@ -13,7 +13,7 @@ import engine from '../../Browser/engine.js';
 import combatFixture from './combat-v2-balance.cjs';
 
 (async()=>{
-const database=new PGlite();await database.exec(await readFile('Web/account/schema.sql','utf8'));await database.exec(await readFile('Web/account/migrations/002-voyage-library.sql','utf8'));await database.exec('SET search_path=pg_catalog,spacetrader,pg_temp');
+const database=new PGlite();await database.exec(await readFile('Web/account/schema.sql','utf8'));await database.exec(await readFile('Web/account/migrations/002-voyage-library.sql','utf8'));await database.exec(await readFile('Web/account/migrations/003-compact-journal.sql','utf8'));await database.exec('SET search_path=pg_catalog,spacetrader,pg_temp');
 const sql=(strings,...values)=>database.query(strings.reduce((out,text,index)=>out+(index?'$'+index:'')+text,''),values).then(result=>result.rows);
 const staticRoot=resolve('Web/.vercel/output/static'),codes=[];let api,origin;
 const type={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.json':'application/json','.txt':'text/plain'};
@@ -50,8 +50,9 @@ try{
  await page.getByRole('button',{name:'New charter',exact:false}).click();await page.locator('#captain-name').waitFor();assert.equal(await page.locator('#captain-name').inputValue(),'');
  await page.getByRole('button',{name:'Back to menu',exact:true}).click();await page.getByRole('navigation',{name:'Game menu',exact:true}).waitFor();
  await page.getByRole('button',{name:'New charter',exact:false}).click();await page.locator('#captain-name').fill('Persistence QA');await page.locator('#character-form').evaluate(form=>form.requestSubmit());
- await page.waitForFunction(()=>state?.profile.created);
+ await page.waitForFunction(()=>typeof state!=='undefined'&&state?.profile.created);
  assert(await page.evaluate(()=>sharedCheckpoint('slot2',JSON.stringify(state))));
+ assert(await page.evaluate(()=>sharedCheckpoint('slot3',JSON.stringify(state))));
  await page.evaluate(()=>{closeModal(true);SpacetraderAccount.open();});
  await page.getByLabel('Email address',{exact:true}).waitFor();
  for(const [name,width,height] of [['phone',390,844],['ipad-portrait',768,1024],['ipad-landscape',1024,680],['desktop',1440,900]]){
@@ -64,7 +65,7 @@ try{
  await page.getByLabel('Verification code',{exact:true}).fill(codes.at(-1).code);await page.getByRole('button',{name:'Verify and continue',exact:true}).click();
  await page.getByRole('button',{name:'Transfer device voyage & history',exact:true}).waitFor();
  const [account]=await sql`SELECT id FROM spacetrader_accounts WHERE identity='persistence-qa@example.org'`;
- const saves=createStorage(sql,{parse:engine.parse,accountLimit:16777216,totalLimit:134217728});assert.equal((await saves.snapshot(account.id)).raw,null,'Sign-in alone never uploads or replaces a voyage');
+ const saves=createStorage(sql,{parse:engine.parse,accountLimit:16777216,totalLimit:134217728,compact:true});assert.equal((await saves.snapshot(account.id)).raw,null,'Sign-in alone never uploads or replaces a voyage');
  const localSequence=await page.evaluate(()=>sharedSession.snapshot.sequence);
  await page.getByRole('button',{name:'Transfer device voyage & history',exact:true}).click();await page.waitForFunction(()=>window.SpacetraderAccount?.isCloud()&&state?.profile.name==='Persistence QA');
  await page.getByRole('button',{name:'Continue voyage',exact:false}).click();await page.locator('.game-shell').waitFor();
@@ -96,15 +97,19 @@ try{
  await reopened.reload();await reopened.getByRole('button',{name:'Saved voyages',exact:false}).click();
  await reopened.getByRole('button',{name:'New account voyage',exact:true}).click();
  await reopened.locator('#captain-name').waitFor();await reopened.locator('#captain-name').fill('Second voyage QA');await reopened.locator('#character-form').evaluate(form=>form.requestSubmit());
- await reopened.waitForFunction(()=>state?.profile.name==='Second voyage QA'&&state.profile.created);
+ await reopened.waitForFunction(()=>typeof state!=='undefined'&&state?.profile.name==='Second voyage QA'&&state.profile.created);
  const voyageB=await reopened.evaluate(()=>sharedSession.snapshot.voyage);assert.notEqual(voyageB,voyageA);
  assert(await reopened.evaluate(()=>sharedAction('buy',{good:'water',units:1})));
  assert(await reopened.evaluate(()=>sharedCheckpoint('slot1',JSON.stringify(state))));
+ const recordedReads=[];reopened.on('request',request=>{const m=/\/api\/ledger\/(\d+)$/.exec(request.url());if(m)recordedReads.push(Number(m[1]));});
+ await reopened.evaluate(()=>showCheckpointMenu('save'));await reopened.getByRole('heading',{name:'Save checkpoint',exact:true}).waitFor();assert.equal(await reopened.locator('.checkpoint-slot').count(),2,'New account voyages offer two bounded manual slots');await reopened.screenshot({path:join(output,'compact-checkpoints-phone.png')});
+ await reopened.evaluate(()=>{closeModal(true);showLedger();});await reopened.waitForFunction(()=>document.querySelectorAll('.ledger-action').length>=3);assert.equal(await reopened.getByRole('button',{name:'Continue from here…',exact:true}).count(),0,'Account action history is read-only');
+ assert(recordedReads.every(sequence=>sequence===1),'New journal receipts never fetch historical world snapshots');await reopened.screenshot({path:join(output,'compact-journal-phone.png')});await reopened.evaluate(()=>closeModal(true));
  const bHead=await saves.snapshot(account.id,voyageB),aHead=await saves.snapshot(account.id,voyageA);
  assert.equal(engine.parse(aHead.raw).profile.name,'Persistence QA');assert(aHead.slots.slot2,'Starting B preserves A checkpoints');
  assert(await other.evaluate(()=>sharedAction('buy',{good:'water',units:1})),'A device pinned to A can save while default B is selected');
  assert.equal((await saves.snapshot(account.id,voyageB)).revision,bHead.revision);
- await reopened.reload();await reopened.waitForFunction(()=>state?.profile.name==='Second voyage QA');
+ await reopened.reload();await reopened.waitForFunction(()=>typeof state!=='undefined'&&state?.profile.name==='Second voyage QA');
  assert.equal(await reopened.evaluate(()=>sharedSession.snapshot.voyage),voyageB,'Tab reload keeps its pinned voyage');
  await reopened.getByRole('button',{name:'Saved voyages',exact:false}).click();
  for(const [name,width,height] of [['phone',390,844],['desktop',1440,900]]){
@@ -114,19 +119,20 @@ try{
  }
  assert.equal(await reopened.getByRole('article',{name:'Voyage: Persistence QA',exact:true}).count(),1);assert.equal(await reopened.getByRole('article',{name:'Voyage: Second voyage QA',exact:true}).count(),1);
  await reopened.getByRole('article',{name:'Voyage: Persistence QA',exact:true}).getByRole('button',{name:'Load voyage',exact:true}).click();
- await reopened.waitForFunction(()=>state?.profile.name==='Persistence QA');assert.equal(await reopened.evaluate(()=>sharedSession.snapshot.voyage),voyageA);
+ await reopened.waitForFunction(()=>typeof state!=='undefined'&&state?.profile.name==='Persistence QA');assert.equal(await reopened.evaluate(()=>sharedSession.snapshot.voyage),voyageA);
  assert.equal((await saves.snapshot(account.id,voyageB)).revision,bHead.revision);
+ await reopened.evaluate(()=>showCheckpointMenu('save'));await reopened.getByRole('heading',{name:'Save checkpoint',exact:true}).waitFor();const legacyThird=reopened.locator('.checkpoint-slot').filter({has:reopened.getByRole('heading',{name:'Slot 3',exact:true})});assert.equal(await legacyThird.count(),1);assert(await legacyThird.getByRole('button',{name:'Overwrite…',exact:true}).isDisabled(),'Existing third checkpoint remains available but cannot receive new snapshots');await reopened.getByRole('button',{name:'Back to previous popout',exact:true}).click();
  // The existing Menu → New charter confirmation also creates a new UUID.
  const preservedA=await saves.snapshot(account.id,voyageA);
  await reopened.getByRole('button',{name:'New charter',exact:false}).click();await reopened.getByRole('button',{name:'Begin new voyage',exact:true}).click();
  await reopened.locator('#captain-name').waitFor();assert.equal(await reopened.locator('#captain-name').inputValue(),'');
  assert.notEqual(await reopened.evaluate(()=>sharedSession.snapshot.voyage),voyageA);assert.equal((await saves.snapshot(account.id,voyageA)).revision,preservedA.revision);
  await reopened.getByRole('button',{name:'Back to menu',exact:true}).click();await reopened.getByRole('button',{name:'Saved voyages',exact:false}).click();
- await reopened.getByRole('article',{name:'Voyage: Persistence QA',exact:true}).getByRole('button',{name:'Load voyage',exact:true}).click();await reopened.waitForFunction(()=>state?.profile.name==='Persistence QA');
+ await reopened.getByRole('article',{name:'Voyage: Persistence QA',exact:true}).getByRole('button',{name:'Load voyage',exact:true}).click();await reopened.waitForFunction(()=>typeof state!=='undefined'&&state?.profile.name==='Persistence QA');
  // A saved live battle must not exchange fire on a menu or its Audio subpage.
  let battle=combatFixture.start(combatFixture.ready('osprey',3,2),2);
  battle=engine.transact(battle,'battle-plan',{battle:battle.battle.id,step:0,revision:0,realtime:true,engage:true});
- const beforeBattle=await saves.snapshot(account.id),idleBattle=await saves.append(account.id,{key:'auto',raw:JSON.stringify(battle),revision:beforeBattle.revision,action:{id:'qa-menu-battle',type:'qa-fixture',args:{},version:'0.72.257'}});
+ const beforeBattle=await saves.snapshot(account.id),idleBattle=await saves.append(account.id,{key:'auto',raw:JSON.stringify(battle),revision:beforeBattle.revision,action:{id:'qa-menu-battle',type:'qa-fixture',args:{},version:'0.72.257'}},beforeBattle.voyage);
  await reopened.reload();await reopened.getByRole('button',{name:'Continue voyage',exact:false}).waitFor();
  await reopened.getByRole('button',{name:'Audio',exact:false}).click();await reopened.getByRole('button',{name:'Back to previous popout',exact:true}).click();
  await new Promise(resolve=>setTimeout(resolve,1100));assert.equal((await saves.snapshot(account.id)).revision,idleBattle.revision);assert.equal(await reopened.evaluate(()=>state.battle.live.step),0);assert.equal(await reopened.locator('.game-shell').count(),0);assert(await reopened.evaluate(()=>SpacetraderAccountBridge.canSwitch()),'An idle saved battle does not block choosing an account at the entry menu');
@@ -135,7 +141,7 @@ try{
  await expiredPage.getByRole('button',{name:'New charter',exact:false}).click();await expiredPage.locator('#captain-name').waitFor();assert.equal(await expiredPage.evaluate(()=>localStorage.getItem('spacetrader.account-save-mode.v1')),'device');
  const badWallet=await browser.newContext({viewport:{width:390,height:740}}),walletPage=await badWallet.newPage();await walletPage.clock.install();await walletPage.addInitScript(()=>{window.ethereum={request:()=>new Promise(()=>{})};});await walletPage.goto(origin+'/play/');await walletPage.getByRole('button',{name:'Sign in & load voyage',exact:false}).click();await walletPage.getByRole('button',{name:'Sign in with Ethereum',exact:true}).click();await walletPage.clock.fastForward(61000);await walletPage.getByRole('alert').filter({hasText:'wallet did not respond'}).waitFor();assert(await walletPage.getByLabel('Email address',{exact:true}).isEnabled(),'Wallet timeout must restore email controls');
  assert.equal(errors.length,0,errors.join('; '));
- await writeFileSafe(join(output,'ui-verification.json'),{passed:true,layouts:4,entryMenu:true,checkpointLoadFromMenu:true,battleIdleOnMenu:true,expiredSignInMenu:true,closeTabPersistence:true,multiVoyageLibrary:true,independentCheckpoints:true,pinnedDeviceIsolation:true,separateDevicePersistence:true,fullHistoryTransferred:true,checkpoints:true,staleDeviceRejected:true,walletTimeoutRecovery:true,localActionMilliseconds:timings,realEmailsSent:0,externalWalletRPCRequests:0,errors});
+ await writeFileSafe(join(output,'ui-verification.json'),{passed:true,layouts:4,entryMenu:true,checkpointLoadFromMenu:true,battleIdleOnMenu:true,expiredSignInMenu:true,closeTabPersistence:true,compactAccountJournal:true,manualSlots:2,legacyThirdReadOnly:true,noPerActionRestore:true,noSnapshotReadsForNewJournal:true,multiVoyageLibrary:true,independentCheckpoints:true,pinnedDeviceIsolation:true,separateDevicePersistence:true,fullHistoryTransferred:true,checkpoints:true,staleDeviceRejected:true,walletTimeoutRecovery:true,localActionMilliseconds:timings,realEmailsSent:0,externalWalletRPCRequests:0,errors});
  console.log('PASS account UI: four responsive layouts, actual email flow, complete guest-history transfer, checkpoint persistence, closed-tab reopening, second device, stale-device rejection and wallet timeout recovery; zero live emails.');
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));await database.close();}
 })().catch(error=>{console.error(String(error.stack||error).slice(0,2500));process.exitCode=1;});

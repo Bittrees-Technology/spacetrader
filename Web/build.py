@@ -123,6 +123,10 @@ def build():
         if source.is_file() and source.suffix in {'.html', '.js', '.css', '.svg', '.png', '.jpg', '.jpeg', '.avif', '.webp', '.ogg', '.mp3', '.wav', '.txt'}:
             clone(source, Path('play') / source.relative_to(browser))
     app = (browser / 'app.js').read_text()
+    for patch in json.loads((SITE/'compact-ui.json').read_text()):
+        if app.count(patch['old'])!=1:
+            raise ValueError('Review compact account save presentation adapter.')
+        app=app.replace(patch['old'],patch['new'])
     guide = "window.open('http://127.0.0.1:8878/','_blank','noopener,noreferrer');"
     if app.count(guide) != 1:
         raise ValueError('Review the public Guide opening adapter')
@@ -149,7 +153,7 @@ def build():
             raise ValueError('Review public charter navigation')
     app = app.replace(creator_head, "modalHead('Your independent charter',false)+ '<p>'+btn('Back to menu','public-menu')+'</p>'")
     app = app.replace(close_start, close_start + "if(publicStartMenu&&!force&&modalKind==='menu')return;if(!force&&modalKind==='creator'&&!state.profile.created){publicReturnToMenu();return;}")
-    app = app.replace(loaded_notice, "saveFeedback=state.profile.created?`Loaded ${state.profile.name} · day ${state.day}. Your previous voyage is kept.`:'Ready to create your captain. Your previous voyage is kept.';")
+    app = app.replace(loaded_notice, "saveFeedback=state.profile.created?`Loaded ${state.profile.name} · day ${state.day}. ${sharedSession?.snapshot?.restoreActions===false?'Journal history is retained.':'Your previous voyage is kept.'}`:'Ready to create your captain. Your previous voyage is kept.';")
     modal_bounds = 'bounds=mainModalBounds(main?.getBoundingClientRect(),width,height)'
     if app.count(modal_bounds) != 1:
         raise ValueError('Review the public visible-viewport popout adapter')

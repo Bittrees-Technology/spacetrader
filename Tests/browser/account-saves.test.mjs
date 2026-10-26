@@ -11,7 +11,7 @@ import {verifyMessage} from 'viem';
 import engine from '../../Browser/engine.js';
 
 (async()=>{
-const database=new PGlite();await database.exec(await readFile('Web/account/schema.sql','utf8'));await database.exec(await readFile('Web/account/migrations/002-voyage-library.sql','utf8'));await database.exec('SET search_path=pg_catalog,spacetrader,pg_temp');
+const database=new PGlite();await database.exec(await readFile('Web/account/schema.sql','utf8'));await database.exec(await readFile('Web/account/migrations/002-voyage-library.sql','utf8'));await database.exec(await readFile('Web/account/migrations/003-compact-journal.sql','utf8'));await database.exec('SET search_path=pg_catalog,spacetrader,pg_temp');
 const sql=(strings,...values)=>database.query(strings.reduce((out,text,index)=>out+(index?'$'+index:'')+text,''),values).then(result=>result.rows);
 const origin='https://captain.bittrees.org',limit={parse:engine.parse,accountLimit:32_000_000,totalLimit:64_000_000},store=createStorage(sql,limit);
 const mails=[];const auth=createAuth({sql,origin,emailDailyLimit:20,emailMonthlyLimit:500,sendMail:async(email,code)=>mails.push({email,code}),verifyWallet:async()=>true});
@@ -57,15 +57,16 @@ const env={APP_ORIGIN:origin,SPACETRADER_ACCOUNTS_ENABLED:'1',SPACETRADER_ACCOUN
 const api=createApi({env,sql,sendMail:async(email,code)=>mails.push({email,code}),verifyWallet:async({message,signature})=>verifyMessage({address:parseSiweMessage(message).address,message,signature})});
 const request=(path,body,headers={})=>new Request(origin+path,{method:body===undefined?'GET':'POST',headers:{Origin:origin,'Content-Type':'application/json',...headers},...(body===undefined?{}:{body:JSON.stringify(body)})});
 assert.equal((await api(request('/api/voyage'))).status,401);
-const cookie=a.cookies[0].split(';')[0],privateHeaders={cookie,'X-Spacetrader-Account':owner,'X-Spacetrader':'shared-save-v1'};
+const cookie=a.cookies[0].split(';')[0],privateHeaders={cookie,'X-Spacetrader-Account':owner,'X-Spacetrader':'shared-save-v1','X-Spacetrader-Storage':'compact-v1'};
 assert.equal((await api(request('/api/voyage',undefined,privateHeaders))).status,200);
+const oldClientHeaders={...privateHeaders,'X-Spacetrader-Voyage':head.voyage};delete oldClientHeaders['X-Spacetrader-Storage'];assert.equal((await api(request('/api/voyage',undefined,oldClientHeaders))).status,428,'An older open client must reload before touching compact saves');
 assert.equal((await api(request('/api/voyage',undefined,{...privateHeaders,'X-Spacetrader-Account':other}))).status,401);
 assert.equal((await api(request('/api/voyage',{}, {...privateHeaders,Origin:'https://evil.example'}))).status,403);
 const response=await api(request('/api/account/status',undefined,{cookie}));assert.equal(response.headers.get('cache-control'),'private, no-store');assert.equal(response.headers.get('x-robots-tag'),'noindex');
 const largeSession=await auth.establish('large-save@example.org'),largeOwner=(await session(largeSession)).account;
 const largeRaw=JSON.stringify({...state,qaPadding:'x'.repeat(1_850_000)}),largeHead=await store.append(largeOwner,{key:'auto',raw:largeRaw,revision:null,action:event('large-head')});
 for(const key of ['slot1','slot2','slot3'])await store.checkpoint(largeOwner,{key,raw:largeRaw,expected:null,revision:largeHead.revision});
-const largeHeaders={cookie:largeSession.cookies[0].split(';')[0],'X-Spacetrader-Account':largeOwner,'X-Spacetrader-Voyage':largeHead.voyage};
+const largeHeaders={cookie:largeSession.cookies[0].split(';')[0],'X-Spacetrader-Account':largeOwner,'X-Spacetrader-Voyage':largeHead.voyage,'X-Spacetrader-Storage':'compact-v1'};
 const headReply=await api(request('/api/voyage',undefined,largeHeaders)),wire=await headReply.json();
 assert.equal(Object.keys(wire.checkpointDigests).length,3);assert.deepEqual(wire.slots,{});assert(Buffer.byteLength(JSON.stringify(wire))<2_000_000,'A head response does not bundle three large checkpoints');
 const slotReply=await api(request('/api/checkpoint?slot=slot1',undefined,largeHeaders));assert.equal((await slotReply.json()).raw,largeRaw);
@@ -99,7 +100,7 @@ await assert.rejects(boundedAuth.establish('beyond-cap@example.org'),/account_ca
 await boundedAuth.establish('captain-a@example.org');
 await assert.rejects(sql`DELETE FROM spacetrader_entries WHERE voyage_id=${head.voyage}`,/append-only/);
 await database.exec('CREATE ROLE spacetrader_runtime NOLOGIN; CREATE SCHEMA unrelated_app; CREATE TABLE unrelated_app.secret(data text); INSERT INTO unrelated_app.secret VALUES(\'private\'); REVOKE ALL ON SCHEMA unrelated_app FROM PUBLIC;');
-await database.exec(await readFile('Web/account/runtime-grants.sql','utf8'));await database.exec(await readFile('Web/account/migrations/002-voyage-library-grants.sql','utf8'));await database.exec('SET ROLE spacetrader_runtime; SET search_path=pg_catalog,spacetrader,pg_temp');
+await database.exec(await readFile('Web/account/runtime-grants.sql','utf8'));await database.exec(await readFile('Web/account/migrations/002-voyage-library-grants.sql','utf8'));await database.exec(await readFile('Web/account/migrations/003-compact-journal-grants.sql','utf8'));await database.exec('SET ROLE spacetrader_runtime; SET search_path=pg_catalog,spacetrader,pg_temp');
 await assert.rejects(database.query('SELECT * FROM unrelated_app.secret'),/permission denied/);
 await assert.rejects(database.query('CREATE TABLE public.not_allowed(value text)'),/permission denied/);
 await assert.rejects(database.query('DELETE FROM spacetrader.spacetrader_entries'),/permission denied/);

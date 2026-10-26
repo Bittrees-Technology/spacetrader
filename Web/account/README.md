@@ -32,7 +32,8 @@ replacement for a cloud save.
   requested. Do not share another app's unrestricted database credential.
 - For the voyage library, apply `migrations/002-voyage-library.sql`, followed by
   `migrations/002-voyage-library-grants.sql`, through the same database owner.
-  Both are additive; existing histories and legacy functions remain intact.
+  Then apply `migrations/003-compact-journal.sql` and its matching grants for the
+  compact account format. All migrations are additive; existing histories and legacy functions remain intact.
 - Reuse the existing approved email delivery service and verified domain, with a
   reviewed hard daily and calendar-month email caps within its current allowance. Do not send test
   codes to third parties or enable overages. Tests intercept delivery.
@@ -54,7 +55,7 @@ identities are not inferred or merged by labels or email strings. Account linkin
 requires a separate fresh-proof flow; a shared session conveys identity only.
 
 Each account can hold multiple independent voyages. Each has a stable UUID,
-its own captain, journal, action history and three checkpoint slots. Starting a
+its own captain, journal, action history and two manual checkpoint slots. Starting a
 charter never resets an earlier account voyage. The library pages metadata in
 groups of twenty and excludes unfinished transfers. Its storage limit is shared
 across the account, rather than multiplied by the number of voyages.
@@ -67,16 +68,22 @@ creation and completed-transfer retries cannot duplicate or replace a voyage.
 
 Cloud commits record resolved outcomes with compare-and-swap revisions and unique
 operation IDs. Retries cannot apply the same action twice, and another device's
-newer head cannot be silently replaced. History is append-only, compressed, and
-uses bounded structural JSON or byte deltas between full snapshots every 40 actions. Three current checkpoint
-slots per voyage retain older versions privately. State is validated with the actual engine.
+newer head cannot be silently replaced. The current resolved state is overwritten atomically. The journal retains compact
+structured receipts and rendered notices in compressed chunks of up to 128 actions
+and 512 KiB before compression. Earlier actions are readable, not restorable world
+states. A last-operation digest and compare-and-swap revision protect lost-response
+retries; older stale requests require reviewing the current head rather than replay. Two current manual checkpoint slots replace their contents in place for account saves. Legacy versions stay intact. State is validated with the actual engine.
 
 Transfers copy the complete local action history into an inactive staged voyage,
 then transfer checkpoint slots and activate only after count and head-hash checks.
 The local original is never deleted. A transfer interrupted by a disconnect can
 resume from the last acknowledged action. Existing account voyages do not block
 additional device transfers. At most three unfinished transfers can be staged
-at once. Imports and saves remain unranked.
+at once. Imports and saves remain unranked. Imported journal receipts retain complete
+action history without copying a world-state replay payload for each action.
+Existing third checkpoint slots remain loadable and deletable; new account
+checkpoints use slots 1 and 2. Superseded snapshot-slot contents are not archived
+again. Original legacy histories/checkpoints are not removed by this rollout.
 
 Only the authenticated account can access its cloud head, history or checkpoints.
 All private responses are no-store/noindex; writes require exact Origin and a
@@ -97,3 +104,7 @@ existing saves and requires a reviewed operator decision before limits change.
 Account actions need a connection. Guest play continues to use device IndexedDB
 and recovery storage. The site does not cache an authenticated cloud voyage as
 an unrelated guest voyage, and signing out returns to the separate device save.
+
+New private save requests require `X-Spacetrader-Storage: compact-v1`; older
+open clients must reload. Read-only history does not authorize arbitrary state
+restoration. Guest and native ledgers retain their existing format in this pass.
