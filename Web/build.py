@@ -150,17 +150,24 @@ def build():
     app = app.replace(creator_head, "modalHead('Your independent charter',false)+ '<p><a href=\"/\">Back to site</a></p>'")
     app = app.replace(close_start, close_start + "if(!force&&modalKind==='creator'&&!state.profile.created){location.assign('/');return;}")
     app = app.replace(loaded_notice, "saveFeedback=state.profile.created?`Loaded ${state.profile.name} · day ${state.day}. Your previous voyage is kept.`:'Ready to create your captain. Your previous voyage is kept.';")
+    modal_bounds = 'bounds=mainModalBounds(main?.getBoundingClientRect(),width,height)'
+    if app.count(modal_bounds) != 1:
+        raise ValueError('Review the public visible-viewport popout adapter')
+    app = app.replace(modal_bounds, 'bounds=SpacetraderPlayLayout.modalBounds(main?.getBoundingClientRect(),width,height,window.visualViewport,SpacetraderPlayLayout.safeInsets())')
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')
     clone(SITE / 'play-viewport.css', 'play/play-viewport.css')
     clone(SITE / 'browser-save-safety.js', 'play/browser-save-safety.js')
+    clone(SITE / 'play-layout.js', 'play/play-layout.js')
     index = (browser / 'index.html').read_text()
     index = index.replace('connect-src \'self\' ipc: http://ipc.localhost', "connect-src 'self'")
-    public_revision = sha(app.encode() + (SITE / 'onboarding.css').read_bytes() + (SITE / 'play-viewport.css').read_bytes() + (SITE / 'browser-save-safety.js').read_bytes())[:12]
+    public_revision = sha(app.encode() + (SITE / 'onboarding.css').read_bytes() + (SITE / 'play-viewport.css').read_bytes() + (SITE / 'browser-save-safety.js').read_bytes() + (SITE / 'play-layout.js').read_bytes())[:12]
     ledger_script = '<script defer src="browser-ledger.js?v=0.72.257"></script>'
     if index.count(ledger_script) != 1:
         raise ValueError('Review browser save-safety initialization order')
     index = index.replace(ledger_script, ledger_script + '<script defer src="browser-save-safety.js?v=' + public_revision + '"></script>')
+    index = index.replace('<script defer src="app.js?', '<script defer src="play-layout.js?v=' + public_revision + '"></script><script defer src="app.js?')
+    index = index.replace('width=device-width, initial-scale=1', 'width=device-width, initial-scale=1, viewport-fit=cover')
     index = index.replace('app.js?v=0.72.257', 'app.js?v=' + public_revision)
     index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><link rel="stylesheet" href="play-viewport.css?v=' + public_revision + '"><meta name="description" content="Explore the solar system in Spacetrader, a single-player space-trading game. Free browser play with local saves."></head>')
     write('play/index.html', index)

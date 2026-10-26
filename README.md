@@ -23,6 +23,15 @@ site-data removal or provide cloud recovery. Run
 `node Tests/browser/browser-save-safety.test.cjs` and
 `node Tests/browser/public-build.test.cjs` after changing this public-only adapter.
 
+The public cockpit uses `Web/play-layout.js` and `Web/play-viewport.css` for
+rotation, the visible viewport above the software keyboard, safe areas and
+compact phone navigation. Narrow establishments use one scrolling sheet;
+tablet/desktop desks retain independent panes. Trade controls stack on small
+screens. Editable mobile controls use at least 16 px text without disabling
+pinch zoom. Run `node Tests/browser/play-layout.test.cjs` and the public build
+checks, then inspect phone/tablet portrait and landscape layouts. Desktop
+viewport checks do not replace physical iOS keyboard and touch acceptance.
+
 ## Run locally
 
 Use an existing Node.js installation and Python 3. No dependency installation is

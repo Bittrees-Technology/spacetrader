@@ -1,13 +1,15 @@
 /* The public cockpit follows the visible browser viewport, including tablet chrome. */
 /* Repeated control taps are clicks; scrolling and pinch zoom remain available. */
+:root{--play-safe-top:env(safe-area-inset-top,0px);--play-safe-right:env(safe-area-inset-right,0px);--play-safe-bottom:env(safe-area-inset-bottom,0px);--play-safe-left:env(safe-area-inset-left,0px)}
 .browser-save-health{margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid #81969f66;font-size:12px;line-height:1.5}
 .browser-save-health>summary{min-height:44px;padding:10px 0;cursor:pointer;font-weight:600}
 .browser-save-health>p{margin:6px 0}
 button,[role="button"],input[type="button"],input[type="submit"],a[href],summary{touch-action:manipulation}
 html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html:has(#modal[open]){scrollbar-gutter:auto}
 body:has(.game-shell),body:has(.charter-welcome){min-width:0;min-height:0;overflow:hidden}
-#app{display:grid;grid-template-rows:auto minmax(0,1fr);height:100vh;height:100dvh;min-height:0;overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#app{display:grid;grid-template-rows:auto minmax(0,1fr);height:100vh;height:var(--play-height,100dvh);min-height:0;overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);box-sizing:border-box}
 #app>header{min-width:0}
 #app>.game-shell{min-height:0;height:100%;overflow:hidden}
 .game-shell>aside,body:has(#modal[open]) .game-shell>aside{position:static;align-self:stretch;height:100%;min-height:0;max-height:100%;overflow:hidden}
@@ -17,6 +19,116 @@ body:has(#modal[open]) .game-shell::before{content:none}
 .game-shell>aside .sidebar-fleet>.ship-title,.game-shell>aside .sidebar-gauges{flex:0 0 auto}
 .game-shell>aside .sidebar-fleet>.flagship-preview{flex:1 1 80px;min-height:32px;height:auto}
 .charter-welcome{min-height:0}
+
+/* Safari zooms focused controls with small text. Keep zoom available to the reader. */
+@media(pointer:coarse),(max-width:1100px){
+ #app input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]),
+ #modal input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]),
+ #app select,#modal select,#app textarea,#modal textarea{font-size:16px!important;min-height:44px}
+ #modal button.game-button:not(.portrait-enlarge),#app .map-control-row button{min-height:44px}
+ #modal .exchange-inline .market-stepper{grid-template-columns:32px minmax(40px,1fr) 32px}
+ #modal .exchange-inline .ledger-quantity-col{width:150px}
+ #modal .exchange-inline .market-row-controls button,#modal .exchange-inline .market-stepper input{height:44px;min-height:44px}
+ #modal .exchange-inline .market-price-button{min-height:44px;min-width:44px;text-align:left}
+ #modal .fleet-preview-controls button{min-width:44px;min-height:44px}
+}
+
+#modal.portrait-dialog{height:min(820px,calc(var(--modal-area-height) - 24px));max-height:calc(var(--modal-area-height) - 24px)}
+#modal.establishment-dialog .establishment-layout{max-height:none}
+body:has(.charter-welcome) #modal:has(#character-form){max-height:calc(var(--modal-area-height) - 24px)}
+
+/* Narrow popouts have one scrolling sheet, rather than nested touch traps. */
+@container(max-width:660px){
+ .establishment-dialog .establishment-layout{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+ .establishment-dialog .visit-people,.establishment-dialog .visit-services{overflow:visible;max-height:none}
+ .establishment-dialog .exchange-services:has(.exchange-inline){overflow:visible;min-height:0}
+ .exchange-services:has(.exchange-inline) .venue-service-features,.exchange-inline{display:block;min-height:0;height:auto}
+ .exchange-inline .exchange-list{max-height:none;overflow:visible}
+}
+
+/* The same trade row becomes a readable order on a phone, with every control retained. */
+@media(max-width:1100px),(pointer:coarse){
+ .exchange-inline .market-ledger,.exchange-inline .market-ledger tbody{display:block;width:100%}
+ .exchange-inline .market-ledger colgroup{display:none}
+ .exchange-inline .market-ledger thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+ .exchange-inline .market-ledger tr.market-product{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:5px 8px;height:auto;min-height:0;padding:12px 0;border-bottom:1px solid #718b9645}
+ .exchange-inline .market-ledger tr.market-product>th{grid-column:1/-1;padding:0;border:0}
+ .exchange-inline .market-item-name{font-size:14px;line-height:1.4}
+ .exchange-inline .market-ledger tr.market-product>td{display:block;padding:0;border:0;min-width:0;text-align:left}
+ .exchange-inline .market-ledger tr.market-product>td:nth-child(2){grid-column:1;grid-row:2}
+ .exchange-inline .market-ledger tr.market-product>td:nth-child(2)::before{content:'Unit · ';font-size:12px;font-weight:400}
+ .exchange-inline .market-ledger tr.market-product>td:nth-child(3){grid-column:2;grid-row:2;text-align:right}
+ .exchange-inline .market-ledger tr.market-product>td:nth-child(3)::before{content:'Owned · ';font-size:12px}
+ .exchange-inline .market-ledger tr.market-product>td:nth-child(4){grid-column:1;grid-row:3}
+ .exchange-inline .market-ledger tr.market-product>td:nth-child(5){grid-column:2;grid-row:3}
+ #modal .exchange-inline .market-stepper{grid-template-columns:44px minmax(40px,1fr) 44px}
+ #modal .exchange-inline .market-row-controls{gap:4px}
+ #modal .exchange-inline .exchange-max{min-width:44px;font-size:12px}
+ #modal .exchange-inline .exchange-confirm{height:44px;font-size:13px}
+ .exchange-inline .exchange-total strong{font-size:12px}
+ .exchange-inline .exchange-source{flex-wrap:wrap}
+ .exchange-inline .exchange-source-options{flex-wrap:wrap}
+}
+
+@media(max-width:900px){
+ #modal.establishment-dialog .establishment-layout{display:block;overflow-y:auto;overflow-x:hidden}
+ #modal.establishment-dialog .visit-people,#modal.establishment-dialog .visit-services{overflow:visible;max-height:none}
+ #modal .exchange-services:has(.exchange-inline) .venue-service-features,#modal .exchange-inline{display:block;min-height:0;height:auto}
+ #modal .exchange-inline .exchange-list{overflow:visible;max-height:none}
+}
+
+@media(max-width:360px){
+ .exchange-inline .market-ledger tr.market-product>td:nth-child(4){grid-column:1/-1;grid-row:3}
+ .exchange-inline .market-ledger tr.market-product>td:nth-child(5){grid-column:1/-1;grid-row:4}
+}
+
+/* Phones trade the tall sidebar for a compact cockpit navigation panel. */
+@media(max-width:700px),(max-width:1200px) and (max-height:500px){
+ #app>header{padding:8px 12px;min-height:0}
+ #app>header h1{font-size:23px}
+ #app>header .brand img{width:26px;height:26px}
+ #app>.game-shell{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+ #app>.game-shell>aside,body:has(#modal[open]) #app>.game-shell>aside{display:grid;grid-column:1;grid-row:1;grid-template-columns:repeat(4,minmax(0,1fr));align-content:start;gap:4px;height:auto;max-height:none;min-height:0;padding:6px 8px;border-right:0;border-bottom:1px solid #ffffff25}
+ .game-shell>aside>.sidebar-content,.game-shell>aside>.sidebar-actions,
+ .sidebar-content>.sidebar-navigation,.sidebar-content>.sidebar-fleet-links,
+ .sidebar-content>.sidebar-record-links,.sidebar-actions>.sidebar-record-links{display:contents}
+ #app .game-shell>aside .captain-profile,#app .game-shell>aside .sidebar-fleet,#app .game-shell>aside .sidebar-gauges{display:none}
+ .sidebar-content>.sidebar-funds{order:-1;grid-column:1/-1;margin:0;padding:0;border:0}
+ .sidebar-content .sidebar-balances{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin:0}
+ .sidebar-content .sidebar-balances>div{display:block;padding:3px 5px;min-height:40px}
+ .sidebar-content .sidebar-balances dt{font-size:10px;line-height:1.25}
+ .sidebar-content .sidebar-balances dd{font-size:12px;margin:3px 0 0;line-height:1.3;overflow-wrap:anywhere}
+ .sidebar-content .sidebar-balance-link{min-height:0;padding:0;font-size:10px}
+ .sidebar-content>.sidebar-navigation>button,.sidebar-content>.sidebar-fleet-links>button,
+ .sidebar-content>.sidebar-record-links>button.sidebar-record-button,
+ .sidebar-actions .sidebar-record-links>button.sidebar-record-button,.sidebar-actions>.sidebar-menu{min-height:44px;width:100%;margin:0;padding:5px 4px;font-size:11px;line-height:1.3;white-space:normal;align-self:stretch}
+ .game-shell>.screen-main,.game-shell>.screen-main:has(.navigation-deck){grid-column:1;grid-row:2;height:100%;min-height:0;padding:12px;overflow-y:auto;overflow-x:hidden}
+ .screen-main>.navigation-deck{display:block;flex:none;height:auto}
+ .screen-main>.navigation-deck>.orbital-view{display:block}
+ .navigation-deck .map-control-row{min-width:0;flex-wrap:wrap}
+ .navigation-deck .map-breadcrumb{flex-wrap:wrap}
+ .navigation-deck .map-control-row button{white-space:normal}
+ .navigation-deck .map-search{min-width:0!important;width:100%}
+ .navigation-deck .map-viewport{height:320px;min-height:0}
+ .navigation-deck .map-viewport .navigation-map.solar-map{height:100%;width:100%;min-width:0}
+ .navigation-deck .route-column .metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+ .venue-directory{grid-template-columns:minmax(0,1fr)}
+ .venue-door{min-height:92px;padding:12px}
+ .station-arrival{min-width:0}
+ #modal{padding:16px;overflow-x:hidden}
+ #modal.establishment-dialog,#modal.records-dialog,#modal.fleet-overview-dialog,#modal.portrait-dialog{padding:0}
+ #modal .dialog-head h2{font-size:23px;overflow-wrap:anywhere}
+ .combat-deck:has(.live-command-panel){grid-template-columns:minmax(0,1fr)}
+ .combat-deck:has(.live-command-panel) .battle-space{height:300px;min-height:260px}
+ .combat-deck:has(.live-command-panel) .battle-controls{max-height:none;overflow:visible;padding-right:0}
+ .standing-profile-fields{grid-template-columns:minmax(0,1fr)}
+}
+
+@media(max-width:1200px) and (max-height:500px){
+ #app>.game-shell>aside{grid-template-columns:repeat(8,minmax(0,1fr))}
+ .sidebar-content>.sidebar-funds{display:none}
+ #app>header{padding-block:4px}
+}
 
 @media(max-width:1366px){
  .sidebar-content>.sidebar-navigation>button,.sidebar-content>.sidebar-fleet-links>button,
