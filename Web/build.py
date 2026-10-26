@@ -130,7 +130,7 @@ def build():
     form = '<form id="character-form">'
     if app.count(form) != 1:
         raise ValueError('Review the browser-save notice location')
-    app = app.replace(form, '<p class="muted">Progress saves in this browser on this device. Wallet saves and agent play are coming later.</p>' + form)
+    app = app.replace(form, '<p class="muted">Progress saves in this browser on this device.</p>' + form)
     checkpoint_marker = '<div class="checkpoint-slots">'
     if app.count(checkpoint_marker) != 1:
         raise ValueError('Review browser save-storage status placement')
@@ -169,7 +169,7 @@ def build():
     index = index.replace('<script defer src="app.js?', '<script defer src="play-layout.js?v=' + public_revision + '"></script><script defer src="app.js?')
     index = index.replace('width=device-width, initial-scale=1', 'width=device-width, initial-scale=1, viewport-fit=cover')
     index = index.replace('app.js?v=0.72.257', 'app.js?v=' + public_revision)
-    index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><link rel="stylesheet" href="play-viewport.css?v=' + public_revision + '"><meta name="description" content="Explore the solar system in Spacetrader, a single-player space-trading game. Free browser play with local saves."></head>')
+    index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><link rel="stylesheet" href="play-viewport.css?v=' + public_revision + '"><meta name="description" content="Trade goods, defend your cargo from raiders and build a fleet across the solar system in Spacetrader."></head>')
     write('play/index.html', index)
     clone(browser / 'icon.svg', 'icon.svg')
     files = {

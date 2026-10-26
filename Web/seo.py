@@ -6,12 +6,12 @@ import re
 
 ORIGIN = 'https://captain.bittrees.org'
 PAGES = {
-    'index.html': ('/', 'Spacetrader — Free Browser Space Trading Game',
-                   'Play Spacetrader, a free single-player space trading game. Trade goods, build a fleet and explore the solar system. No download or wallet required.'),
-    'play/index.html': ('/play/', 'Play Spacetrader — Space Trading Browser Game',
-                        'Create your captain and play Spacetrader in your browser. Trade cargo, explore stations and grow your fleet, with progress saved on this device.'),
+    'index.html': ('/', 'Spacetrader — Space Trading & Combat Game',
+                   'Trade goods between orbital stations, defend your cargo from raiders and build a fleet. Captain your own journey from Earth to the outer planets.'),
+    'play/index.html': ('/play/', 'Play Spacetrader — Trade, Explore & Defend Your Cargo',
+                        'Take command of your own ship in Spacetrader. Find profitable cargo, run freight, face raiders and build your reputation across the solar system.'),
     'guide/index.html': ('/guide/', 'Spacetrader Guide — Trading, Ships & Voyages',
-                         'Learn how to play Spacetrader: trade goods, plan voyages, manage ships, use station services and build your captain’s career.'),
+                         'Learn to trade goods, plan routes, arm your ships and survive raids. A captain’s guide to markets, freight, fleet strategy and life between stations.'),
     'characters/index.html': ('/characters/', 'Spacetrader Characters — Captains & Station Crews',
                               'Explore Spacetrader’s human, alien and robot character designs and station roster. Browse species, occupations and the people you meet at each port.'),
     'ships/index.html': ('/ships/', 'Spacetrader Ships — Cargo, Fittings & Upgrades',
@@ -41,10 +41,10 @@ def decorate(text, name):
         ('property', 'og:url', url), ('property', 'og:locale', 'en_US'),
         ('property', 'og:image', ORIGIN + '/social/spacetrader.png'),
         ('property', 'og:image:width', '1200'), ('property', 'og:image:height', '630'),
-        ('property', 'og:image:alt', 'Spacetrader: a single-player space trading game'),
+        ('property', 'og:image:alt', 'Spacetrader: trade goods, build a fleet and defend your cargo'),
         ('name', 'twitter:card', 'summary_large_image'), ('name', 'twitter:title', title),
         ('name', 'twitter:description', description), ('name', 'twitter:image', ORIGIN + '/social/spacetrader.png'),
-        ('name', 'twitter:image:alt', 'Spacetrader: a single-player space trading game'),
+        ('name', 'twitter:image:alt', 'Spacetrader: trade goods, build a fleet and defend your cargo'),
     ]
     tags = ''.join('<meta ' + kind + '="' + key + '" content="' + escape(value, quote=True) + '">' for kind, key, value in common)
     tags += '<link rel="canonical" href="' + url + '">'
@@ -63,7 +63,7 @@ def decorate(text, name):
             {'@type': 'WebSite', '@id': ORIGIN + '/#website', 'url': ORIGIN + '/', 'name': 'Spacetrader', 'inLanguage': 'en'},
             {'@type': 'VideoGame', '@id': ORIGIN + '/#game', 'name': 'Spacetrader', 'url': ORIGIN + '/play/',
              'description': description, 'image': ORIGIN + '/social/spacetrader.png', 'genre': ['Space trading', 'Simulation', 'Strategy'],
-             'gamePlatform': 'Web browser', 'playMode': 'https://schema.org/SinglePlayer', 'isAccessibleForFree': True,
+             'gamePlatform': 'Web browser', 'playMode': 'https://schema.org/SinglePlayer',
              'applicationCategory': 'GameApplication', 'operatingSystem': 'Web browser', 'inLanguage': 'en'},
         ]
     else:
@@ -95,9 +95,9 @@ def robots():
 def llms():
     return '''# Spacetrader
 
-> A free single-player browser space trading game, with a public guide and reference tools for planning cargo, ships and voyages.
+> Trade goods between orbital stations, defend your cargo from raiders and build a fleet in a single-player space trading game.
 
-The canonical site is https://captain.bittrees.org/. Anyone can play without an account, wallet or download. Progress is saved in the current browser on the current device. These reference pages use generic game data, never a player's active voyage, balances or inventory.
+The canonical site is https://captain.bittrees.org/. Your independent charter begins in 2089, when Asterion fusion drives connect human habitats, Ilyri communities and Veyr route houses across the solar system. Find markets, carry freight, upgrade your ships and earn a reputation among the station crews. These reference pages use generic game data, never a player's active voyage, balances or inventory.
 
 ## Play and learn
 
