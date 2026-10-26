@@ -167,15 +167,16 @@ def build():
         'function scheduleInspectionNotice(){': "function scheduleInspectionNotice(){if(publicStartMenu)return;",
         'function scheduleCharterNotice(){': "function scheduleCharterNotice(){if(publicStartMenu)return;",
         'function publishLoaded(next,label,backup){': "function publishLoaded(next,label,backup){publicStartMenu=false;if(!window.SpacetraderAccount?.isCloud())window.SpacetraderAccount?.useDevice();",
-        'collectArrivalInspections(previousState,next);render();if(state.incident)': 'collectArrivalInspections(previousState,next);render();if(publicStartMenu){showGameMenu();return;}if(state.incident)',
-        'if(a===\'menu\'){showGameMenu();return;}': "if(a==='public-continue'){publicEnterVoyage();return;}if(a==='public-menu'){publicReturnToMenu();return;}if(a==='menu'){showGameMenu();return;}"
+        'collectArrivalInspections(previousState,next);render();if(state.incident)': 'collectArrivalInspections(previousState,next);if(!next.profile.created&&window.SpacetraderAccount?.consumeNewIntent(value.voyage))publicStartMenu=false;render();if(publicStartMenu){showGameMenu();return;}if(state.incident)',
+        'if(a===\'menu\'){showGameMenu();return;}': "if(a==='public-continue'){await publicEnterVoyage();return;}if(a==='public-menu'){publicReturnToMenu();return;}if(a==='menu'){showGameMenu();return;}",
+        "if(a==='new-confirm'){": "if(a==='new-confirm'){if(window.SpacetraderAccount?.isCloud()){try{await window.SpacetraderAccount.newVoyage();}catch(error){toast(error.message);}return;}"
     }
     for old,new in entry_markers.items():
         if app.count(old)!=1:
             raise ValueError('Review the public entry-menu adapter: '+old)
         app=app.replace(old,new)
     app="'use strict';\n"+(SITE/'start-menu.js').read_text()+'\n'+app
-    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:()=>actionQueue};\n"
+    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:()=>actionQueue,version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')
     clone(SITE / 'play-viewport.css', 'play/play-viewport.css')

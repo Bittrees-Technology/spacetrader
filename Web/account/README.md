@@ -12,8 +12,9 @@ does not mint, transfer, rank or grant agent control of any captain.
 Choose Sign in & load voyage on a new device and use the original verified email
 or wallet identity. Continue voyage opens the selected account/device head; Load
 checkpoint appears when that voyage has saved slots. Account & saves can select
-an existing account voyage when a separate device voyage is present. Only choosing
-New charter opens captain creation. An expired account session returns to the
+any saved account voyage when a separate device voyage is present. Saved voyages
+lists the library; New account voyage or New charter creates a separate captain.
+Only explicitly starting a charter opens captain creation. An expired account session returns to the
 menu; continuing a labelled device voyage is an explicit choice, never an automatic
 replacement for a cloud save.
 
@@ -29,6 +30,9 @@ replacement for a cloud save.
 - Review `schema.sql` and apply it to an approved existing PostgreSQL database,
   using an application-restricted connection. No new database/project/service is
   requested. Do not share another app's unrestricted database credential.
+- For the voyage library, apply `migrations/002-voyage-library.sql`, followed by
+  `migrations/002-voyage-library-grants.sql`, through the same database owner.
+  Both are additive; existing histories and legacy functions remain intact.
 - Reuse the existing approved email delivery service and verified domain, with a
   reviewed hard daily and calendar-month email caps within its current allowance. Do not send test
   codes to third parties or enable overages. Tests intercept delivery.
@@ -49,16 +53,30 @@ Each verified email or Ethereum identity owns its own account. Existing linked
 identities are not inferred or merged by labels or email strings. Account linking
 requires a separate fresh-proof flow; a shared session conveys identity only.
 
+Each account can hold multiple independent voyages. Each has a stable UUID,
+its own captain, journal, action history and three checkpoint slots. Starting a
+charter never resets an earlier account voyage. The library pages metadata in
+groups of twenty and excludes unfinished transfers. Its storage limit is shared
+across the account, rather than multiplied by the number of voyages.
+
+Each browser tab pins its chosen voyage ID; choosing a different default on
+another device does not redirect pending writes, checkpoint reads or history.
+All non-bootstrap requests require an owned, published voyage ID as well as
+authentication. Older unpinned clients must reload before writing. Idempotent
+creation and completed-transfer retries cannot duplicate or replace a voyage.
+
 Cloud commits record resolved outcomes with compare-and-swap revisions and unique
 operation IDs. Retries cannot apply the same action twice, and another device's
 newer head cannot be silently replaced. History is append-only, compressed, and
 uses bounded structural JSON or byte deltas between full snapshots every 40 actions. Three current checkpoint
-slots retain older versions privately. State is validated with the actual engine.
+slots per voyage retain older versions privately. State is validated with the actual engine.
 
 Transfers copy the complete local action history into an inactive staged voyage,
 then transfer checkpoint slots and activate only after count and head-hash checks.
 The local original is never deleted. A transfer interrupted by a disconnect can
-resume from the last acknowledged action. Imports and saves remain unranked.
+resume from the last acknowledged action. Existing account voyages do not block
+additional device transfers. At most three unfinished transfers can be staged
+at once. Imports and saves remain unranked.
 
 Only the authenticated account can access its cloud head, history or checkpoints.
 All private responses are no-store/noindex; writes require exact Origin and a

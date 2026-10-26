@@ -29,7 +29,7 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
   const url=new URL(req.url),path=url.pathname;
   try{
    if(url.origin!==origin)throw fail('Unexpected application origin.',403);
-   if(!/^\/api\/(?:sso\/(?:status|start|callback|publish|profile)|auth\/(?:email|verify-email|nonce|wallet|logout)|account\/status|voyage|checkpoint|ledger(?:\/[1-9]\d*)?|backups|import\/(?:start|batch|checkpoint|finish))$/.test(path))throw fail('Not found.',404);
+   if(!/^\/api\/(?:sso\/(?:status|start|callback|publish|profile)|auth\/(?:email|verify-email|nonce|wallet|logout)|account\/status|voyage|voyages(?:\/(?:new|select))?|checkpoint|ledger(?:\/[1-9]\d*)?|backups|import\/(?:start|batch|checkpoint|finish))$/.test(path))throw fail('Not found.',404);
    if(path.startsWith('/api/sso/'))return shared(req);
    if(path==='/api/account/status'){
     if(req.method!=='GET')throw fail('Method not allowed.',405);
@@ -54,20 +54,25 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
    if(req.headers.get('x-spacetrader-account')!==session.account)throw fail('The signed-in account changed. Reopen Account & saves before continuing.',401);
    if(req.method==='POST'&&req.headers.get('x-spacetrader')!=='shared-save-v1')throw fail('Save request rejected.',403);
    const owner=session.account;
-   if(path==='/api/voyage'){
-    if(req.method==='POST')return saveJson(await saves.append(owner,body));
-    if(url.searchParams.has('since')){const current=await saves.position(owner);if(url.searchParams.get('since')===current.revision)return json({...current,unchanged:true});}
-    return saveJson(await saves.snapshot(owner));
-   }
-   if(path==='/api/checkpoint'&&req.method==='POST')return saveJson(await saves.checkpoint(owner,body));
-   if(path==='/api/checkpoint'&&req.method==='GET')return json(await saves.readCheckpoint(owner,url.searchParams.get('slot')));
-   if(path==='/api/ledger'&&req.method==='GET')return json({entries:await saves.history(owner,url.searchParams.has('before')?Number(url.searchParams.get('before')):undefined)});
-   if(/^\/api\/ledger\/[1-9]\d*$/.test(path)&&req.method==='GET')return json(await saves.recorded(owner,Number(path.split('/').pop())));
-   if(path==='/api/backups'&&req.method==='GET')return json({backups:[]});
+   if(path==='/api/voyages'&&req.method==='GET')return json(await saves.library(owner,url.searchParams.get('after')));
+   if(path==='/api/voyages/new'&&req.method==='POST')return json(await saves.createVoyage(owner,{operation:body.operation,version:body.version,raw:JSON.stringify(engine.fresh())}));
+   if(path==='/api/voyages/select'&&req.method==='POST')return json(await saves.choose(owner,body));
    if(path==='/api/import/start'&&req.method==='POST')return json(await saves.startImport(owner,body));
    if(path==='/api/import/batch'&&req.method==='POST')return json(await saves.importBatch(owner,body));
    if(path==='/api/import/checkpoint'&&req.method==='POST')return saveJson(await saves.importCheckpoint(owner,body));
    if(path==='/api/import/finish'&&req.method==='POST')return saveJson(await saves.finishImport(owner,body));
+   const header=req.headers.get('x-spacetrader-voyage');
+   const target=path==='/api/voyage'&&req.method==='GET'&&!header?null:await saves.selected(owner,header);
+   if(path==='/api/voyage'){
+    if(req.method==='POST')return saveJson(await saves.append(owner,body,target));
+    if(url.searchParams.has('since')){const current=await saves.position(owner,target);if(url.searchParams.get('since')===current.revision)return json({...current,unchanged:true});}
+    return saveJson(await saves.snapshot(owner,target));
+   }
+   if(path==='/api/checkpoint'&&req.method==='POST')return saveJson(await saves.checkpoint(owner,body,target));
+   if(path==='/api/checkpoint'&&req.method==='GET')return json(await saves.readCheckpoint(owner,url.searchParams.get('slot'),target));
+   if(path==='/api/ledger'&&req.method==='GET')return json({entries:await saves.history(owner,url.searchParams.has('before')?Number(url.searchParams.get('before')):undefined,target)});
+   if(/^\/api\/ledger\/[1-9]\d*$/.test(path)&&req.method==='GET')return json(await saves.recorded(owner,Number(path.split('/').pop()),target));
+   if(path==='/api/backups'&&req.method==='GET')return json({backups:[]});
    throw fail('Not found.',404);
   }catch(error){
    if(error.snapshot)return saveJson({...error.snapshot,error:error.message},409);

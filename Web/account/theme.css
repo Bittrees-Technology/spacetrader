@@ -21,5 +21,8 @@ dialog.spacetrader-account{box-sizing:border-box;width:min(440px,calc(100vw - 24
 .captain-account-panel button:disabled{opacity:.55;cursor:wait}
 .captain-account-panel .captain-account-secondary{background:#101f2c;border-color:#49606e;color:#e4e9e9}
 .captain-account-panel .captain-account-note{font-size:13px}
+.captain-voyage{border-top:1px solid #49606e;padding:18px 0 8px}
+.captain-voyage h3{margin:0 0 8px;color:#e4e9e9;font:600 23px/1.25 Georgia,serif;overflow-wrap:anywhere}
+.captain-voyage p{margin:0 0 8px}
 .spacetrader-account :is(button,input,a):focus-visible{outline:3px solid #d5ae68;outline-offset:3px}
 @media(max-width:480px){.spacetrader-account .bt-login-context{padding:0 24px 24px}.captain-account-panel{padding:24px}}

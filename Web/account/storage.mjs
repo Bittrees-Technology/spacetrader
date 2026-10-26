@@ -19,44 +19,43 @@ export function createStorage(sql,{parse,accountLimit,totalLimit}){
   if(!value||!/^[A-Za-z0-9_-]{1,100}$/.test(value.id||'')||!/^[A-Za-z0-9_-]{1,60}$/.test(value.type||'')||!value.args||typeof value.args!=='object'||Array.isArray(value.args)||Buffer.byteLength(JSON.stringify(value.args))>16384||typeof value.version!=='string'||value.version.length>40)throw fail('Invalid action record.');
   return {id:value.id,type:value.type,args:value.args,version:value.version,source:'browser'};
  }
- async function append(owner,body,target=null){
+ async function append(owner,body,target=null,importing=false){
   if(body.key!=='auto')throw fail('Unknown save location.');
   const state=valid(body.raw),event=action(body.action),current=await snapshot(owner,target,false),hash=digest(body.raw),encoded=pack(body.raw,current.raw,current.sequence+1);
-  const summary={name:state.profile.name,day:state.day,location:state.location,credits:state.credits,fleet:state.fleet.length+1};
+  if(target&&!current.voyage)throw fail('That voyage is unavailable.',404);
+  const summary={name:state.profile.name,created:state.profile.created,day:state.day,location:state.location,credits:state.credits,fleet:state.fleet.length+1};
   const created=target&&Number.isSafeInteger(body.created)&&body.created>=946684800000&&body.created<=Date.now()+30000?body.created:Date.now();
-  const [result]=await sql`SELECT spacetrader_append(${owner}::uuid,${target}::uuid,${body.revision??null},${event.id},${hash},${encoded.codec},${encoded.payload},${full(body.raw)},${JSON.stringify(event)}::jsonb,${JSON.stringify(summary)}::jsonb,${created},${accountLimit},${totalLimit}) AS result`;
+  const [result]=target?await sql`SELECT spacetrader_append_v2(${owner}::uuid,${target}::uuid,${body.revision??null},${event.id},${hash},${encoded.codec},${encoded.payload},${full(body.raw)},${JSON.stringify(event)}::jsonb,${JSON.stringify(summary)}::jsonb,${created},${accountLimit},${totalLimit},${importing}) AS result`:await sql`SELECT spacetrader_append(${owner}::uuid,NULL::uuid,${body.revision??null},${event.id},${hash},${encoded.codec},${encoded.payload},${full(body.raw)},${JSON.stringify(event)}::jsonb,${JSON.stringify(summary)}::jsonb,${created},${accountLimit},${totalLimit}) AS result`;
   if(result.result.conflict)throw Object.assign(fail('A newer voyage is saved. Review it before continuing.',409),{snapshot:await snapshot(owner,target)});
   const latest=result.result.replayed?await snapshot(owner,target,false):{raw:body.raw,revision:hash+':'+result.result.sequence,sequence:Number(result.result.sequence),voyage:result.result.voyage,ledger:true};
   return {...latest,backup:body.preserve&&current.raw?'ledger:'+current.sequence:null};
  }
- async function checkpoint(owner,body,target=null){
+ async function checkpoint(owner,body,target=null,importing=false){
   if(!['slot1','slot2','slot3'].includes(body.key))throw fail('Unknown checkpoint slot.');
   const next=body.raw===null?null:(valid(body.raw),digest(body.raw)),expected=body.expected===null?null:digest(boundedRaw(body.expected));
-  const [result]=await sql`SELECT spacetrader_checkpoint(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},${target}::uuid) AS result`;
+  const [result]=target?await sql`SELECT spacetrader_checkpoint_v2(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},${target}::uuid,${importing}) AS result`:await sql`SELECT spacetrader_checkpoint(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},NULL::uuid) AS result`;
   const latest=await snapshot(owner,target);if(result.result.conflict)throw Object.assign(fail('That checkpoint changed. Review it before trying again.',409),{snapshot:latest});return latest;
  }
- async function history(owner,before=Number.MAX_SAFE_INTEGER){
+ async function history(owner,before=Number.MAX_SAFE_INTEGER,target=null){
   if(!Number.isSafeInteger(before)||before<1)throw fail('Invalid action-history page.');
-  const rows=await sql`SELECT e.sequence,e.event,e.summary,e.created_ms FROM spacetrader_entries e JOIN spacetrader_accounts a ON a.active_voyage=e.voyage_id WHERE a.id=${owner} AND e.sequence<${before} ORDER BY e.sequence DESC LIMIT 31`;
+  const rows=await sql`SELECT e.sequence,e.event,e.summary,e.created_ms FROM spacetrader_entries e JOIN spacetrader_voyages v ON v.id=e.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND e.sequence<${before} ORDER BY e.sequence DESC LIMIT 31`;
   return rows.map(r=>({sequence:Number(r.sequence),type:r.event.type,args:r.event.args,created:Number(r.created_ms),...r.summary}));
  }
- async function recorded(owner,sequence){
+ async function recorded(owner,sequence,target=null){
   if(!Number.isSafeInteger(sequence)||sequence<1)throw fail('Invalid recorded action.');
-  const rows=await sql`SELECT e.sequence,e.codec,e.payload,e.digest FROM spacetrader_entries e JOIN spacetrader_accounts a ON a.active_voyage=e.voyage_id WHERE a.id=${owner} AND e.sequence<=${sequence} ORDER BY e.sequence DESC LIMIT 40`;
+  const rows=await sql`SELECT e.sequence,e.codec,e.payload,e.digest FROM spacetrader_entries e JOIN spacetrader_voyages v ON v.id=e.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND e.sequence<=${sequence} ORDER BY e.sequence DESC LIMIT 40`;
   if(Number(rows[0]?.sequence)!==sequence)throw fail('That recorded action is unavailable.',404);
   const base=rows.findIndex(r=>r.codec==='full');if(base<0)throw fail('Earlier save data is unavailable; history is preserved.',503);
   let raw;for(let i=base;i>=0;i--)raw=unpack(rows[i],raw);return {raw,sequence};
  }
  async function startImport(owner,{source,total,hash}){
   if(typeof source!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(source)||!Number.isSafeInteger(total)||total<1||total>1_000_000||!/^[a-f0-9]{64}$/.test(hash))throw fail('Invalid voyage transfer.');
-  const [active]=await sql`SELECT active_voyage FROM spacetrader_accounts WHERE id=${owner}`;
-  if(active?.active_voyage)throw fail('An account voyage already exists. Continue it or keep playing locally.',409);
-  const [row]=await sql`SELECT spacetrader_start_import(${owner}::uuid,${source},${total},${hash},${accountLimit},${totalLimit}) AS result`;
+  const [row]=await sql`SELECT spacetrader_start_import_v2(${owner}::uuid,${source},${total},${hash},${accountLimit},${totalLimit}) AS result`;
   return {...row.result,sequence:Number(row.result.sequence)};
  }
  async function importBatch(owner,body){
   if(!/^[a-f0-9-]{36}$/.test(body.id||'')||!Array.isArray(body.records)||body.records.length<1||body.records.length>10)throw fail('Invalid transfer batch.');
-  let result;for(const record of body.records)result=await append(owner,record,body.id);return {sequence:result.sequence,revision:result.revision};
+  let result;for(const record of body.records)result=await append(owner,record,body.id,true);return {sequence:result.sequence,revision:result.revision};
  }
  async function finishImport(owner,{id,slots={}}){
   if(!/^[a-f0-9-]{36}$/.test(id||'')||Object.keys(slots).some(k=>!['slot1','slot2','slot3'].includes(k)))throw fail('Invalid transfer.');
@@ -65,26 +64,46 @@ export function createStorage(sql,{parse,accountLimit,totalLimit}){
   for(const [key,raw] of Object.entries(slots)){
    valid(raw);
    if(staged.slots[key]&&staged.slots[key]!==raw)throw fail('The transferred checkpoint changed. Local progress is preserved.',409);
-   await checkpoint(owner,{key,raw,expected:staged.slots[key]||null,revision:staged.revision},id);
+   if(staged.slots[key]===raw)continue;
+   await checkpoint(owner,{key,raw,expected:staged.slots[key]||null,revision:staged.revision},id,true);
   }
-  const [result]=await sql`SELECT spacetrader_finish_import(${owner}::uuid,${id}::uuid) AS completed`;
-  if(!result.completed)throw fail('Transfer is incomplete or another account voyage became active. Local progress is preserved.',409);
-  return snapshot(owner);
+  const [result]=await sql`SELECT spacetrader_finish_import_v2(${owner}::uuid,${id}::uuid) AS completed`;
+  if(!result.completed)throw fail('Transfer is incomplete. Existing voyages and local progress are preserved.',409);
+  return snapshot(owner,id);
  }
  async function importCheckpoint(owner,body){
   if(!/^[a-f0-9-]{36}$/.test(body.id||''))throw fail('Invalid transfer.');
   const staged=await snapshot(owner,body.id);
   if(!staged.voyage)throw fail('That transfer is unavailable.',404);
   if(staged.slots[body.key]&&staged.slots[body.key]!==body.raw)throw fail('The transferred checkpoint changed. Local progress is preserved.',409);
-  return checkpoint(owner,{key:body.key,raw:body.raw,expected:staged.slots[body.key]||null,revision:staged.revision},body.id);
+  if(staged.slots[body.key]===body.raw)return staged;
+  return checkpoint(owner,{key:body.key,raw:body.raw,expected:staged.slots[body.key]||null,revision:staged.revision},body.id,true);
  }
- async function position(owner){const [row]=await sql`SELECT v.sequence,v.revision FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.active_voyage=v.id WHERE a.id=${owner}`;return {revision:row?.revision||null,sequence:Number(row?.sequence||0),ledger:true};}
- async function readCheckpoint(owner,key){
+ async function position(owner,target=null){const [row]=await sql`SELECT v.id,v.sequence,v.revision FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage)`;return {revision:row?.revision||null,sequence:Number(row?.sequence||0),voyage:row?.id||null,ledger:true};}
+ async function readCheckpoint(owner,key,target=null){
   if(!['slot1','slot2','slot3'].includes(key))throw fail('Unknown checkpoint slot.');
-  const [row]=await sql`SELECT c.payload,c.digest FROM spacetrader_checkpoints c JOIN spacetrader_accounts a ON a.active_voyage=c.voyage_id WHERE a.id=${owner} AND c.slot=${key} AND c.current AND c.payload IS NOT NULL`;
+  const [row]=await sql`SELECT c.payload,c.digest FROM spacetrader_checkpoints c JOIN spacetrader_voyages v ON v.id=c.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND c.slot=${key} AND c.current AND c.payload IS NOT NULL`;
   if(!row)throw fail('That checkpoint changed. Reload your account voyage.',409);
   const raw=inflate(row.payload).toString('utf8');if(digest(raw)!==row.digest)throw fail('Checkpoint integrity check failed.',503);
   return {raw,digest:row.digest};
  }
- return {snapshot,position,append,checkpoint,readCheckpoint,history,recorded,startImport,importBatch,importCheckpoint,finishImport};
+ const uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value);
+ async function selected(owner,id){
+  if(!uuid(id))throw fail('Reload the page and choose a saved voyage before continuing.',428);
+  const [row]=await sql`SELECT v.id FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=${id}::uuid AND v.sequence>0 AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id)`;
+  if(!row)throw fail('That voyage is unavailable.',404);return row.id;
+ }
+ async function choose(owner,{id}){await selected(owner,id);const [row]=await sql`SELECT spacetrader_select_voyage(${owner}::uuid,${id}::uuid) AS selected`;if(!row.selected)throw fail('That voyage is unavailable.',404);return {id};}
+ async function createVoyage(owner,{raw,operation,version='web'}){
+  const state=valid(raw),event=action({id:operation,type:'new-voyage',args:{},version}),hash=digest(raw),summary={name:state.profile.name,created:state.profile.created,day:state.day,location:state.location,credits:state.credits,fleet:state.fleet.length+1};
+  const [row]=await sql`SELECT spacetrader_create_voyage(${owner}::uuid,${event.id},${hash},${full(raw)},${JSON.stringify(event)}::jsonb,${JSON.stringify(summary)}::jsonb,${Date.now()},${accountLimit},${totalLimit}) AS result`;
+  return row.result;
+ }
+ async function library(owner,after=null){
+  if(after!==null)await selected(owner,after);
+  const rows=await sql`SELECT v.id,v.sequence,v.created_at,v.updated_at,e.summary,e.event->>'type' AS type,(SELECT count(*)::int FROM spacetrader_checkpoints c WHERE c.voyage_id=v.id AND c.current AND c.payload IS NOT NULL) AS checkpoints FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id JOIN spacetrader_entries e ON e.voyage_id=v.id AND e.sequence=v.sequence WHERE a.id=${owner} AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id) AND (${after}::uuid IS NULL OR (v.created_at,v.id)<(SELECT x.created_at,x.id FROM spacetrader_voyages x WHERE x.id=${after}::uuid AND x.account_id=${owner})) ORDER BY v.created_at DESC,v.id DESC LIMIT 21`;
+  const [account]=await sql`SELECT active_voyage,stored_bytes FROM spacetrader_accounts WHERE id=${owner}`;
+  return {voyages:rows.slice(0,20).map(r=>({id:r.id,name:r.summary.created===false||r.summary.created===undefined&&r.type==='new-voyage'?'New captain':r.summary.name,day:r.summary.day,location:r.summary.location,sequence:Number(r.sequence),created:r.created_at,updated:r.updated_at,checkpoints:r.checkpoints})),next:rows.length>20?rows[19].id:null,selected:account?.active_voyage||null,usedBytes:Number(account?.stored_bytes||0),limitBytes:accountLimit};
+ }
+ return {snapshot,position,append,checkpoint,readCheckpoint,history,recorded,startImport,importBatch,importCheckpoint,finishImport,selected,choose,createVoyage,library};
 }
