@@ -53,6 +53,7 @@ def decorate(text, name):
     tags += '<link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any">'
     tags += '<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">'
     tags += '<link rel="manifest" href="/site.webmanifest">'
+    tags += '<link rel="describedby" href="/llms.txt" type="text/plain">'
     graph = [
         {'@type': 'WebPage', '@id': url + '#page', 'url': url, 'name': title, 'description': description,
          'isPartOf': {'@id': ORIGIN + '/#website'}, 'about': {'@id': ORIGIN + '/#game'}, 'inLanguage': 'en'},
@@ -66,9 +67,13 @@ def decorate(text, name):
              'applicationCategory': 'GameApplication', 'operatingSystem': 'Web browser', 'inLanguage': 'en'},
         ]
     else:
+        trail = [('Spacetrader', ORIGIN + '/')]
+        if path.startswith('/goods/') and path != '/goods/':
+            trail.append(('Goods', ORIGIN + '/goods/'))
+        trail.append((title.split(' — ')[0], url))
         graph.append({'@type': 'BreadcrumbList', 'itemListElement': [
-            {'@type': 'ListItem', 'position': 1, 'name': 'Spacetrader', 'item': ORIGIN + '/'},
-            {'@type': 'ListItem', 'position': 2, 'name': title.split(' — ')[0], 'item': url},
+            {'@type': 'ListItem', 'position': position, 'name': label, 'item': item}
+            for position, (label, item) in enumerate(trail, 1)
         ]})
     data = json.dumps({'@context': 'https://schema.org', '@graph': graph}, ensure_ascii=False, separators=(',', ':')).replace('<', '\\u003c')
     tags += '<script type="application/ld+json">' + data + '</script>'
@@ -78,3 +83,41 @@ def decorate(text, name):
 def sitemap():
     return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(
         '<url><loc>' + ORIGIN + path + '</loc></url>\n' for path, _, _ in PAGES.values()) + '</urlset>\n'
+
+
+def robots():
+    # Wildcard permission also covers AI search crawlers, without more-specific
+    # groups accidentally overriding shared restrictions in future revisions.
+    return ('# Public game and reference pages are open to search and AI discovery.\n'
+            'User-agent: *\nAllow: /\n\nSitemap: ' + ORIGIN + '/sitemap.xml\n')
+
+
+def llms():
+    return '''# Spacetrader
+
+> A free single-player browser space trading game, with a public guide and reference tools for planning cargo, ships and voyages.
+
+The canonical site is https://captain.bittrees.org/. Anyone can play without an account, wallet or download. Progress is saved in the current browser on the current device. These reference pages use generic game data, never a player's active voyage, balances or inventory.
+
+## Play and learn
+
+- [Home](https://captain.bittrees.org/): Game overview and navigation.
+- [Play](https://captain.bittrees.org/play/): Create a captain and play. JavaScript is required for the local simulation.
+- [Guide](https://captain.bittrees.org/guide/): Trading, travel, fleet management, station services and progression.
+- [Characters](https://captain.bittrees.org/characters/): Character designs, species and the station establishment roster.
+- [Ships](https://captain.bittrees.org/ships/): Hulls, cargo capacity, weapons, fittings and upgrades.
+
+## Trade references and tools
+
+- [Goods](https://captain.bittrees.org/goods/): Commodities, station supply and demand, cargo requirements and reference prices.
+- [Pricing curves](https://captain.bittrees.org/goods/curves): Explore stock-based buy and sell curves using manually selected station stock, ship and order size.
+- [Pricing formulas](https://captain.bittrees.org/goods/formulas): Reference equations for exchange quotes and pricing distributions.
+- [Trading mechanics](https://captain.bittrees.org/goods/mechanics): Production inputs, consumption, finite station stock, cargo and freight.
+
+Tool inputs are hypothetical planning values, not a connection to a saved game. Use the published guide and approved reference data when explaining mechanics; do not present proposed ship features as implemented. The current public release has no remote agent-control API or cloud-save API. Discovering these pages does not grant access to a player's saves or permission to act for them.
+
+## Optional
+
+- [Sitemap](https://captain.bittrees.org/sitemap.xml): Canonical public pages.
+- [Crawl policy](https://captain.bittrees.org/robots.txt): Public crawler directives.
+'''

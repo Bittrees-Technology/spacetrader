@@ -290,7 +290,8 @@ def build():
         text = text.replace('</head>', '<link rel="stylesheet" href="/search.css"></head>')
         write(name, text)
     write('404.html', '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/landing.css"><title>Page not found · Spacetrader</title><main style="padding:40px"><h1>Page not found</h1><p><a href="/">Return to Spacetrader</a></p></main></html>')
-    write('robots.txt', 'User-agent: *\nAllow: /\n\nSitemap: ' + seo.ORIGIN + '/sitemap.xml\n')
+    write('robots.txt', seo.robots())
+    write('llms.txt', seo.llms())
     write('sitemap.xml', seo.sitemap())
     csp = "default-src 'self'; script-src 'self' " + ' '.join(hashes) + "; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
     routes = [{'src': '/(.*)', 'headers': {'X-Content-Type-Options': 'nosniff',

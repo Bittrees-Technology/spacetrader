@@ -3,6 +3,7 @@
 from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit, unquote
+from urllib.robotparser import RobotFileParser
 import base64
 import hashlib
 import json
@@ -66,9 +67,14 @@ for name, page in pages.items():
     assert any(m.get('property') == 'og:url' and m['content'] == seo.ORIGIN + url for m in page.meta), name
     assert any(m.get('name') == 'twitter:card' and m['content'] == 'summary_large_image' for m in page.meta), name
     assert any(a.get('href') == '/favicon.svg' for _,a in page.links), name
+    assert [a.get('href') for _,a in page.links if a.get('rel') == 'describedby'] == ['/llms.txt'], name
     assert len(page.schemas) == 1, name
     graph = json.loads(page.schemas[0])
     assert graph['@context'] == 'https://schema.org'
+    if url.startswith('/goods/') and url != '/goods/':
+        crumbs = next(node for node in graph['@graph'] if node['@type'] == 'BreadcrumbList')['itemListElement']
+        assert [item['item'] for item in crumbs] == [seo.ORIGIN + '/', seo.ORIGIN + '/goods/', seo.ORIGIN + url], name
+        assert [item['position'] for item in crumbs] == [1, 2, 3], name
     digest = base64.b64encode(hashlib.sha256(page.schemas[0].encode()).digest()).decode()
     assert "'sha256-" + digest + "'" in csp, name
     assert 'aggregateRating' not in page.schemas[0] and 'reviewRating' not in page.schemas[0]
@@ -98,6 +104,17 @@ locations = [e.text for e in doc.iter('{http://www.sitemaps.org/schemas/sitemap/
 assert set(locations) == {seo.ORIGIN + p for p,_,_ in seo.PAGES.values()}
 assert len(locations) == len(seo.PAGES)
 assert 'Sitemap: ' + seo.ORIGIN + '/sitemap.xml' in (STATIC / 'robots.txt').read_text()
+robots = RobotFileParser()
+robots.parse((STATIC / 'robots.txt').read_text().splitlines())
+for bot in ['Googlebot', 'bingbot', 'OAI-SearchBot', 'ChatGPT-User', 'Claude-SearchBot', 'Claude-User']:
+    for url in locations + [seo.ORIGIN + '/llms.txt']:
+        assert robots.can_fetch(bot, url), (bot, url)
+discovery = (STATIC / 'llms.txt').read_text()
+discovery_urls = re.findall(r'\]\((https://[^)]+)\)', discovery)
+assert len(discovery_urls) == len(set(discovery_urls))
+assert set(discovery_urls) == set(locations) | {seo.ORIGIN + '/sitemap.xml', seo.ORIGIN + '/robots.txt'}
+assert 'localhost' not in discovery and '127.0.0.1' not in discovery
+assert 'no remote agent-control API or cloud-save API' in discovery
 for name,size in [('favicon-96.png',96),('apple-touch-icon.png',180),('icon-192.png',192),('icon-512.png',512)]:
     data=(STATIC/name).read_bytes();assert data[:8]==b'\x89PNG\r\n\x1a\n';assert struct.unpack('>II',data[16:24])==(size,size),name
 assert struct.unpack('>II',(STATIC/'social/spacetrader.png').read_bytes()[16:24])==(1200,630)
