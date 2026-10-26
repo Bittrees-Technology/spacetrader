@@ -183,6 +183,16 @@ def build():
                 verified(ROOT / 'Local/formula-notation-witness.json', presentation['witnessSHA256'])
                 verified(ROOT / 'Tools/typeset_formulas.py', presentation['builderSHA256'])
                 data = verified(source_dir / 'formulas-presented.html', presentation['outputSHA256']).decode()
+                sample_table = r'<div class="table-scroll"><table><thead><tr><th>Station / sample day</th>.*?<tbody id="bank-rate-rows"></tbody></table></div>'
+                data, removed = re.subn(sample_table, '', data, flags=re.S)
+                if removed != 1:
+                    raise ValueError('Review Section 14 sample-table removal')
+                data = data.replace('These examples are synthetic and never read a player’s voyage. ', '')
+            if section == 'goods' and name == 'formulas.js':
+                sample_line = next((line for line in data.splitlines(keepends=True) if "table('bank-rate-rows',data.banking.examples.map(" in line), None)
+                if sample_line is None or data.count(sample_line) != 1:
+                    raise ValueError('Review Section 14 sample-data rendering')
+                data = data.replace(sample_line, '')
             write(section + '/' + name, page(data, section) if name.endswith('.html') else
                   script(data, section) if name.endswith('.js') else data)
         clone(ROOT / 'Local/catalogue-shell.css', section + '/catalogue-shell.css')
@@ -245,9 +255,14 @@ def build():
     goods_text = goods_text.replace('</main>', '<details class="search-reference"><summary>Goods reference index</summary><p>Browse all exchange commodities. Each link opens the pricing tool for that good; the figures above are generic reference data.</p><ul>' + entries + '</ul></details></main>', 1)
     write('goods/index.html', goods_text)
     clone(SITE / 'search.css', 'search.css')
+    navigation_version = sha((SITE / 'reference-nav.js').read_bytes() + (SITE / 'reference-nav.css').read_bytes())[:12]
+    clone(SITE / 'reference-nav.js', 'reference-nav.js')
+    clone(SITE / 'reference-nav.css', 'reference-nav.css')
     hashes = []
     for name in seo.PAGES:
         text = (STATIC / name).read_text()
+        if name in ['guide/index.html', 'goods/formulas.html', 'goods/mechanics.html']:
+            text = text.replace('</head>', '<link rel="stylesheet" href="/reference-nav.css?v=' + navigation_version + '"><script defer src="/reference-nav.js?v=' + navigation_version + '"></script></head>')
         # Link to clean public tool URLs rather than their duplicate .html forms.
         text = re.sub(r'(/goods/(?:curves|formulas|mechanics))\.html', r'\1', text)
         text, digest = seo.decorate(text, name)

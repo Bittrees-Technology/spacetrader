@@ -1,0 +1,4 @@
+.formula-nav[data-reference-nav]{top:var(--reference-nav-top,104px);max-height:calc(100dvh - var(--reference-nav-top,104px) - 20px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.formula-nav[data-reference-nav] a,.guide-index[data-reference-nav] a{box-sizing:border-box;border-inline-start:3px solid transparent}
+.formula-nav[data-reference-nav] a[aria-current="location"],.guide-index[data-reference-nav] a[aria-current="location"]{color:var(--gold);background:#d0b57d18;border-inline-start-color:var(--gold);font-weight:650;text-decoration:none}
+@media(max-width:650px){.formula-nav[data-reference-nav]{max-height:none;overflow:visible}}

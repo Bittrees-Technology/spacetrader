@@ -50,3 +50,7 @@ Code and owned game assets are MIT licensed. See `LICENSE` and
 ### Mathematical reference presentation
 
 `Local/formula_notation.py` provides native MathML summaries and local symbol definitions for the 40 pricing-reference blocks and four Guide banking groups. Exact source calculations remain available in disclosures. The approved formula page and economic inputs stay unchanged. Run `python3 Tools/typeset_formulas.py`, `python3 Local/guide-catalogue/build.py`, `python3 Tests/formula_notation_test.py` and `node Tools/check_guide.cjs` after edits. The derived formula page has its own presentation manifest; public builds verify it, and the local read-only catalogue applies the same reviewed presentation through `catalogue_shell.py`.
+
+### Public section navigation
+
+`Web/reference-nav.js` and `Web/reference-nav.css` provide live reading-position highlights on the public Guide, Formulas and Trading Mechanics sidebars. The public builder removes Section 14’s dated bank sample table and its rendering call, preserving the approved source/data and the remaining examples. Run `node Tests/browser/reference-nav.test.cjs` after building.
