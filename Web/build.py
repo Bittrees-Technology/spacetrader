@@ -162,8 +162,8 @@ def build():
     if app.count(menu_item)!=1 or app.count('function sharedStatus(){')!=1 or app.count('setInterval(sharedPoll,1500)')!=1:
         raise ValueError('Review account-menu and save transport integration')
     app=app.replace(menu_item,menu_item+"${window.spacetraderAccountMenuHTML?.()||''}")
-    app=app.replace('function sharedStatus(){',"function sharedStatus(){if(window.SpacetraderAccount?.isCloud())return 'Account action ledger · saved';")
-    app=app.replace('setInterval(sharedPoll,1500)',"setInterval(sharedPoll,window.SpacetraderAccount?.isCloud()?15000:1500)")
+    app=app.replace('function sharedStatus(){',"function sharedStatus(){if(window.SpacetraderAccount?.isCloud())return window.SpacetraderAccount.saveStatus();")
+    app=app.replace('setInterval(sharedPoll,1500)',"setInterval(sharedPoll,window.SpacetraderAccount?.isCloud()?60000:1500)")
     entry_markers={
         'function gameMenuHTML(){': "function gameMenuHTML(){if(publicStartMenu)return publicStartMenuHTML();",
         'function showCreator(){': "function showCreator(){if(publicStartMenu){showGameMenu();return;}",
@@ -180,7 +180,8 @@ def build():
             raise ValueError('Review the public entry-menu adapter: '+old)
         app=app.replace(old,new)
     app="'use strict';\n"+(SITE/'start-menu.js').read_text()+'\n'+app
-    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:()=>actionQueue,version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
+    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:async()=>{await actionQueue;await window.SpacetraderAccount?.sync();},version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
+    app+="\nwindow.addEventListener('spacetrader-sync-status',()=>{if(window.SpacetraderAccount?.isCloud()){saveState=sharedStatus();updateSaveLabel();}});\n"
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')
     clone(SITE / 'play-viewport.css', 'play/play-viewport.css')

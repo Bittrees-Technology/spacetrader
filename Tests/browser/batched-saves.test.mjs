@@ -1,0 +1,72 @@
+import assert from 'node:assert/strict';
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {PGlite} from '@electric-sql/pglite';
+import engine from '../../Browser/engine.js';
+import {createApi} from '../../Web/account/api.mjs';
+import {createAuth} from '../../Web/account/auth.mjs';
+import {createStorage} from '../../Web/account/storage.mjs';
+import {createBatchStorage} from '../../Web/account/batch-store.mjs';
+import {createBatchTransport} from '../../Web/account/batch-transport.mjs';
+import {createSyncTransport} from '../../Web/account/sync-transport.mjs';
+import {stateDelta,applyStateDelta} from '../../Web/account/state-delta.mjs';
+import {splitState} from '../../Web/account/state-parts.mjs';
+import {digest} from '../../Web/account/codec.mjs';
+
+let db;
+(async()=>{
+ for(const [a,b] of [['{"__proto__":{"a":1},"constructor":2,"list":[1,2,3]}','{"constructor":3,"__proto__":{"a":2},"list":[1,4],"Ω":"🚀"}'],['[]','[1,null,{"a":3}]'],['{"a":1,"b":2}','{"b":2,"a":1}']])assert.equal(applyStateDelta(a,stateDelta(a,b)),b);
+ assert.throws(()=>applyStateDelta('[]',[1,3,[[2,[0,1]]]]),/Incomplete/);
+ assert.throws(()=>applyStateDelta('{}',[2,['a'],[]]),/Incomplete/);
+ db=new PGlite();for(const file of ['schema.sql','migrations/002-voyage-library.sql','migrations/003-compact-journal.sql','migrations/004-efficient-saves.sql','migrations/005-batched-saves.sql'])await db.exec(await readFile('Web/account/'+file,'utf8'));
+ await db.exec('SET search_path=pg_catalog,spacetrader,pg_temp');let queries=0;
+ const sql=(strings,...values)=>{queries++;return db.query(strings.reduce((s,t,i)=>s+(i?'$'+i:'')+t,''),values).then(r=>r.rows);};
+ const limit=16777216,total=134217728,origin='http://localhost:9123',env={APP_ORIGIN:origin,SPACETRADER_ACCOUNTS_ENABLED:'1',SPACETRADER_EFFICIENT_READS:'1',SPACETRADER_EFFICIENT_SAVES:'1',SPACETRADER_BATCH_SAVES:'1',SPACETRADER_ACCOUNT_STORAGE_BYTES:String(limit),SPACETRADER_TOTAL_STORAGE_BYTES:String(total)};
+ const auth=createAuth({sql,origin}),login=await auth.establish('batch-qa@example.invalid'),[account]=await sql`SELECT id FROM spacetrader_accounts WHERE identity='batch-qa@example.invalid'`,owner=account.id;
+ const store=createStorage(sql,{parse:engine.parse,accountLimit:limit,totalLimit:total,compact:true,efficient:true}),batch=createBatchStorage(sql,{parse:engine.parse,accountLimit:limit,totalLimit:total});
+ let state=engine.transact(engine.fresh(),'create',{name:'Batch QA',background:'trader',temperament:'measured'});
+ const created=await store.createVoyage(owner,{raw:JSON.stringify(state),operation:'batch-charter'}),voyage=created.id;let head=await store.snapshot(owner,voyage);
+ function makeEvents(types){let core=splitState(JSON.stringify(state)).core,part=splitState(JSON.stringify(state)).component;return types.map(([type,args],i)=>{state=engine.transact(state,type,args);const raw=JSON.stringify(state),next=splitState(raw),ref=next.component===null?null:digest(next.component),event={action:{id:'event-'+(++serial),type,args,version:'test'},created:Date.now()+i,rawHash:digest(raw),patch:stateDelta(core,next.core),component:ref,...(next.component!==part&&next.component!==null?{part:next.component}:{})};core=next.core;part=next.component;return event;});}
+ let serial=0;const expected=new Map();
+ for(let b=0;b<134;b++){
+  const events=makeEvents(Array.from({length:8},(_,i)=>[i%2===0?'buy':'sell',{good:'water',units:1}])),body={id:'batch-'+b,parent:head.revision,events};
+  const before=queries,r=await batch.append(owner,voyage,body);assert.equal(r.sequence,head.sequence+8);if(b===0)assert.equal(queries-before,2,'Normal batch uses context plus one atomic write');
+  head={...head,...r,raw:JSON.stringify(state)};expected.set(head.sequence,head.raw);
+  if(b===0){const replay=await batch.append(owner,voyage,body);assert.equal(replay.sequence,r.sequence);assert(replay.replayed);await assert.rejects(batch.append(owner,voyage,{...body,events:[{...events[0],created:events[0].created+1},...events.slice(1)]}),/reused/);}
+ }
+ const saved=await store.snapshot(owner,voyage);assert.equal(saved.raw,JSON.stringify(state));assert.equal(saved.sequence,1073);
+ const entries=[];let before=Number.MAX_SAFE_INTEGER;for(;;){const rows=await store.history(owner,before,voyage);if(!rows.length)break;entries.push(...rows);before=rows.at(-1).sequence;}
+ assert.equal(entries.length,1073);assert.deepEqual(entries.map(x=>x.sequence),Array.from({length:1073},(_,i)=>1073-i));
+ assert(entries.filter(x=>x.sequence>1).every(x=>x.record?.feedRows.length),'Every batched action retains its own receipt');
+ const old=state,oldHead=head;const malformed={id:'bad-batch',parent:head.revision,events:makeEvents([['buy',{good:'water',units:1}]])};malformed.events[0].rawHash='0'.repeat(64);await assert.rejects(batch.append(owner,voyage,malformed),/integrity/);state=old;assert.equal((await store.snapshot(owner,voyage)).revision,head.revision);
+ const api=createApi({env,sql,verifyWallet:async()=>false}),sendLog=[];let failBefore=false,failAfter=false,gate=null;
+ const send=async(path,options={})=>{sendLog.push({path,body:options.body?JSON.parse(options.body):null});if(failBefore&&path.endsWith('/batch')){failBefore=false;throw Error('Disconnected before send');}if(gate&&path.endsWith('/batch'))await gate;
+  const r=await api(new Request(origin+path,{...options,headers:{...options.headers,origin,cookie:'captain-session='+login.key}}));if(failAfter&&path.endsWith('/batch')){failAfter=false;throw Error('Lost response after commit');}return r;};
+ const records=new Map();const outbox={get:async(o,v)=>structuredClone(records.get(o+v)||null),put:async(o,v,body)=>{records.set(o+v,{body,status:'pending'});},clear:async(o,v)=>records.delete(o+v),hold:async(o,v)=>{records.get(o+v).status='conflict';},change:async(o,v,fn)=>{const k=o+v,next=fn(structuredClone(records.get(k)||null));if(next)records.set(k,next);else records.delete(k);return structuredClone(next);}};
+ const options={fetch:send,owner,voyage,outbox,hash:async x=>digest(x)};let conflicts=0;
+ const makeTransport=()=>createBatchTransport({...options,fallback:createSyncTransport(options),delay:60000,onConflict:()=>conflicts++});
+ const bootstrapQueries=queries;let device=makeTransport(),loaded=await(await device('/api/voyage')).json();assert.equal(queries-bootstrapQueries,2,'Latest-only bootstrap is one owned read plus authentication');assert.equal(loaded.checkpointLimit,0);
+ async function action(t,prior,type='buy',args={good:'water',units:1}){const s=engine.transact(engine.parse(prior.raw),type,args),body={key:'auto',raw:JSON.stringify(s),revision:prior.revision,action:{id:'device-'+(++serial),type,args,version:'test'}};return(await t('/api/voyage',{method:'POST',body:JSON.stringify(body)})).json();}
+ const startSequence=loaded.sequence;
+ for(let i=0;i<6;i++)loaded=await action(device,loaded,i%2?'sell':'buy');
+ assert.equal((await store.snapshot(owner,voyage)).sequence,startSequence,'Local actions do not wait for the network');assert.equal(records.get(owner+voyage).batch.events.length,6);
+ const baseline=queries;await device.flush();assert.equal(queries-baseline,3,'One authenticated batch uses three SQL round trips');assert.equal((await store.snapshot(owner,voyage)).sequence,startSequence+6);assert.equal(records.size,0);assert.equal(sendLog.filter(x=>x.path.endsWith('/batch')).at(-1).body.events.length,6);
+ // New actions can be durably appended while an immutable prefix is in flight.
+ loaded=await action(device,loaded);let release;gate=new Promise(r=>{release=r;});const flushing=device.flush();while(!sendLog.at(-1).path.endsWith('/batch'))await new Promise(r=>setTimeout(r,0));
+ loaded=await action(device,loaded,'sell');release();gate=null;await flushing;await device.flush();assert.equal(records.size,0);assert.equal((await store.snapshot(owner,voyage)).raw,loaded.raw);
+ // A dropped response leaves an identical operation in IndexedDB; reopening replays it once.
+ loaded=await action(device,loaded);failAfter=true;await assert.rejects(device.flush(),/Lost response/);const afterLost=(await store.snapshot(owner,voyage)).sequence;device.dispose();device=makeTransport();loaded=await(await device('/api/voyage')).json();await device.flush();assert.equal((await store.snapshot(owner,voyage)).sequence,afterLost);assert.equal(records.size,0);
+ loaded=await action(device,loaded,'sell');failBefore=true;await assert.rejects(device.flush(),/Disconnected/);device.dispose();device=makeTransport();loaded=await(await device('/api/voyage')).json();await device.flush();assert.equal((await store.snapshot(owner,voyage)).sequence,afterLost+1);
+ const stale=loaded;loaded=await action(device,loaded);await device.flush();const other=makeTransport();
+ // Simulate a second device with an independent local outbox and its older cursor.
+ const staleBody={id:'stale-remote',parent:stale.revision,events:[]};state=engine.parse(stale.raw);staleBody.events=makeEvents([['buy',{good:'water',units:1}]]);await assert.rejects(batch.append(owner,voyage,staleBody),/Newer/);assert.equal((await store.snapshot(owner,voyage)).raw,loaded.raw);
+ // Quota rejection leaves the entire batch and journal unchanged.
+ const globalBefore=Number((await sql`SELECT bytes FROM spacetrader_storage_usage`).at(0).bytes),accountBefore=Number((await sql`SELECT stored_bytes FROM spacetrader_accounts WHERE id=${owner}`).at(0).stored_bytes);
+ await sql`UPDATE spacetrader_storage_usage SET bytes=${total-1}`;state=engine.parse(loaded.raw);const quotaBody={id:'quota-reject',parent:loaded.revision,events:makeEvents([['rename-ship',{id:state.flagshipID,name:'Q'.repeat(32)}]])};await assert.rejects(batch.append(owner,voyage,quotaBody),/storage_limit/);assert.equal((await store.snapshot(owner,voyage)).raw,loaded.raw);assert.equal(Number((await sql`SELECT stored_bytes FROM spacetrader_accounts WHERE id=${owner}`).at(0).stored_bytes),accountBefore);await sql`UPDATE spacetrader_storage_usage SET bytes=${globalBefore}`;
+ const checkpoint=await send('/api/checkpoint',{method:'POST',headers:{'X-Spacetrader':'shared-save-v1','X-Spacetrader-Account':owner,'X-Spacetrader-Voyage':voyage,'X-Spacetrader-Storage':'compact-v1'},body:JSON.stringify({key:'slot1',raw:loaded.raw,expected:null,revision:loaded.revision})});assert.equal(checkpoint.status,400);
+ const q=queries;const poll=await send('/api/voyage?since='+loaded.revision,{headers:{'X-Spacetrader-Account':owner,'X-Spacetrader-Voyage':voyage,'X-Spacetrader-Storage':'compact-v1'}});assert.equal(poll.status,200);assert.equal(queries-q,2,'Unchanged poll needs authentication plus position only');
+ await db.exec('CREATE ROLE spacetrader_runtime NOLOGIN');for(const file of ['runtime-grants.sql','migrations/002-voyage-library-grants.sql','migrations/003-compact-journal-grants.sql','migrations/004-efficient-saves-grants.sql','migrations/005-batched-saves-grants.sql'])await db.exec(await readFile('Web/account/'+file,'utf8'));
+ await db.exec('SET ROLE spacetrader_runtime;SET search_path=pg_catalog,spacetrader,pg_temp');state=engine.parse(loaded.raw);const restricted={id:'restricted-batch',parent:loaded.revision,events:makeEvents([['sell',{good:'water',units:1}]])};assert.equal((await batch.append(owner,voyage,restricted)).sequence,loaded.sequence+1);await assert.rejects(db.query('DELETE FROM spacetrader.spacetrader_world_components'),/permission denied/);await db.exec('RESET ROLE');
+ const sums=await sql`SELECT (SELECT sum(stored_bytes) FROM spacetrader_accounts) AS accounts,(SELECT bytes FROM spacetrader_storage_usage) AS total`;assert.equal(Number(sums[0].accounts),Number(sums[0].total));
+ device.dispose();other.dispose();await db.close();db=null;
+ await mkdir('Research/BatchedSaves-2026-10-26',{recursive:true});const result={passed:true,initialJournalActions:1073,normalAuthenticatedBatchQueries:3,unchangedPollQueries:2,individualReceipts:true,checks:['Lossless canonical/prototype/Unicode patches','1072 actions batched across hot/archive boundaries','Per-action journal pagination','Acknowledged-prefix idempotency','Mutated retry rejected','Concurrent local append while batch in flight','Dropped response and reopen','Unsent request and reopen','Stale device protection','Quota rollback','No new account checkpoints','Restricted runtime grants','Exact account/global counters']};await writeFile('Research/BatchedSaves-2026-10-26/backend-tests.json',JSON.stringify(result,null,2)+'\n');console.log('PASS '+JSON.stringify(result));
+})().catch(async e=>{await db?.close();console.error(String(e.stack||e).slice(0,4000));process.exitCode=1;});

@@ -117,7 +117,7 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false,e
   if(staged.slots[body.key]===body.raw)return staged;
   return checkpoint(owner,{key:body.key,raw:body.raw,expected:staged.slots[body.key]||null,revision:staged.revision},body.id,true);
  }
- async function position(owner,target=null){const [row]=await sql`SELECT v.id,v.sequence,v.revision FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage)`;return {revision:row?.revision||null,sequence:Number(row?.sequence||0),voyage:row?.id||null,ledger:true};}
+ async function position(owner,target=null){const [row]=await sql`SELECT v.id,v.sequence,v.revision FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id)`;return {revision:row?.revision||null,sequence:Number(row?.sequence||0),voyage:row?.id||null,ledger:true};}
  async function readCheckpoint(owner,key,target=null){
   if(!['slot1','slot2','slot3'].includes(key))throw fail('Unknown checkpoint slot.');
   const [voyage]=await sql`SELECT v.id FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage)`;

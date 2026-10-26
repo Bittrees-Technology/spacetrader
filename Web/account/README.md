@@ -11,7 +11,7 @@ does not mint, transfer, rank or grant agent control of any captain.
 `/play/` opens the game menu before rendering the cockpit or resuming an encounter.
 Choose Sign in & load voyage on a new device and use the original verified email
 or wallet identity. Continue voyage opens the selected account/device head; Load
-checkpoint appears when that voyage has saved slots. Account & saves can select
+checkpoint remains a device/Mac feature; account play uses latest-progress autosaves. Account & saves can select
 any saved account voyage when a separate device voyage is present. Saved voyages
 lists the library; New account voyage or New charter creates a separate captain.
 Only explicitly starting a charter opens captain creation. An expired account session returns to the
@@ -40,6 +40,7 @@ replacement for a cloud save.
   enable `SPACETRADER_EFFICIENT_READS=1`, then enable
   `SPACETRADER_EFFICIENT_SAVES=1` only after the staged compatibility checks.
   Keep efficient readers enabled in any subsequent rollback.
+- For background saving, review/apply `migrations/005-batched-saves.sql` and its matching grants through the same database owner. Deploy the compatible endpoint/client with `SPACETRADER_BATCH_SAVES` off, apply/verify005, then enable the flag only after local/native-PostgreSQL and browser recovery checks. No quota or connection-limit change is part of005. A rollback must retain a compatible batch endpoint for pending outboxes; disabling it holds those actions on-device rather than silently discarding them.
 - Reuse the existing approved email delivery service and verified domain, with a
   reviewed hard daily and calendar-month email caps within its current allowance. Do not send test
   codes to third parties or enable overages. Tests intercept delivery.
@@ -61,7 +62,7 @@ identities are not inferred or merged by labels or email strings. Account linkin
 requires a separate fresh-proof flow; a shared session conveys identity only.
 
 Each account can hold multiple independent voyages. Each has a stable UUID,
-its own captain, journal, action history and two manual checkpoint slots. Starting a
+its own captain, latest progress, journal and complete action history. Starting a
 charter never resets an earlier account voyage. The library pages metadata in
 groups of twenty and excludes unfinished transfers. Its storage limit is shared
 across the account, rather than multiplied by the number of voyages.
@@ -82,7 +83,7 @@ canonical JSON. Unusually varied histories form smaller archives. At most64
 closed blocks are considered by a maintenance transaction; fewer than eight
 closed blocks stay in the hot table. Pages reconstruct only the requested records. Earlier actions are readable, not restorable world
 states. A last-operation digest and compare-and-swap revision protect lost-response
-retries; older stale requests require reviewing the current head rather than replay. Two current manual checkpoint slots replace their contents in place for account saves. Legacy versions stay readable. State is validated with the actual engine.
+retries; older stale requests require reviewing newer progress. With batched saving enabled, account play offers no new checkpoints or action restores. Existing checkpoints are retained, and legacy readers remain supported. State is validated with the actual engine.
 
 Transfers copy the complete local action history into an inactive staged voyage,
 then transfer checkpoint slots and activate only after count and head-hash checks.
@@ -91,8 +92,7 @@ resume from the last acknowledged action. Existing account voyages do not block
 additional device transfers. At most three unfinished transfers can be staged
 at once. Imports and saves remain unranked. Imported journal receipts retain complete
 action history without copying a world-state replay payload for each action.
-Existing third checkpoint slots remain loadable and deletable; new account
-checkpoints use slots 1 and 2. Superseded snapshot-slot contents are not archived
+With the batch flag enabled, new account checkpoint writes are rejected, while existing checkpoint data remains intact and deletable through the owned endpoint. Superseded snapshot-slot contents are not archived
 again. Original replay histories/checkpoints remain intact; only verified compact receipt blocks are replaced with equivalent archives.
 
 Only the authenticated account can access its cloud head, history or checkpoints.
@@ -111,16 +111,12 @@ including failures, with caps of 20 per UTC day and 500 per calendar month. No
 provider-quota retry or paid fallback is enabled. Capacity exhaustion preserves
 existing saves and requires a reviewed operator decision before limits change.
 
-Account actions need a connection. Before sending an action, the browser records
-its exact request and operation ID in a separate IndexedDB outbox. Closing the tab
-or losing a response does not discard that pending request. Reopening the same
-account/voyage retries it with its original revision; acknowledgement clears it.
-A conflicting device's newer head wins. The pending action stays available for
-explicit review/download or dismissal in Account & saves. One pending action per
-voyage, at most16 requests/16MiB per browser, prevents unbounded local growth.
-This is recovery for interrupted commits, not unrestricted offline cloud play.
+With `SPACETRADER_BATCH_SAVES=1`, actions commit to a bounded IndexedDB outbox before gameplay continues. The account transport sends ordered batches after 2.5 seconds, at most32 actions and3.8MB per request, with at most32MiB reconstructed state per batch. Canonical JSON core patches and component references preserve exact values and property order. The server reconstructs and validates every intermediate state and creates a separate journal receipt for every action; only the final head/component is written. A batch uses an owned context read and one atomic SQL write, plus authentication (three normal round trips). An unchanged idle poll uses two queries and runs once per minute while visible; focus/visibility changes also check progress.
+
+The durable record keeps its base snapshot, pending events, latest device state and an immutable in-flight prefix. Actions may append behind a slow prefix. Lost acknowledgements replay the identical operation; acknowledgement removes only that prefix. IndexedDB transactions compare the local cursor across tabs. A stale device holds its pending actions for explicit review/download or dismissal. Background retry is bounded by local queue limits, with backoff; authorization, format, quota and conflict failures require renewed conditions or explicit sync. Queue bounds are32 actions per voyage,16 voyages and16MiB total per browser. This supports interrupted connections, not unbounded offline play. The saved indicator distinguishes device persistence from cloud confirmation. Account/voyage changes and history requests flush first. Sign-out never discards pending actions.
+
 Guest play continues to use device IndexedDB
-and recovery storage. The site does not cache an authenticated cloud voyage as
+and recovery storage. The authenticated outbox is account/voyage scoped; the site does not cache it as
 an unrelated guest voyage, and signing out returns to the separate device save.
 
 New private save requests require `X-Spacetrader-Storage: compact-v1`; older

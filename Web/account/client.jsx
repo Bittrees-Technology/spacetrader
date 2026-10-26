@@ -4,12 +4,13 @@ import {createSiweMessage} from 'viem/siwe';
 import {LoginPanel,EmailSignIn,EthereumSignIn} from './shared/login/LoginPanel.jsx';
 import './theme.css';
 import {createSyncTransport,createSaveOutbox} from './sync-transport.mjs';
+import {createBatchTransport} from './batch-transport.mjs';
 import {installJournalReader} from './journal-reader.mjs';
 installJournalReader(window.SpacetraderJournalFeed);
 
 const host=window,MODE='spacetrader.account-save-mode.v1',PIN='spacetrader.account-voyage.v2',NEW='spacetrader.new-charter.v2',PENDING='spacetrader.pending-charter.v2';
 const saveOutbox=createSaveOutbox();
-let localRequest,account=null,configured=false,dialog,reactRoot,cloudActive=false,pinned=null;
+let localRequest,account=null,configured=false,dialog,reactRoot,cloudActive=false,pinned=null,cloudSync=null;
 const getMode=()=>{try{return localStorage.getItem(MODE)||'device';}catch{return 'device';}};
 const setMode=value=>{try{localStorage.setItem(MODE,value);}catch{throw Error('This browser could not save the account preference. Your voyages are preserved.');}};
 function getPin(owner){if(pinned?.account===owner)return pinned.id;try{const value=JSON.parse(sessionStorage.getItem(PIN)||'null');if(value?.account===owner)return value.id;}catch{}return null;}
@@ -120,16 +121,16 @@ function Account(){
   {phase==='unavailable'&&<p>Account saves are not available yet. Your voyage still saves on this device.</p>}
   {phase==='error'&&<button onClick={()=>void refresh()}>Retry connection</button>}
   {phase==='account'&&<><p className="captain-account-identity">{account.label}</p>
-   {recoveries.map(r=><article className="captain-voyage" key={r.key}><h3>Action needs review</h3><p>An interrupted {r.body.action.type.replaceAll('-',' ')} action could not replace newer progress saved on another device. Your account keeps the latest confirmed voyage.</p><button disabled={busy} onClick={()=>void run(async()=>{const blob=new Blob([JSON.stringify(r)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='spacetrader-pending-action.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);})}>Download pending action</button><button disabled={busy} onClick={()=>void run(async()=>{await saveOutbox.clear(account.account,r.voyage);await refresh();})}>Keep latest account progress</button></article>)}
+   {recoveries.map(r=><article className="captain-voyage" key={r.key}><h3>Action needs review</h3><p>{r.batch?`${r.batch.events.length} pending actions remain on this device. They could not replace newer progress from another device.`:`An interrupted ${r.body.action.type.replaceAll('-',' ')} action could not replace newer progress saved on another device.`} Your account keeps the latest confirmed voyage.</p><button disabled={busy} onClick={()=>void run(async()=>{const blob=new Blob([JSON.stringify(r)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='spacetrader-pending-action.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);})}>Download pending actions</button><button disabled={busy} onClick={()=>void run(async()=>{await saveOutbox.clear(account.account,r.voyage);if(r.batch)location.assign('/play/');else await refresh();})}>Keep latest account progress</button></article>)}
    <div className="captain-voyage-list" aria-label="Account voyages">{library?.voyages.length?library.voyages.map(v=><article className="captain-voyage" key={v.id} aria-label={'Voyage: '+v.name}>
-    <h3>{v.name}</h3><p>{day(v.day)} · {place(v.location)}</p><p className="captain-account-note">{v.sequence.toLocaleString()} actions · {v.checkpoints} {v.checkpoints===1?'checkpoint':'checkpoints'}{cloudActive&&getPin(account.account)===v.id?' · Current voyage':''}</p>
+    <h3>{v.name}</h3><p>{day(v.day)} · {place(v.location)}</p><p className="captain-account-note">{v.sequence.toLocaleString()} actions{cloudActive&&getPin(account.account)===v.id?' · Current voyage':''}</p>
     <button disabled={busy} onClick={()=>void run(()=>chooseVoyage(v.id))}>Load voyage</button>
    </article>):<p>No account voyages yet. Start a new charter or transfer the voyage on this device.</p>}</div>
    {library?.next&&<button className="captain-account-secondary" disabled={busy} onClick={()=>void run(more)}>More voyages</button>}
    <button disabled={busy} onClick={()=>void run(newVoyage)}>New account voyage</button>
    {device?.profile.created&&<button disabled={busy} className="captain-account-secondary" onClick={()=>void run(()=>transfer(setProgress))}>Transfer device voyage &amp; history</button>}
    {progress&&<p role="status">{progress}</p>}
-   <p className="captain-account-note">Each voyage keeps its own journal, action history and two checkpoint slots. Starting another voyage preserves the earlier ones.</p>
+   <p className="captain-account-note">Each voyage keeps its latest progress, journal and complete action history. Starting another voyage preserves the earlier ones.</p>
    {library&&<p className="captain-account-note">Account storage: {(library.usedBytes/1048576).toFixed(1)} of {(library.limitBytes/1048576).toFixed(0)} MiB across all voyages.</p>}
    <button disabled={busy} className="captain-account-secondary" onClick={()=>void run(async()=>{await host.SpacetraderAccountBridge?.settled();await call('/api/auth/logout',{});setMode('device');location.assign('/play/');})}>Sign out &amp; return to device voyage</button>
   </>}
@@ -155,10 +156,15 @@ host.openBrowserVoyageLedger=async options=>{
   const owner=account.account;
   let voyage=getPin(owner);
   const cached={};
-  const cloudFetch=createSyncTransport({fetch:(path,options)=>fetch(path,{...options,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(30000)}),owner,voyage,outbox:saveOutbox,onVoyage:id=>{voyage=id;setPin(owner,id);},onConflict:()=>{setTimeout(open,0);}});
+  const send=(path,options)=>fetch(path,{...options,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(30000)});
+  const legacy=createSyncTransport({fetch:send,owner,voyage,outbox:saveOutbox,onVoyage:id=>{voyage=id;setPin(owner,id);},onConflict:()=>{setTimeout(open,0);}});
+  const cloudFetch=createBatchTransport({fallback:legacy,fetch:send,owner,voyage,outbox:saveOutbox,onConflict:()=>{setTimeout(open,0);},onStatus:()=>{host.dispatchEvent(new Event('spacetrader-sync-status'));}});cloudSync=cloudFetch;
+  host.addEventListener('online',()=>{void cloudFetch.flush().catch(()=>{});});
+  host.addEventListener('pagehide',()=>{void cloudFetch.flush().catch(()=>{});});
   return async(path,options={})=>{
    const response=await cloudFetch(path,options),value=await response.clone().json();
    if(response.ok&&value.voyage){if(voyage&&voyage!==value.voyage)throw Error('The selected voyage changed. Reopen Saved voyages.');voyage=value.voyage;setPin(owner,voyage);}
+   if(value.checkpointLimit===0){value.slots={};delete value.checkpointDigests;return new Response(JSON.stringify(value),{status:response.status,headers:response.headers});}
    if(!value.checkpointDigests)return response;
    const slots={};
    await Promise.all(Object.entries(value.checkpointDigests).map(async([key,hash])=>{
@@ -174,6 +180,6 @@ host.openBrowserVoyageLedger=async options=>{
  if(new URLSearchParams(location.search).get('account')==='1')setTimeout(open,0);
  return localRequest;
 };
-host.SpacetraderAccount={open,newVoyage,consumeNewIntent,isCloud:()=>cloudActive,useDevice:()=>setMode('device')};
+host.SpacetraderAccount={open,newVoyage,consumeNewIntent,isCloud:()=>cloudActive,useDevice:()=>setMode('device'),sync:()=>cloudSync?.flush(),syncStatus:()=>cloudSync?.status(),saveStatus:()=>{const s=cloudSync?.status();return s?.conflict?'Saved on device · sync needs review':s?.pending?s.error?'Saved on device · sync delayed':'Saved on device · syncing':'Account progress · synced';}};
 const deviceHealth=host.spacetraderSaveHealthHTML;
-host.spacetraderSaveHealthHTML=()=>cloudActive?'<details class="browser-save-health"><summary>Account save storage</summary><p>Your voyage, history and checkpoints save to your signed-in account after each confirmed action.</p><button type="button" data-spacetrader-account>Account &amp; saves</button></details>':deviceHealth?.()||'';
+host.spacetraderSaveHealthHTML=()=>cloudActive?'<details class="browser-save-health"><summary>Account save storage</summary><p>Actions save on this device immediately and synchronize with your account in short batches. Each voyage keeps its latest progress and full journal.</p><button type="button" data-spacetrader-account>Account &amp; saves</button></details>':deviceHealth?.()||'';
