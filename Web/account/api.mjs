@@ -5,6 +5,7 @@ import engine from '../../Browser/engine.js';
 import {createAuth} from './auth.mjs';
 import {createStorage,fail} from './storage.mjs';
 import {digest} from './codec.mjs';
+import {splitState} from './state-parts.mjs';
 import {createSsoClient,nodeRequest,nodeResponse,json,identity} from './shared/sso/client.mjs';
 
 export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,sendMail}={}){
@@ -20,10 +21,19 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
   if(!result.ok)throw Error('Email unavailable');
  };
  const auth=configured?createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit:emailLimit,emailMonthlyLimit:monthlyLimit,maxAccounts:Number(env.SPACETRADER_MAX_ACCOUNTS||10000)}):null;
- const saves=configured?createStorage(sql,{parse,accountLimit,totalLimit,compact:true}):null;
+ const saves=configured?createStorage(sql,{parse,accountLimit,totalLimit,compact:true,efficient:env.SPACETRADER_EFFICIENT_SAVES==='1',archiveReads:env.SPACETRADER_EFFICIENT_READS==='1'}):null;
  // A head plus three near-limit checkpoints exceeds function response limits.
  // Return slot hashes here; the browser retrieves changed slots individually.
- const saveJson=(value,status=200)=>json(value.slots?{...value,slots:{},checkpointDigests:Object.fromEntries(Object.entries(value.slots).map(([key,raw])=>[key,digest(raw)]))}:value,status);
+ const saveJson=(req,value,status=200)=>{
+  let result=value.slots?{...value,slots:{},checkpointDigests:Object.fromEntries(Object.entries(value.slots).map(([key,raw])=>[key,digest(raw)]))}:{...value};
+  result.componentStorage=env.SPACETRADER_EFFICIENT_SAVES==='1';
+  if(req.headers.get('x-spacetrader-wire')==='parts-v1'&&typeof result.raw==='string'){
+   const raw=result.raw;delete result.raw;result.rawDigest=digest(raw);
+   if(req.method==='POST'&&new URL(req.url).pathname==='/api/voyage'&&status===200)result.accepted=true;
+   else{const {core,component}=splitState(raw),hash=component===null?null:digest(component);result.state={core,component:hash,...(hash&&hash!==req.headers.get('x-spacetrader-component')?{part:component}:{})};}
+  }
+  return json(result,status);
+ };
  const shared=createSsoClient({clientId:'spacetrader',origin,issuer:env.BITTREES_SSO_ISSUER||'https://roles.bittrees.org',secret:env.BITTREES_SSO_CLIENT_SECRET,enabled:configured&&env.BITTREES_SSO_ENABLED==='1',cookiePrefix:'captain-sso',adapter:auth||{}});
  return async function handle(req){
   const url=new URL(req.url),path=url.pathname;
@@ -59,24 +69,25 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
    if(path==='/api/voyages/select'&&req.method==='POST')return json(await saves.choose(owner,body));
    if(path==='/api/import/start'&&req.method==='POST')return json(await saves.startImport(owner,body));
    if(path==='/api/import/batch'&&req.method==='POST')return json(await saves.importBatch(owner,body));
-   if(path==='/api/import/checkpoint'&&req.method==='POST')return saveJson(await saves.importCheckpoint(owner,body));
-   if(path==='/api/import/finish'&&req.method==='POST')return saveJson(await saves.finishImport(owner,body));
+   if(path==='/api/import/checkpoint'&&req.method==='POST')return saveJson(req,await saves.importCheckpoint(owner,body));
+   if(path==='/api/import/finish'&&req.method==='POST')return saveJson(req,await saves.finishImport(owner,body));
    if(req.headers.get('x-spacetrader-storage')!=='compact-v1')throw fail('Reload the game to use the smaller save format. Existing progress is preserved.',428);
    const header=req.headers.get('x-spacetrader-voyage');
    const target=path==='/api/voyage'&&req.method==='GET'&&!header?null:await saves.selected(owner,header);
+   if(body.state!==undefined){body.raw=await saves.resolveWire(owner,target,body.state);if(body.rawHash!==digest(body.raw))throw fail('Saved voyage integrity check failed.');}
    if(path==='/api/voyage'){
-    if(req.method==='POST')return saveJson(await saves.append(owner,body,target));
+    if(req.method==='POST')return saveJson(req,await saves.append(owner,body,target));
     if(url.searchParams.has('since')){const current=await saves.position(owner,target);if(url.searchParams.get('since')===current.revision)return json({...current,unchanged:true});}
-    return saveJson(await saves.snapshot(owner,target));
+    return saveJson(req,await saves.snapshot(owner,target));
    }
-   if(path==='/api/checkpoint'&&req.method==='POST')return saveJson(await saves.checkpoint(owner,body,target));
-   if(path==='/api/checkpoint'&&req.method==='GET')return json(await saves.readCheckpoint(owner,url.searchParams.get('slot'),target));
+   if(path==='/api/checkpoint'&&req.method==='POST')return saveJson(req,await saves.checkpoint(owner,body,target));
+   if(path==='/api/checkpoint'&&req.method==='GET')return saveJson(req,await saves.readCheckpoint(owner,url.searchParams.get('slot'),target));
    if(path==='/api/ledger'&&req.method==='GET')return json({entries:await saves.history(owner,url.searchParams.has('before')?Number(url.searchParams.get('before')):undefined,target)});
    if(/^\/api\/ledger\/[1-9]\d*$/.test(path)&&req.method==='GET')return json(await saves.recorded(owner,Number(path.split('/').pop()),target));
    if(path==='/api/backups'&&req.method==='GET')return json({backups:[]});
    throw fail('Not found.',404);
   }catch(error){
-   if(error.snapshot)return saveJson({...error.snapshot,error:error.message},409);
+   if(error.snapshot)return saveJson(req,{...error.snapshot,error:error.message},409);
    const quota=String(error.message).includes('storage_limit');
    return json({error:quota?'Account save storage is full. Existing progress is preserved. Try again later or return to your separate device voyage.':error.status?error.message:'Account saves are temporarily unavailable. Your existing progress is preserved.'},quota?507:error.status||503);
   }

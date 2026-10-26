@@ -1,10 +1,13 @@
 import {randomUUID} from 'node:crypto';
+import {createEfficient} from './efficient.mjs';
+import {joinState} from './state-parts.mjs';
 import {digest,full,pack,unpack,inflate,boundedRaw} from './codec.mjs';
 import {journalRecord,expandRecord,readChunk,extendChunk} from './compact.mjs';
 
 export const fail=(message,status=400)=>Object.assign(Error(message),{status});
-export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false}){
+export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false,efficient=false,archiveReads=efficient}){
  if(!Number.isSafeInteger(accountLimit)||!Number.isSafeInteger(totalLimit)||accountLimit<2_000_000||totalLimit<accountLimit)throw Error('A reviewed save-storage budget is required.');
+ const binaryStore=createEfficient(sql),readArchives=archiveReads||efficient;
  const valid=raw=>{boundedRaw(raw);return parse(raw);};
  const capabilities=compact?{restoreActions:false,checkpointLimit:2,storageFormat:'compact-v1'}:{};
  async function slotRecords(voyage){
@@ -13,14 +16,19 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false})
   const recent=await sql`SELECT slot,digest,payload FROM spacetrader_snapshot_slots WHERE voyage_id=${voyage}`;
   const map=new Map(old.map(r=>[r.slot,r]));for(const r of recent)map.set(r.slot,r);return [...map.values()];
  }
+ async function readBinary(voyage,slot,hash){
+  const [row]=slot?await sql`SELECT payload,digest,efficient_core AS core,efficient_component AS component FROM spacetrader_snapshot_slots WHERE voyage_id=${voyage} AND slot=${slot}`:await sql`SELECT head_payload AS payload,head_digest AS digest,efficient_core AS core,efficient_component AS component FROM spacetrader_voyages WHERE id=${voyage}`;
+  if(!row||row.digest!==hash)throw fail('The saved voyage changed. Reload before continuing.',409);
+  return binaryStore.restore(voyage,row);
+ }
  async function snapshot(owner,target=null,includeSlots=true){
   const [row]=await sql`SELECT v.id,v.sequence,v.revision,v.head_payload,v.head_digest,v.import_total,v.import_source FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage)`;
   if(!row)return {raw:null,revision:null,sequence:0,slots:{},ledger:true,...capabilities};
-  const raw=row.head_payload?inflate(row.head_payload).toString('utf8'):null;
+  const raw=row.head_payload==='E1'?await readBinary(row.id,null,row.head_digest):row.head_payload?inflate(row.head_payload).toString('utf8'):null;
   if(raw&&digest(raw)!==row.head_digest)throw fail('The saved voyage failed its integrity check; nothing was replaced.',503);
   if(!includeSlots)return {raw,revision:row.revision,sequence:Number(row.sequence),voyage:row.id,ledger:true,...capabilities};
   const records=await slotRecords(row.id);
-  const slots={};for(const r of records){if(!r.payload)continue;const value=inflate(r.payload).toString('utf8');if(digest(value)!==r.digest)throw fail('A checkpoint failed its integrity check.',503);slots[r.slot]=value;}
+  const slots={};for(const r of records){if(!r.payload)continue;const value=r.payload==='E1'?await readBinary(row.id,r.slot,r.digest):inflate(r.payload).toString('utf8');if(digest(value)!==r.digest)throw fail('A checkpoint failed its integrity check.',503);slots[r.slot]=value;}
   return {raw,revision:row.revision,sequence:Number(row.sequence),voyage:row.id,slots,ledger:true,...capabilities};
  }
  function action(value){
@@ -33,10 +41,11 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false})
   if(!current.voyage)throw fail('That voyage is unavailable.',404);
   const sequence=current.sequence+1,created=importing&&Number.isSafeInteger(body.created)&&body.created>=946684800000&&body.created<=Date.now()+30000?body.created:Date.now();
   const meta={sequence,type:event.type,args:event.args,created,name:state.profile.name,day:state.day,location:state.location,credits:state.credits,fleet:state.fleet.length+1};
+  if(efficient)await binaryStore.maintain(owner,target);
   const [prior]=await sql`SELECT first_sequence,last_sequence,digest,payload FROM spacetrader_journal_chunks WHERE voyage_id=${target} ORDER BY first_sequence DESC LIMIT 1`;
   const chunk=extendChunk(prior,journalRecord(meta,state,current.raw?parse(current.raw):null)),hash=digest(body.raw),eventHash=digest(JSON.stringify(event));
   const summary={name:state.profile.name,created:state.profile.created,day:state.day,location:state.location,credits:state.credits,fleet:state.fleet.length+1};
-  const [result]=await sql`SELECT spacetrader_compact_append(${owner}::uuid,${target}::uuid,${body.revision??null},${event.id},${eventHash},${hash},${full(body.raw)},${JSON.stringify(summary)}::jsonb,${chunk.first},${chunk.last},${chunk.previous},${chunk.hash},${chunk.payload},${accountLimit},${totalLimit},${importing}) AS result`;
+  const result=efficient?{result:await binaryStore.append(owner,body,target,event,eventHash,summary,chunk,accountLimit,totalLimit,importing)}:(await sql`SELECT spacetrader_compact_append(${owner}::uuid,${target}::uuid,${body.revision??null},${event.id},${eventHash},${hash},${full(body.raw)},${JSON.stringify(summary)}::jsonb,${chunk.first},${chunk.last},${chunk.previous},${chunk.hash},${chunk.payload},${accountLimit},${totalLimit},${importing}) AS result`)[0];
   if(result.result.conflict)throw Object.assign(fail('A newer voyage is saved. Review it before continuing.',409),{snapshot:await snapshot(owner,target)});
   return result.result.replayed?await snapshot(owner,target,false):{raw:body.raw,revision:hash+':'+result.result.sequence,sequence:Number(result.result.sequence),voyage:target,ledger:true,...capabilities};
  }
@@ -55,8 +64,8 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false})
  async function checkpoint(owner,body,target=null,importing=false){
   if(compact&&!importing&&body.key==='slot3'&&body.raw!==null)throw fail('Account voyages have two checkpoint slots. Earlier third-slot saves remain available to load or delete.');
   if(!['slot1','slot2','slot3'].includes(body.key))throw fail('Unknown checkpoint slot.');
-  const next=body.raw===null?null:(valid(body.raw),digest(body.raw)),expected=body.expected===null?null:digest(boundedRaw(body.expected));
-  const [result]=compact&&!importing?await sql`SELECT spacetrader_compact_checkpoint(${owner}::uuid,${target}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit}) AS result`:target?await sql`SELECT spacetrader_checkpoint_v2(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},${target}::uuid,${importing}) AS result`:await sql`SELECT spacetrader_checkpoint(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},NULL::uuid) AS result`;
+  const next=body.raw===null?null:(valid(body.raw),digest(body.raw)),expected=body.expectedHash!==undefined?(body.expectedHash===null?null:/^[a-f0-9]{64}$/.test(body.expectedHash)?body.expectedHash:(()=>{throw fail('Invalid checkpoint reference.');})()):body.expected===null?null:digest(boundedRaw(body.expected));
+  const [result]=efficient&&!importing?[{result:await binaryStore.checkpoint(owner,body,target,expected,next,accountLimit,totalLimit)}]:compact&&!importing?await sql`SELECT spacetrader_compact_checkpoint(${owner}::uuid,${target}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit}) AS result`:target?await sql`SELECT spacetrader_checkpoint_v2(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},${target}::uuid,${importing}) AS result`:await sql`SELECT spacetrader_checkpoint(${owner}::uuid,${body.revision??null},${body.key},${expected},${next},${body.raw===null?null:full(body.raw)},${accountLimit},${totalLimit},NULL::uuid) AS result`;
   const latest=await snapshot(owner,target);if(result.result.conflict)throw Object.assign(fail('That checkpoint changed. Review it before trying again.',409),{snapshot:latest});return latest;
  }
  async function history(owner,before=Number.MAX_SAFE_INTEGER,target=null){
@@ -66,7 +75,8 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false})
   if(!compact)return legacy;
   const chunks=await sql`SELECT c.first_sequence,c.last_sequence,c.digest,c.payload FROM spacetrader_journal_chunks c JOIN spacetrader_voyages v ON v.id=c.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND c.first_sequence<${before} AND c.last_sequence>=greatest(1,least(${before},v.sequence+1)-31) ORDER BY c.first_sequence DESC LIMIT 31`;
   const recent=chunks.flatMap(c=>readChunk(c).filter(r=>r.r.sequence<before).map(r=>({sequence:r.r.sequence,type:r.a[0],day:r.r.day,record:expandRecord(r)})));
-  return [...legacy,...recent].sort((a,b)=>b.sequence-a.sequence).slice(0,31);
+  const archived=readArchives?(await binaryStore.history(owner,target,before)).map(r=>({sequence:r.r.sequence,type:r.a[0],day:r.r.day,record:expandRecord(r)})):[];
+  return [...new Map([...legacy,...recent,...archived].map(r=>[r.sequence,r])).values()].sort((a,b)=>b.sequence-a.sequence).slice(0,31);
  }
  async function recorded(owner,sequence,target=null){
   if(!Number.isSafeInteger(sequence)||sequence<1)throw fail('Invalid recorded action.');
@@ -113,7 +123,7 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false})
   const [voyage]=await sql`SELECT v.id FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage)`;
   const row=voyage?(await slotRecords(voyage.id)).find(r=>r.slot===key&&r.payload):null;
   if(!row)throw fail('That checkpoint changed. Reload your account voyage.',409);
-  const raw=inflate(row.payload).toString('utf8');if(digest(raw)!==row.digest)throw fail('Checkpoint integrity check failed.',503);
+  const raw=row.payload==='E1'?await readBinary(voyage.id,key,row.digest):inflate(row.payload).toString('utf8');if(digest(raw)!==row.digest)throw fail('Checkpoint integrity check failed.',503);
   return {raw,digest:row.digest};
  }
  const uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value);
@@ -134,5 +144,14 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false})
   const [account]=await sql`SELECT active_voyage,stored_bytes FROM spacetrader_accounts WHERE id=${owner}`;
   return {voyages:rows.slice(0,20).map(r=>({id:r.id,name:r.summary.created===false||r.summary.created===undefined&&r.type==='new-voyage'?'New captain':r.summary.name,day:r.summary.day,location:r.summary.location,sequence:Number(r.sequence),created:r.created_at,updated:r.updated_at,checkpoints:r.checkpoints})),next:rows.length>20?rows[19].id:null,selected:account?.active_voyage||null,usedBytes:Number(account?.stored_bytes||0),limitBytes:accountLimit};
  }
- return {snapshot,position,append,checkpoint,readCheckpoint,history,recorded,startImport,importBatch,importCheckpoint,finishImport,selected,choose,createVoyage,library};
+ async function resolveWire(owner,target,value){
+  if(!value||typeof value.core!=='string'||value.core.length>=2_000_000||value.component!==null&&(typeof value.component!=='string'||!/^[a-f0-9]{64}$/.test(value.component)))throw fail('Invalid save components.');
+  let part=null;
+  if(value.component!==null){
+   if(typeof value.part==='string'){if(value.part.length>=2_000_000||digest(value.part)!==value.component)throw fail('Economy component integrity check failed.');part=value.part;}
+   else{part=await binaryStore.component(target,value.component,owner);if(part===null)throw fail('Resend the economy component.',428);}
+  }
+  const raw=joinState(value.core,part);valid(raw);return raw;
+ }
+ return {resolveWire,snapshot,position,append,checkpoint,readCheckpoint,history,recorded,startImport,importBatch,importCheckpoint,finishImport,selected,choose,createVoyage,library};
 }

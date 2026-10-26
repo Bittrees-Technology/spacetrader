@@ -1,0 +1,2 @@
+GRANT SELECT ON spacetrader.spacetrader_world_components,spacetrader.spacetrader_journal_archives TO spacetrader_runtime;
+GRANT EXECUTE ON FUNCTION spacetrader.spacetrader_efficient_append(uuid,uuid,text,text,text,text,bytea,text,text,bytea,jsonb,bigint,bigint,text,text,text,bigint,bigint,boolean),spacetrader.spacetrader_efficient_checkpoint(uuid,uuid,text,text,text,text,bytea,text,text,bytea,bigint,bigint),spacetrader.spacetrader_archive_replace(uuid,uuid,bigint,bigint,text,jsonb,text,text,integer,bytea) TO spacetrader_runtime;

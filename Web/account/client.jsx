@@ -3,10 +3,12 @@ import {createRoot} from 'react-dom/client';
 import {createSiweMessage} from 'viem/siwe';
 import {LoginPanel,EmailSignIn,EthereumSignIn} from './shared/login/LoginPanel.jsx';
 import './theme.css';
+import {createSyncTransport,createSaveOutbox} from './sync-transport.mjs';
 import {installJournalReader} from './journal-reader.mjs';
 installJournalReader(window.SpacetraderJournalFeed);
 
 const host=window,MODE='spacetrader.account-save-mode.v1',PIN='spacetrader.account-voyage.v2',NEW='spacetrader.new-charter.v2',PENDING='spacetrader.pending-charter.v2';
+const saveOutbox=createSaveOutbox();
 let localRequest,account=null,configured=false,dialog,reactRoot,cloudActive=false,pinned=null;
 const getMode=()=>{try{return localStorage.getItem(MODE)||'device';}catch{return 'device';}};
 const setMode=value=>{try{localStorage.setItem(MODE,value);}catch{throw Error('This browser could not save the account preference. Your voyages are preserved.');}};
@@ -96,13 +98,14 @@ function SignIn({onSignedIn}){
   footer={<p>Your device voyage stays separate until you choose to transfer it. Email and wallet identities are not automatically merged.</p>}/>;
 }
 function Account(){
- const [phase,setPhase]=useState('checking'),[error,setError]=useState(''),[library,setLibrary]=useState(null),[device,setDevice]=useState(null),[progress,setProgress]=useState(''),[busy,setBusy]=useState(false);
+ const [phase,setPhase]=useState('checking'),[error,setError]=useState(''),[library,setLibrary]=useState(null),[device,setDevice]=useState(null),[progress,setProgress]=useState(''),[busy,setBusy]=useState(false),[recoveries,setRecoveries]=useState([]);
  async function refresh(resume=false){
   try{
    const state=await status();
    if(!state.configured){setPhase('unavailable');return;}
    if(!state.signedIn){if(resume&&await handoff())return;setPhase('signin');return;}
    setLibrary(await call('/api/voyages',undefined,true));
+   setRecoveries((await saveOutbox.list(state.account)).filter(r=>r.status==='conflict'));
    if(localRequest){const local=await (await localRequest('/api/voyage')).json();setDevice(local.raw?host.Heliocline.parse(local.raw):null);}
    setPhase('account');
   }catch(e){setError(e.message);setPhase('error');}
@@ -117,6 +120,7 @@ function Account(){
   {phase==='unavailable'&&<p>Account saves are not available yet. Your voyage still saves on this device.</p>}
   {phase==='error'&&<button onClick={()=>void refresh()}>Retry connection</button>}
   {phase==='account'&&<><p className="captain-account-identity">{account.label}</p>
+   {recoveries.map(r=><article className="captain-voyage" key={r.key}><h3>Action needs review</h3><p>An interrupted {r.body.action.type.replaceAll('-',' ')} action could not replace newer progress saved on another device. Your account keeps the latest confirmed voyage.</p><button disabled={busy} onClick={()=>void run(async()=>{const blob=new Blob([JSON.stringify(r)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='spacetrader-pending-action.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);})}>Download pending action</button><button disabled={busy} onClick={()=>void run(async()=>{await saveOutbox.clear(account.account,r.voyage);await refresh();})}>Keep latest account progress</button></article>)}
    <div className="captain-voyage-list" aria-label="Account voyages">{library?.voyages.length?library.voyages.map(v=><article className="captain-voyage" key={v.id} aria-label={'Voyage: '+v.name}>
     <h3>{v.name}</h3><p>{day(v.day)} · {place(v.location)}</p><p className="captain-account-note">{v.sequence.toLocaleString()} actions · {v.checkpoints} {v.checkpoints===1?'checkpoint':'checkpoints'}{cloudActive&&getPin(account.account)===v.id?' · Current voyage':''}</p>
     <button disabled={busy} onClick={()=>void run(()=>chooseVoyage(v.id))}>Load voyage</button>
@@ -151,7 +155,7 @@ host.openBrowserVoyageLedger=async options=>{
   const owner=account.account;
   let voyage=getPin(owner);
   const cached={};
-  const cloudFetch=(path,options={})=>fetch(path,{...options,credentials:'same-origin',cache:'no-store',headers:{...options.headers,'X-Spacetrader-Account':owner,'X-Spacetrader-Storage':'compact-v1',...(voyage?{'X-Spacetrader-Voyage':voyage}:{})},signal:AbortSignal.timeout(30000)});
+  const cloudFetch=createSyncTransport({fetch:(path,options)=>fetch(path,{...options,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(30000)}),owner,voyage,outbox:saveOutbox,onVoyage:id=>{voyage=id;setPin(owner,id);},onConflict:()=>{setTimeout(open,0);}});
   return async(path,options={})=>{
    const response=await cloudFetch(path,options),value=await response.clone().json();
    if(response.ok&&value.voyage){if(voyage&&voyage!==value.voyage)throw Error('The selected voyage changed. Reopen Saved voyages.');voyage=value.voyage;setPin(owner,voyage);}

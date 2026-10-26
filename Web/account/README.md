@@ -33,7 +33,13 @@ replacement for a cloud save.
 - For the voyage library, apply `migrations/002-voyage-library.sql`, followed by
   `migrations/002-voyage-library-grants.sql`, through the same database owner.
   Then apply `migrations/003-compact-journal.sql` and its matching grants for the
-  compact account format. All migrations are additive; existing histories and legacy functions remain intact.
+  compact account format. Next review/apply `migrations/004-efficient-saves.sql`
+  and matching grants. Its tables/columns are additive; two compact functions gain
+  fail-closed format guards. Other legacy functions and ACLs remain unchanged.
+  Deploy the compatible reader with efficient writers off, apply/verify004,
+  enable `SPACETRADER_EFFICIENT_READS=1`, then enable
+  `SPACETRADER_EFFICIENT_SAVES=1` only after the staged compatibility checks.
+  Keep efficient readers enabled in any subsequent rollback.
 - Reuse the existing approved email delivery service and verified domain, with a
   reviewed hard daily and calendar-month email caps within its current allowance. Do not send test
   codes to third parties or enable overages. Tests intercept delivery.
@@ -69,10 +75,14 @@ creation and completed-transfer retries cannot duplicate or replace a voyage.
 Cloud commits record resolved outcomes with compare-and-swap revisions and unique
 operation IDs. Retries cannot apply the same action twice, and another device's
 newer head cannot be silently replaced. The current resolved state is overwritten atomically. The journal retains compact
-structured receipts and rendered notices in compressed chunks of up to 128 actions
-and 512 KiB before compression. Earlier actions are readable, not restorable world
+structured receipts and rendered notices in a small active block of up to128 actions
+and512KiB before compression. Closed blocks are losslessly compacted into binary
+columnar archives of up to8,192 actions,2,000,000 encoded bytes and16MiB decoded
+canonical JSON. Unusually varied histories form smaller archives. At most64
+closed blocks are considered by a maintenance transaction; fewer than eight
+closed blocks stay in the hot table. Pages reconstruct only the requested records. Earlier actions are readable, not restorable world
 states. A last-operation digest and compare-and-swap revision protect lost-response
-retries; older stale requests require reviewing the current head rather than replay. Two current manual checkpoint slots replace their contents in place for account saves. Legacy versions stay intact. State is validated with the actual engine.
+retries; older stale requests require reviewing the current head rather than replay. Two current manual checkpoint slots replace their contents in place for account saves. Legacy versions stay readable. State is validated with the actual engine.
 
 Transfers copy the complete local action history into an inactive staged voyage,
 then transfer checkpoint slots and activate only after count and head-hash checks.
@@ -83,7 +93,7 @@ at once. Imports and saves remain unranked. Imported journal receipts retain com
 action history without copying a world-state replay payload for each action.
 Existing third checkpoint slots remain loadable and deletable; new account
 checkpoints use slots 1 and 2. Superseded snapshot-slot contents are not archived
-again. Original legacy histories/checkpoints are not removed by this rollout.
+again. Original replay histories/checkpoints remain intact; only verified compact receipt blocks are replaced with equivalent archives.
 
 Only the authenticated account can access its cloud head, history or checkpoints.
 All private responses are no-store/noindex; writes require exact Origin and a
@@ -101,7 +111,15 @@ including failures, with caps of 20 per UTC day and 500 per calendar month. No
 provider-quota retry or paid fallback is enabled. Capacity exhaustion preserves
 existing saves and requires a reviewed operator decision before limits change.
 
-Account actions need a connection. Guest play continues to use device IndexedDB
+Account actions need a connection. Before sending an action, the browser records
+its exact request and operation ID in a separate IndexedDB outbox. Closing the tab
+or losing a response does not discard that pending request. Reopening the same
+account/voyage retries it with its original revision; acknowledgement clears it.
+A conflicting device's newer head wins. The pending action stays available for
+explicit review/download or dismissal in Account & saves. One pending action per
+voyage, at most16 requests/16MiB per browser, prevents unbounded local growth.
+This is recovery for interrupted commits, not unrestricted offline cloud play.
+Guest play continues to use device IndexedDB
 and recovery storage. The site does not cache an authenticated cloud voyage as
 an unrelated guest voyage, and signing out returns to the separate device save.
 
@@ -109,10 +127,39 @@ New private save requests require `X-Spacetrader-Storage: compact-v1`; older
 open clients must reload. Read-only history does not authorize arbitrary state
 restoration. Guest and native ledgers retain their existing format in this pass.
 
-Snapshot payloads use bounded Brotli quality 4 (`B1:` prefix); legacy zlib payloads
-remain readable. Journal blocks additionally share field names and repeated
-strings through a versioned lossless dictionary. The stored block digest always
-checks the exact decoded canonical record array. No dialogue, numeric change or
-event is discarded. Every newly encoded block is round-tripped before committing.
-Keep the dual-codec reader in any server rollback; older readers fail closed on
-new payloads. This encoding change needs no schema, quota or infrastructure change.
+Legacy snapshots use bounded Brotli quality4 (`B1:`) or the earlier zlib codec.
+Efficient snapshots instead use an `E1` marker, a binary compressed player core
+and an exact, voyage-scoped economy component. The existing R1/D1/raw Float64
+frame is stored as binary without recomputing or rounding quantities. Its hash
+refers only to a component authorized for the signed-in account's selected voyage;
+hashes never confer access. Current heads and manual slots retain their references
+atomically. Only components no longer referenced by either can be collected.
+Component reuse avoids rewriting or uploading the same frame for every trade.
+A bounded warm-instance cache rechecks existence/ownership before reuse.
+
+`X-Spacetrader-Wire: parts-v1` negotiates component-aware transfer. Loads verify
+component and reconstructed-state hashes; writes send changed cores and missing
+components, then receive a verified acknowledgement instead of reflecting the
+whole save. A missing reference prompts one bounded resend. Older compact clients
+can still supply full JSON; the server stores it efficiently when enabled.
+An older server fails closed on new heads/slots rather than overwriting them.
+Rollback must retain this reader and the004 guards, not reapply003 over004.
+
+New archives retain every field, property order, Unicode string, and exact JSON
+number. The application validates expansion bounds, canonical hashes, contiguous
+sequences and a full byte-identical round trip before requesting replacement.
+SQL then verifies the expected source chunk hashes/contiguity and compressed
+payload SHA256 under the existing lock order before atomic replacement and quota
+accounting. SQL does not independently decode Brotli to establish equivalence;
+that remains the reviewed application writer's responsibility. Service credentials
+remain trusted, with account identity derived from the verified HTTP session.
+The runtime has SELECT-only access to new tables and narrowly granted definer
+functions; no general journal/component DELETE or TRUNCATE permission is added.
+
+Migration of existing compact histories is bounded and happens as play continues;
+old heads become binary on their next successful save and old slots on replacement.
+Cold legacy saves remain readable and are not rewritten in a bulk background job.
+The128MiB aggregate cap has not been raised. Ten-thousand-captain capacity still
+needs mixed-workload, concurrent-user and provider-budget review; compressed
+payload projections are not PostgreSQL/provider invoice estimates. Freed pages,
+WAL and provider backup/history retention can delay physical billing reductions.

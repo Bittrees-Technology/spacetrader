@@ -13,7 +13,7 @@ import engine from '../../Browser/engine.js';
 import combatFixture from './combat-v2-balance.cjs';
 
 (async()=>{
-const database=new PGlite();await database.exec(await readFile('Web/account/schema.sql','utf8'));await database.exec(await readFile('Web/account/migrations/002-voyage-library.sql','utf8'));await database.exec(await readFile('Web/account/migrations/003-compact-journal.sql','utf8'));await database.exec('SET search_path=pg_catalog,spacetrader,pg_temp');
+const database=new PGlite();await database.exec(await readFile('Web/account/schema.sql','utf8'));await database.exec(await readFile('Web/account/migrations/002-voyage-library.sql','utf8'));await database.exec(await readFile('Web/account/migrations/003-compact-journal.sql','utf8'));await database.exec(await readFile('Web/account/migrations/004-efficient-saves.sql','utf8'));await database.exec('SET search_path=pg_catalog,spacetrader,pg_temp');
 const sql=(strings,...values)=>database.query(strings.reduce((out,text,index)=>out+(index?'$'+index:'')+text,''),values).then(result=>result.rows);
 const staticRoot=resolve('Web/.vercel/output/static'),codes=[];let api,origin;
 const type={'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.json':'application/json','.txt':'text/plain'};
@@ -32,7 +32,7 @@ const server=createServer(async(req,res)=>{
  }catch{res.statusCode=404;res.end('Not found');}
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));origin='http://127.0.0.1:'+server.address().port;
-api=createApi({env:{APP_ORIGIN:origin,SPACETRADER_ACCOUNTS_ENABLED:'1',SPACETRADER_ACCOUNT_STORAGE_BYTES:'16777216',SPACETRADER_TOTAL_STORAGE_BYTES:'134217728',SPACETRADER_EMAIL_DAILY_LIMIT:'20',SPACETRADER_EMAIL_MONTHLY_LIMIT:'500'},sql,sendMail:async(email,code)=>codes.push({email,code}),verifyWallet:({message,signature})=>verifyMessage({message,signature,address:parseSiweMessage(message).address})});
+api=createApi({env:{APP_ORIGIN:origin,SPACETRADER_ACCOUNTS_ENABLED:'1',SPACETRADER_EFFICIENT_READS:'1',SPACETRADER_EFFICIENT_SAVES:'1',SPACETRADER_ACCOUNT_STORAGE_BYTES:'16777216',SPACETRADER_TOTAL_STORAGE_BYTES:'134217728',SPACETRADER_EMAIL_DAILY_LIMIT:'20',SPACETRADER_EMAIL_MONTHLY_LIMIT:'500'},sql,sendMail:async(email,code)=>codes.push({email,code}),verifyWallet:({message,signature})=>verifyMessage({message,signature,address:parseSiweMessage(message).address})});
 const cache=join(homedir(),'Library/Caches/ms-playwright'),installations=(await readdir(cache)).filter(name=>name.startsWith('chromium_headless_shell-')).sort().reverse();
 assert(installations.length,'Existing Chromium headless installation required; no browser download started.');
 const browser=await chromium.launch({headless:true,executablePath:join(cache,installations[0],'chrome-headless-shell-mac-arm64/chrome-headless-shell')});
@@ -65,7 +65,7 @@ try{
  await page.getByLabel('Verification code',{exact:true}).fill(codes.at(-1).code);await page.getByRole('button',{name:'Verify and continue',exact:true}).click();
  await page.getByRole('button',{name:'Transfer device voyage & history',exact:true}).waitFor();
  const [account]=await sql`SELECT id FROM spacetrader_accounts WHERE identity='persistence-qa@example.org'`;
- const saves=createStorage(sql,{parse:engine.parse,accountLimit:16777216,totalLimit:134217728,compact:true});assert.equal((await saves.snapshot(account.id)).raw,null,'Sign-in alone never uploads or replaces a voyage');
+ const saves=createStorage(sql,{parse:engine.parse,accountLimit:16777216,totalLimit:134217728,compact:true,efficient:true});assert.equal((await saves.snapshot(account.id)).raw,null,'Sign-in alone never uploads or replaces a voyage');
  const localSequence=await page.evaluate(()=>sharedSession.snapshot.sequence);
  await page.getByRole('button',{name:'Transfer device voyage & history',exact:true}).click();await page.waitForFunction(()=>window.SpacetraderAccount?.isCloud()&&state?.profile.name==='Persistence QA');
  await page.getByRole('button',{name:'Continue voyage',exact:false}).click();await page.locator('.game-shell').waitFor();
@@ -87,7 +87,7 @@ try{
  assert.equal((await saves.snapshot(account.id)).sequence,fresh.sequence);
  assert.equal(await other.evaluate(()=>sharedSession.snapshot.revision),fresh.revision);
  // Loading from the entry menu uses the existing confirmed checkpoint flow.
- await other.reload();await other.getByRole('button',{name:'Load checkpoint',exact:false}).click();
+ await other.reload();await other.getByRole('heading',{name:'Action needs review',exact:true}).waitFor();await other.getByRole('button',{name:'Keep latest account progress',exact:true}).click();await other.getByRole('heading',{name:'Action needs review',exact:true}).waitFor({state:'detached'});await other.getByRole('button',{name:'Back to game',exact:true}).click();await other.getByRole('button',{name:'Load checkpoint',exact:false}).click();
  await other.locator('.checkpoint-slot').filter({has:other.getByRole('heading',{name:'Slot 1',exact:true})}).getByRole('button',{name:'Load…',exact:true}).click();
  await other.getByRole('button',{name:'Load checkpoint',exact:true}).click();await other.locator('.game-shell').waitFor();
  assert.equal(await other.evaluate(()=>state.credits),engine.parse(expected.slots.slot1).credits);
@@ -141,7 +141,7 @@ try{
  await expiredPage.getByRole('button',{name:'New charter',exact:false}).click();await expiredPage.locator('#captain-name').waitFor();assert.equal(await expiredPage.evaluate(()=>localStorage.getItem('spacetrader.account-save-mode.v1')),'device');
  const badWallet=await browser.newContext({viewport:{width:390,height:740}}),walletPage=await badWallet.newPage();await walletPage.clock.install();await walletPage.addInitScript(()=>{window.ethereum={request:()=>new Promise(()=>{})};});await walletPage.goto(origin+'/play/');await walletPage.getByRole('button',{name:'Sign in & load voyage',exact:false}).click();await walletPage.getByRole('button',{name:'Sign in with Ethereum',exact:true}).click();await walletPage.clock.fastForward(61000);await walletPage.getByRole('alert').filter({hasText:'wallet did not respond'}).waitFor();assert(await walletPage.getByLabel('Email address',{exact:true}).isEnabled(),'Wallet timeout must restore email controls');
  assert.equal(errors.length,0,errors.join('; '));
- await writeFileSafe(join(output,'ui-verification.json'),{passed:true,layouts:4,entryMenu:true,checkpointLoadFromMenu:true,battleIdleOnMenu:true,expiredSignInMenu:true,closeTabPersistence:true,compactAccountJournal:true,manualSlots:2,legacyThirdReadOnly:true,noPerActionRestore:true,noSnapshotReadsForNewJournal:true,multiVoyageLibrary:true,independentCheckpoints:true,pinnedDeviceIsolation:true,separateDevicePersistence:true,fullHistoryTransferred:true,checkpoints:true,staleDeviceRejected:true,walletTimeoutRecovery:true,localActionMilliseconds:timings,realEmailsSent:0,externalWalletRPCRequests:0,errors});
+ await writeFileSafe(join(output,'ui-verification.json'),{passed:true,layouts:4,entryMenu:true,checkpointLoadFromMenu:true,battleIdleOnMenu:true,expiredSignInMenu:true,closeTabPersistence:true,compactAccountJournal:true,manualSlots:2,legacyThirdReadOnly:true,noPerActionRestore:true,noSnapshotReadsForNewJournal:true,multiVoyageLibrary:true,independentCheckpoints:true,pinnedDeviceIsolation:true,separateDevicePersistence:true,fullHistoryTransferred:true,checkpoints:true,staleDeviceRejected:true,explicitConflictReview:true,efficientBinarySaves:true,walletTimeoutRecovery:true,localActionMilliseconds:timings,realEmailsSent:0,externalWalletRPCRequests:0,errors});
  console.log('PASS account UI: four responsive layouts, actual email flow, complete guest-history transfer, checkpoint persistence, closed-tab reopening, second device, stale-device rejection and wallet timeout recovery; zero live emails.');
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));await database.close();}
 })().catch(error=>{console.error(String(error.stack||error).slice(0,2500));process.exitCode=1;});
