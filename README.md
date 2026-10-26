@@ -12,6 +12,17 @@ removes local progress, including its checkpoint slots. Use a regular browser
 profile and keep its site data; this edition does not yet provide cross-device
 recovery.
 
+The browser action ledger uses IndexedDB. The public build also maintains one
+verified, current localStorage recovery copy after each successful action; it
+recovers from recorded history first if the ledger head is missing. An older
+legacy autosave is preserved before its first replacement. Secondary-copy quota
+failures do not invalidate successful primary commits. Save/Load exposes a
+collapsed storage-status panel, and supported browsers receive one persistence
+request after a game interaction. These protections do not prevent deliberate
+site-data removal or provide cloud recovery. Run
+`node Tests/browser/browser-save-safety.test.cjs` and
+`node Tests/browser/public-build.test.cjs` after changing this public-only adapter.
+
 ## Run locally
 
 Use an existing Node.js installation and Python 3. No dependency installation is

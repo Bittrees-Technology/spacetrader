@@ -1,5 +1,8 @@
 /* The public cockpit follows the visible browser viewport, including tablet chrome. */
 /* Repeated control taps are clicks; scrolling and pinch zoom remain available. */
+.browser-save-health{margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid #81969f66;font-size:12px;line-height:1.5}
+.browser-save-health>summary{min-height:44px;padding:10px 0;cursor:pointer;font-weight:600}
+.browser-save-health>p{margin:6px 0}
 button,[role="button"],input[type="button"],input[type="submit"],a[href],summary{touch-action:manipulation}
 html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
 html:has(#modal[open]){scrollbar-gutter:auto}

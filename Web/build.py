@@ -131,6 +131,10 @@ def build():
     if app.count(form) != 1:
         raise ValueError('Review the browser-save notice location')
     app = app.replace(form, '<p class="muted">Progress saves in this browser on this device. Wallet saves and agent play are coming later.</p>' + form)
+    checkpoint_marker = '<div class="checkpoint-slots">'
+    if app.count(checkpoint_marker) != 1:
+        raise ValueError('Review browser save-storage status placement')
+    app = app.replace(checkpoint_marker, '${window.spacetraderSaveHealthHTML?.()||\'\'}' + checkpoint_marker)
     # A fresh engine state is an unsigned template, not an existing captain.
     # Keep its placeholder name, balances and map out of the first-visit UI.
     render_start = "function render(){\n if(blocked||!state)return;"
@@ -149,9 +153,14 @@ def build():
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')
     clone(SITE / 'play-viewport.css', 'play/play-viewport.css')
+    clone(SITE / 'browser-save-safety.js', 'play/browser-save-safety.js')
     index = (browser / 'index.html').read_text()
     index = index.replace('connect-src \'self\' ipc: http://ipc.localhost', "connect-src 'self'")
-    public_revision = sha(app.encode() + (SITE / 'onboarding.css').read_bytes() + (SITE / 'play-viewport.css').read_bytes())[:12]
+    public_revision = sha(app.encode() + (SITE / 'onboarding.css').read_bytes() + (SITE / 'play-viewport.css').read_bytes() + (SITE / 'browser-save-safety.js').read_bytes())[:12]
+    ledger_script = '<script defer src="browser-ledger.js?v=0.72.257"></script>'
+    if index.count(ledger_script) != 1:
+        raise ValueError('Review browser save-safety initialization order')
+    index = index.replace(ledger_script, ledger_script + '<script defer src="browser-save-safety.js?v=' + public_revision + '"></script>')
     index = index.replace('app.js?v=0.72.257', 'app.js?v=' + public_revision)
     index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><link rel="stylesheet" href="play-viewport.css?v=' + public_revision + '"><meta name="description" content="Explore the solar system in Spacetrader, a single-player space-trading game. Free browser play with local saves."></head>')
     write('play/index.html', index)
