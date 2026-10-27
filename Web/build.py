@@ -179,6 +179,10 @@ def build():
         if app.count(old)!=1:
             raise ValueError('Review the public entry-menu adapter: '+old)
         app=app.replace(old,new)
+    fleet_source_label="btn('Travelling fleet','market-source',"
+    if app.count(fleet_source_label)!=1:
+        raise ValueError('Review the responsive Exchange source label')
+    app=app.replace(fleet_source_label,"btn('<span class=\"exchange-source-full\">Travelling fleet</span><span class=\"exchange-source-short\">Fleet</span>','market-source',")
     app="'use strict';\n"+(SITE/'start-menu.js').read_text()+'\n'+app
     app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:async()=>{await actionQueue;const s=window.SpacetraderAccount?.syncStatus();if(s?.unsaved||s?.pending)throw Error('Depart and finish saving before changing accounts or voyages.');},current:()=>({voyage:sharedSession?.snapshot?.voyage||null,revision:sharedSession?.snapshot?.revision||null}),inTransit:()=>Boolean(journey&&!journey.preview&&modalKind==='journey'&&$('modal').open&&!document.hidden&&!document.querySelector('#captain-account-dialog[open]')),journalContext:()=>journalFeedContext(),version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
     app+="\nwindow.addEventListener('spacetrader-sync-status',()=>{if(window.SpacetraderAccount?.isCloud()){saveState=sharedStatus();updateSaveLabel();}});\n"

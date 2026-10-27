@@ -79,8 +79,8 @@ body:has(.charter-welcome) #modal:has(#character-form){max-height:calc(var(--mod
  #modal .exchange-inline .exchange-list{overflow:visible;max-height:none}
 }
 
-/* Portrait tablets have room for one compact order row, with full-size touch controls. */
-@media(min-width:700px) and (max-width:1100px) and (orientation:portrait){
+/* Portrait tablets and landscape phones fit a compact row with full-size controls. */
+@media(min-width:700px) and (max-width:900px),(min-width:901px) and (max-width:1100px) and (orientation:portrait){
  #modal.establishment-dialog:has(.exchange-inline) .establishment-layout{display:block;overflow-y:auto;overflow-x:hidden}
  #modal.establishment-dialog:has(.exchange-inline) .visit-people,
  #modal.establishment-dialog:has(.exchange-inline) .visit-services{overflow:visible;max-height:none}
@@ -105,9 +105,44 @@ body:has(.charter-welcome) #modal:has(#character-form){max-height:calc(var(--mod
  #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(3)::before{content:none}
 }
 
-@media(max-width:360px){
- .exchange-inline .market-ledger tr.market-product>td:nth-child(4){grid-column:1/-1;grid-row:3}
- .exchange-inline .market-ledger tr.market-product>td:nth-child(5){grid-column:1/-1;grid-row:4}
+/* A compact order sheet keeps prices and names together without shrinking touch targets. */
+.exchange-source-short{display:none}
+@media(max-width:699px){
+ #modal.establishment-dialog:has(.exchange-inline) .visit-header{padding:10px 12px;gap:8px}
+ #modal.establishment-dialog:has(.exchange-inline) .visit-header>div{min-width:0}
+ #modal.establishment-dialog:has(.exchange-inline) .visit-header h2{font-size:22px}
+ #modal.establishment-dialog:has(.exchange-inline) .visit-header .visit-location{font-size:11px;line-height:1.35;margin:4px 0 0}
+ #modal.establishment-dialog:has(.exchange-inline) .visit-header>button{white-space:nowrap;font-size:11px;padding:6px 8px}
+ #modal.establishment-dialog:has(.exchange-inline) .visit-people,#modal .exchange-services:has(.exchange-inline){padding:12px}
+ #modal.establishment-dialog:has(.exchange-inline) .host-profile{gap:10px;margin-bottom:8px}
+ #modal.establishment-dialog:has(.exchange-inline) .host-profile .portrait-enlarge{width:48px}
+ #modal.establishment-dialog:has(.exchange-inline) .host-profile .portrait{width:48px;height:60px}
+ #modal.establishment-dialog:has(.exchange-inline) .host-profile h2{font-size:20px;line-height:1.2}
+ #modal.establishment-dialog:has(.exchange-inline) .host-profile p{margin-top:3px;font-size:12px}
+ #modal.establishment-dialog:has(.exchange-inline) .host-dialogue{min-height:0;margin:8px 0;padding:10px;line-height:1.5}
+ #modal.establishment-dialog:has(.exchange-inline) .visit-questions{gap:4px}
+ #modal.establishment-dialog:has(.exchange-inline) .visit-questions button{padding:7px 9px;line-height:1.35}
+ #modal .exchange-inline .exchange-toolbar{gap:6px;padding-bottom:8px;align-items:center}
+ #modal .exchange-inline .exchange-mode>button{padding:6px 10px;font-size:12px}
+ #modal .exchange-inline .exchange-source{gap:5px;flex-wrap:nowrap}
+ #modal .exchange-inline .exchange-source>span{min-width:0;font-size:11px}
+ #modal .exchange-inline .exchange-source-options{flex-wrap:nowrap}
+ #modal .exchange-inline .exchange-source-full{display:none}
+ #modal .exchange-inline .exchange-source-short{display:inline}
+ #modal .exchange-inline .market-ledger tr.market-product{grid-template-columns:minmax(0,1fr) minmax(68px,max-content) minmax(66px,max-content);gap:4px 6px;padding:8px 0;align-items:center}
+ #modal .exchange-inline .market-ledger tr.market-product>th{grid-column:1;grid-row:1}
+ #modal .exchange-inline .market-item-name{font-size:13px;line-height:1.3}
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(2){grid-column:2;grid-row:1;display:flex;align-items:center;justify-content:flex-end;gap:3px;font-size:12px}
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(2)::before{content:none}
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(2)::after{content:'cr';font-size:11px;font-weight:400}
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(3){grid-column:3;grid-row:1;font-size:12px;text-align:right}
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(3)::before{content:'Owned ';font-size:11px}
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(4){grid-column:1/3;grid-row:2}
+ #modal .exchange-inline .market-ledger tr.market-product>td:nth-child(5){grid-column:3;grid-row:2}
+ #modal .exchange-inline .market-price-button{min-width:44px;text-align:right}
+ #modal .exchange-inline .market-stepper{grid-template-columns:44px minmax(40px,1fr) 44px}
+ #modal .exchange-inline .exchange-confirm{font-size:12px}
+ #modal .exchange-inline .exchange-total strong{font-size:11px}
 }
 
 /* Phones trade the tall sidebar for a compact cockpit navigation panel. */
