@@ -17,6 +17,7 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
  const identitySchema=env.SPACETRADER_IDENTITY_SCHEMA==='1';
  const singleActive=identitySchema||env.SPACETRADER_SINGLE_ACTIVE_VOYAGE==='1';
  const linkedLogins=identitySchema&&env.SPACETRADER_LINKED_LOGINS==='1';
+ const scoreArchives=identitySchema&&env.SPACETRADER_SCORE_ARCHIVES==='1';
  if(configured&&!sql)sql=(strings,...values)=>neon(env.SPACETRADER_DATABASE_URL,{fetchOptions:{signal:AbortSignal.timeout(12000)}})(strings,...values);
  if(!verifyWallet)verifyWallet=parameters=>createPublicClient({chain:mainnet,transport:http(env.ETH_RPC_URL||'https://ethereum-rpc.publicnode.com',{timeout:10000,retryCount:0})}).verifySiweMessage(parameters);
  const emailLimit=Number(env.SPACETRADER_EMAIL_DAILY_LIMIT||0);
@@ -26,7 +27,7 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
   if(!result.ok)throw Error('Email unavailable');
  };
  const auth=configured?createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit:emailLimit,emailMonthlyLimit:monthlyLimit,maxAccounts:Number(env.SPACETRADER_MAX_ACCOUNTS||10000),captainScope:singleActive,linkedLogins:identitySchema}):null;
- const saves=configured?createStorage(sql,{parse,accountLimit,totalLimit,compact:true,efficient:env.SPACETRADER_EFFICIENT_SAVES==='1',archiveReads:env.SPACETRADER_EFFICIENT_READS==='1',singleActive,linkedLogins:identitySchema}):null;
+ const saves=configured?createStorage(sql,{parse,accountLimit,totalLimit,compact:true,efficient:env.SPACETRADER_EFFICIENT_SAVES==='1',archiveReads:env.SPACETRADER_EFFICIENT_READS==='1',singleActive,linkedLogins:identitySchema,scoreArchives,netWorth:s=>engine.financialOverview(s).netWorth}):null;
  const batched=configured&&env.SPACETRADER_BATCH_SAVES==='1'&&env.SPACETRADER_EFFICIENT_SAVES==='1';
  const linking=identitySchema?createLinking({sql,auth,origin,sendMail,verifyWallet,accountLimit}):null;
  const batchSaves=batched?createBatchStorage(sql,{parse,accountLimit,totalLimit}):null;
@@ -83,7 +84,12 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
    const owner=session.account;
    const voyageJson=value=>saveJson(req,{...value,...(singleActive?{captainId:session.captainId}:{} )});
    const requested=req.headers.get('x-spacetrader-voyage');
-   if(singleActive&&requested&&requested!==session.activeVoyage&&(req.method==='POST'||path==='/api/voyage'))throw fail('This voyage is archived. Reload to continue your active captain; archived journals remain available.',409);
+   if(scoreArchives&&requested&&!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(requested))throw fail('Choose a saved voyage before continuing.',428);
+   if(singleActive&&requested&&requested!==session.activeVoyage&&(req.method==='POST'||path==='/api/voyage'))throw fail(scoreArchives?'That voyage has ended. Reload to continue your active captain. Only its final net worth is retained.':'This voyage is archived. Reload to continue your active captain; archived journals remain available.',409);
+   if(scoreArchives&&requested&&requested!==session.activeVoyage){
+    const [score]=await sql`SELECT s.voyage_id FROM spacetrader_voyage_scores s JOIN spacetrader_accounts a ON a.id=s.account_id WHERE s.voyage_id=${requested}::uuid AND(a.id=${owner}::uuid OR a.merged_into=${owner}::uuid)`;
+    throw fail(score?'Only this finished voyage’s final net worth is retained.':'That voyage is unavailable.',score?410:404);
+   }
    if(singleActive&&path.startsWith('/api/import/')&&session.activeVoyage&&!(path==='/api/import/finish'&&body.id===session.activeVoyage))throw fail('This account already has an active voyage. Your device voyage remains separate.',409);
    if(path==='/api/voyage/batch'){
     if(req.method!=='POST')throw fail('Method not allowed.',405);
@@ -136,7 +142,7 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
    if(/link_confirmation_required/.test(String(error.message)))return json({error:'Choose the voyage to keep and explicitly confirm before linking.'},428);
    if(/link_storage_limit/.test(String(error.message)))return json({error:'Combined saved history exceeds this account’s storage limit. Nothing was linked or deleted.'},507);
    if(error.snapshot)return saveJson(req,{...error.snapshot,error:error.message},409);
-   if(/voyage_archived|restart_conflict|active_voyage_exists/.test(String(error.message)))return json({error:'Your active voyage changed or this voyage is archived. Reload before continuing; archived progress has been preserved.',code:'active_voyage_changed'},409);
+   if(/voyage_archived|restart_conflict|active_voyage_exists|retirement_conflict|score_archive_writer_required/.test(String(error.message)))return json({error:scoreArchives?'Your active voyage changed. Reload before continuing; finished voyages retain only their final net worth.':'Your active voyage changed or this voyage is archived. Reload before continuing; archived progress has been preserved.',code:'active_voyage_changed'},409);
    const quota=String(error.message).includes('storage_limit');
    return json({error:quota?'Account save storage is full. Existing progress is preserved. Try again later or return to your separate device voyage.':error.status?error.message:'Account saves are temporarily unavailable. Your existing progress is preserved.'},quota?507:error.status||503);
   }

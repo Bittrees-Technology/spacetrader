@@ -5,8 +5,9 @@ import {digest,full,pack,unpack,inflate,boundedRaw} from './codec.mjs';
 import {journalRecord,expandRecord,readChunk,extendChunk} from './compact.mjs';
 
 export const fail=(message,status=400)=>Object.assign(Error(message),{status});
-export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false,efficient=false,archiveReads=efficient,singleActive=false,linkedLogins=false}){
+export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false,efficient=false,archiveReads=efficient,singleActive=false,linkedLogins=false,scoreArchives=false,netWorth}){
  if(!Number.isSafeInteger(accountLimit)||!Number.isSafeInteger(totalLimit)||accountLimit<2_000_000||totalLimit<accountLimit)throw Error('A reviewed save-storage budget is required.');
+ if(scoreArchives&&(!singleActive||!linkedLogins||typeof netWorth!=='function'))throw Error('Score archives require the current identity schema and a server valuation.');
  const binaryStore=createEfficient(sql),readArchives=archiveReads||efficient;
  const valid=raw=>{boundedRaw(raw);return parse(raw);};
  const capabilities=compact?{restoreActions:false,checkpointLimit:2,storageFormat:'compact-v1'}:{};
@@ -137,12 +138,31 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false,e
   const state=valid(raw),event=action({id:operation,type:'new-voyage',args:{},version}),hash=digest(raw),summary={name:state.profile.name,created:state.profile.created,day:state.day,location:state.location,credits:state.credits,fleet:state.fleet.length+1};
   if(singleActive){
    if(restartFrom!==null&&!uuid(restartFrom)||restartFrom!==null&&typeof revision!=='string'||restartFrom===null&&revision!==null)throw fail('Reload the account before confirming a restart.',428);
+   if(scoreArchives){
+    const [replay]=await sql`SELECT v.id,v.captain_id FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner}::uuid AND a.active_voyage=v.id AND v.creation_key=${event.id}`;
+    if(replay)return {id:replay.id,captainId:replay.captain_id,replayed:true,scoreArchives:true};
+    let worth=null;
+    if(restartFrom!==null){
+     const prior=await snapshot(owner,restartFrom,false);
+     if(!prior.raw||prior.revision!==revision)throw fail('The active voyage changed. Reload before restarting.',409);
+     const finished=valid(prior.raw);
+     if(finished.profile.created){worth=netWorth(finished);if(!Number.isSafeInteger(worth))throw fail('Final net worth could not be recorded. Your voyage is unchanged.',503);}
+    }
+    const [row]=await sql`SELECT spacetrader_restart_scored_voyage(${owner}::uuid,${restartFrom}::uuid,${revision},${event.id},${hash},${full(raw)},${JSON.stringify(event)}::jsonb,${JSON.stringify(summary)}::jsonb,${Date.now()},${accountLimit},${totalLimit},${worth}) AS result`;return row.result;
+   }
    const [row]=await sql`SELECT spacetrader_restart_voyage(${owner}::uuid,${restartFrom}::uuid,${revision},${event.id},${hash},${full(raw)},${JSON.stringify(event)}::jsonb,${JSON.stringify(summary)}::jsonb,${Date.now()},${accountLimit},${totalLimit}) AS result`;return row.result;
   }
   const [row]=await sql`SELECT spacetrader_create_voyage(${owner}::uuid,${event.id},${hash},${full(raw)},${JSON.stringify(event)}::jsonb,${JSON.stringify(summary)}::jsonb,${Date.now()},${accountLimit},${totalLimit}) AS result`;
   return row.result;
  }
  async function library(owner,after=null){
+  if(scoreArchives){
+   if(after!==null&&!uuid(after))throw fail('Invalid high-score page.');
+   const [account]=await sql`SELECT a.active_voyage,a.stored_bytes,c.id AS captain_id,v.revision FROM spacetrader_accounts a JOIN spacetrader_captains c ON c.account_id=a.id LEFT JOIN spacetrader_voyages v ON v.id=a.active_voyage WHERE a.id=${owner}::uuid AND a.merged_into IS NULL`;
+   const active=await sql`SELECT v.id,v.sequence,v.revision,v.captain_id,v.created_at,v.updated_at,coalesce(v.compact_summary,e.summary) AS summary FROM spacetrader_accounts a JOIN spacetrader_voyages v ON v.id=a.active_voyage LEFT JOIN spacetrader_entries e ON e.voyage_id=v.id AND e.sequence=v.sequence WHERE a.id=${owner}::uuid AND v.archived_at IS NULL`;
+   const scores=await sql`SELECT s.voyage_id,s.name,s.day,s.net_worth,s.ended_at FROM spacetrader_voyage_scores s JOIN spacetrader_accounts a ON a.id=s.account_id WHERE(a.id=${owner}::uuid OR a.merged_into=${owner}::uuid) AND(${after}::uuid IS NULL OR(s.net_worth,s.ended_at,s.voyage_id)<(SELECT x.net_worth,x.ended_at,x.voyage_id FROM spacetrader_voyage_scores x JOIN spacetrader_accounts y ON y.id=x.account_id WHERE x.voyage_id=${after}::uuid AND(y.id=${owner}::uuid OR y.merged_into=${owner}::uuid))) ORDER BY s.net_worth DESC,s.ended_at DESC,s.voyage_id DESC LIMIT 21`;
+   return {singleActiveVoyage:true,scoreArchives:true,captainId:account?.captain_id,selected:account?.active_voyage||null,selectedRevision:account?.revision||null,voyages:active.map(r=>({id:r.id,captainId:r.captain_id,name:r.summary?.created===false?'New captain':r.summary?.name||'Captain',day:r.summary?.day||0,location:r.summary?.location,sequence:Number(r.sequence),revision:r.revision,readOnly:false,created:r.created_at,updated:r.updated_at})),scores:scores.slice(0,20).map(r=>({id:r.voyage_id,name:r.name,day:Number(r.day),netWorth:Number(r.net_worth),ended:r.ended_at})),next:scores.length>20?scores[19].voyage_id:null,usedBytes:Number(account?.stored_bytes||0),limitBytes:accountLimit};
+  }
   if(after!==null)await selected(owner,after);
   if(singleActive){
    const rows=linkedLogins?await sql`SELECT v.id,v.sequence,v.revision,v.captain_id,v.archived_at,v.created_at,v.updated_at,coalesce(v.compact_summary,e.summary) AS summary,e.event->>'type' AS type FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id LEFT JOIN spacetrader_entries e ON e.voyage_id=v.id AND e.sequence=v.sequence WHERE(a.id=${owner} OR a.merged_into=${owner}) AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id) AND (${after}::uuid IS NULL OR (v.created_at,v.id)<(SELECT x.created_at,x.id FROM spacetrader_voyages x JOIN spacetrader_accounts y ON y.id=x.account_id WHERE x.id=${after}::uuid AND(y.id=${owner} OR y.merged_into=${owner}))) ORDER BY v.created_at DESC,v.id DESC LIMIT 21`:await sql`SELECT v.id,v.sequence,v.revision,v.captain_id,v.archived_at,v.created_at,v.updated_at,coalesce(v.compact_summary,e.summary) AS summary,e.event->>'type' AS type FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id LEFT JOIN spacetrader_entries e ON e.voyage_id=v.id AND e.sequence=v.sequence WHERE a.id=${owner} AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id) AND (${after}::uuid IS NULL OR (v.created_at,v.id)<(SELECT x.created_at,x.id FROM spacetrader_voyages x WHERE x.id=${after}::uuid AND x.account_id=${owner})) ORDER BY v.created_at DESC,v.id DESC LIMIT 21`;

@@ -2,15 +2,15 @@
   "mode": "reference",
   "source": "guide-template.cjs",
   "inputs": {
-    "template": "ada900f5e9cc366f1f93d7f76359f07819957690d4053470872d9829b92d1013",
+    "template": "74286de41932aeb1f08c57cdaa62ae886498db2a55ca937b3b1a5856b7851996",
     "engine": "09bc8702ed93eefa2087b1bd95401dc20604b9ef5d8258a7ed25a4fe8e561e7a",
     "helpers": "7a9b7a0981d552961f5c9513892010f54b7a81e109c9d47c4bb57e2188bc37e0",
     "exporter": "8f86387412a114fcbd8f3cee61229edcb9f2430d5fe462372b8b91ba632cddb8",
     "goodsMechanics": "c1439facc76b9abe0e53f1a01f3764b8772b2175eb47b8af06447c8314cb5fdb",
     "bankRateRanges": "95f2133de463549ae5bb8f7cdb31f6cb1d77d7164bba9bc587d5d609df6fe0b9"
   },
-  "fragmentSHA256": "d426b7b66ea8a1abef4a65ab0785a5fec983a549ecde7a866d8badaa9b42bbca",
-  "indexSHA256": "de157501e029c04e06497dff95abef8f2ea841252883ac083ae948dd394200d7",
+  "fragmentSHA256": "48b0f8c31bafab99d95c4a265f43f827f996bdf36c565a1f02883f77733a2023",
+  "indexSHA256": "c052305fe21968f46affa0ff8a8bbd31a5d34fdc2aa4da6be47ca5defd2fbb4c",
   "builderSHA256": "376136c9bbc3562c6721e8ee6c601cf05901d22bf551e1cb5ce9441070ac6989",
   "notationSHA256": "35380ec9b799d511b6dd2a12de77123b53857b258d434e42065a5ac9555e1319",
   "notationWitnessSHA256": "f7101809dc1cf2feeaf91d50c0cf28ffcb1001751bda920875c64626e08ed00b",
