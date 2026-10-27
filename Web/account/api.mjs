@@ -8,23 +8,27 @@ import {digest} from './codec.mjs';
 import {splitState} from './state-parts.mjs';
 import {createSsoClient,nodeRequest,nodeResponse,json,identity} from './shared/sso/client.mjs';
 import {createBatchStorage} from './batch-store.mjs';
+import {createLinking} from './linking.mjs';
 
 export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,sendMail}={}){
  const origin=env.APP_ORIGIN||'https://captain.bittrees.org';
  const configured=env.SPACETRADER_ACCOUNTS_ENABLED==='1'&&Boolean(env.SPACETRADER_DATABASE_URL||sql);
  const accountLimit=Number(env.SPACETRADER_ACCOUNT_STORAGE_BYTES),totalLimit=Number(env.SPACETRADER_TOTAL_STORAGE_BYTES);
- const singleActive=env.SPACETRADER_SINGLE_ACTIVE_VOYAGE==='1';
+ const identitySchema=env.SPACETRADER_IDENTITY_SCHEMA==='1';
+ const singleActive=identitySchema||env.SPACETRADER_SINGLE_ACTIVE_VOYAGE==='1';
+ const linkedLogins=identitySchema&&env.SPACETRADER_LINKED_LOGINS==='1';
  if(configured&&!sql)sql=(strings,...values)=>neon(env.SPACETRADER_DATABASE_URL,{fetchOptions:{signal:AbortSignal.timeout(12000)}})(strings,...values);
  if(!verifyWallet)verifyWallet=parameters=>createPublicClient({chain:mainnet,transport:http(env.ETH_RPC_URL||'https://ethereum-rpc.publicnode.com',{timeout:10000,retryCount:0})}).verifySiweMessage(parameters);
  const emailLimit=Number(env.SPACETRADER_EMAIL_DAILY_LIMIT||0);
  const monthlyLimit=Number(env.SPACETRADER_EMAIL_MONTHLY_LIMIT||0);
- if(!sendMail&&env.RESEND_API_KEY&&env.SPACETRADER_MAIL_FROM)sendMail=async(email,code)=>{
-  const result=await fetch('https://api.resend.com/emails',{method:'POST',signal:AbortSignal.timeout(10000),headers:{Authorization:'Bearer '+env.RESEND_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({from:env.SPACETRADER_MAIL_FROM,to:[email],subject:'Your Spacetrader sign-in code',text:`Your Spacetrader verification code is ${code}. It expires in 10 minutes and works once. If you did not request this code, you can ignore this email.`})});
+ if(!sendMail&&env.RESEND_API_KEY&&env.SPACETRADER_MAIL_FROM)sendMail=async(email,code,purpose)=>{
+  const result=await fetch('https://api.resend.com/emails',{method:'POST',signal:AbortSignal.timeout(10000),headers:{Authorization:'Bearer '+env.RESEND_API_KEY,'Content-Type':'application/json'},body:JSON.stringify({from:env.SPACETRADER_MAIL_FROM,to:[email],subject:purpose==='link'?'Link your Spacetrader sign-in':'Your Spacetrader sign-in code',text:purpose==='link'?`Your Spacetrader linking code is ${code}. It expires in five minutes. Use it only in the linking screen you opened. Linking can permanently delete an unchosen voyage after your explicit confirmation. It does not grant permissions in other apps.`:`Your Spacetrader verification code is ${code}. It expires in 10 minutes and works once. If you did not request this code, you can ignore this email.`})});
   if(!result.ok)throw Error('Email unavailable');
  };
- const auth=configured?createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit:emailLimit,emailMonthlyLimit:monthlyLimit,maxAccounts:Number(env.SPACETRADER_MAX_ACCOUNTS||10000),captainScope:singleActive}):null;
- const saves=configured?createStorage(sql,{parse,accountLimit,totalLimit,compact:true,efficient:env.SPACETRADER_EFFICIENT_SAVES==='1',archiveReads:env.SPACETRADER_EFFICIENT_READS==='1',singleActive}):null;
+ const auth=configured?createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit:emailLimit,emailMonthlyLimit:monthlyLimit,maxAccounts:Number(env.SPACETRADER_MAX_ACCOUNTS||10000),captainScope:singleActive,linkedLogins:identitySchema}):null;
+ const saves=configured?createStorage(sql,{parse,accountLimit,totalLimit,compact:true,efficient:env.SPACETRADER_EFFICIENT_SAVES==='1',archiveReads:env.SPACETRADER_EFFICIENT_READS==='1',singleActive,linkedLogins:identitySchema}):null;
  const batched=configured&&env.SPACETRADER_BATCH_SAVES==='1'&&env.SPACETRADER_EFFICIENT_SAVES==='1';
+ const linking=identitySchema?createLinking({sql,auth,origin,sendMail,verifyWallet,accountLimit}):null;
  const batchSaves=batched?createBatchStorage(sql,{parse,accountLimit,totalLimit}):null;
  // A head plus three near-limit checkpoints exceeds function response limits.
  // Return slot hashes here; the browser retrieves changed slots individually.
@@ -45,13 +49,13 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
   const url=new URL(req.url),path=url.pathname;
   try{
    if(url.origin!==origin)throw fail('Unexpected application origin.',403);
-   if(!/^\/api\/(?:sso\/(?:status|start|callback|publish|profile)|auth\/(?:email|verify-email|nonce|wallet|logout)|account\/status|voyage(?:\/batch)?|voyages(?:\/(?:new|select))?|checkpoint|ledger(?:\/[1-9]\d*)?|backups|import\/(?:start|batch|checkpoint|finish))$/.test(path))throw fail('Not found.',404);
+   if(!/^\/api\/(?:sso\/(?:status|start|callback|publish|profile)|auth\/(?:email|verify-email|nonce|wallet|logout)|account\/(?:status|link\/(?:status|start|verify|review|commit))|voyage(?:\/batch)?|voyages(?:\/(?:new|select))?|checkpoint|ledger(?:\/[1-9]\d*)?|backups|import\/(?:start|batch|checkpoint|finish))$/.test(path))throw fail('Not found.',404);
    if(path.startsWith('/api/sso/'))return shared(req);
    if(path==='/api/account/status'){
     if(req.method!=='GET')throw fail('Method not allowed.',405);
     if(!configured)return json({configured:false,signedIn:false});
     const session=await auth.current(req);
-    return json({configured:true,signedIn:Boolean(session),emailEnabled:Boolean(sendMail)&&emailLimit>0&&monthlyLimit>0,...(session?{account:session.account,label:session.identity,...(singleActive?{captainId:session.captainId,activeVoyage:session.activeVoyage}:{} )}:{}),singleActiveVoyage:singleActive,sharedEnabled:env.BITTREES_SSO_ENABLED==='1'});
+    return json({configured:true,signedIn:Boolean(session),emailEnabled:Boolean(sendMail)&&emailLimit>0&&monthlyLimit>0,...(session?{account:session.account,label:session.identity,...(singleActive?{captainId:session.captainId,activeVoyage:session.activeVoyage}:{} )}:{}),singleActiveVoyage:singleActive,linkedLogins,sharedEnabled:env.BITTREES_SSO_ENABLED==='1'});
    }
    if(!configured)throw fail('Account saves are not configured yet. Your device saves are unchanged.',503);
    if(!['GET','POST'].includes(req.method))throw fail('Method not allowed.',405);
@@ -61,6 +65,13 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
     const text=await req.text();if(Buffer.byteLength(text)>4_200_000)throw fail('Request too large.',413);
     try{body=JSON.parse(text);}catch{throw fail('Invalid request.');}
     if(!body||typeof body!=='object'||Array.isArray(body))throw fail('Invalid request.');
+   }
+   if(path.startsWith('/api/account/link/')){
+    if(!linkedLogins)throw fail('Linked sign-ins are not enabled yet.',503);
+    if(req.method==='POST'&&req.headers.get('x-spacetrader')!=='shared-save-v1')throw fail('Linking request rejected.',403);
+    if(Buffer.byteLength(JSON.stringify(body))>20000)throw fail('Linking request too large.',413);
+    const result=await linking.handle(req,path.split('/').pop(),body),response=json(result.body);
+    for(const value of result.cookies||[])response.headers.append('Set-Cookie',value);return response;
    }
    if(path.startsWith('/api/auth/')){
     const result=await auth.handle(req,path.split('/').pop(),body),response=json(result.body);
@@ -99,7 +110,8 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
     if(header&&!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(header))throw fail('Choose a saved voyage before continuing.',428);
     return voyageJson(await batchSaves.snapshot(owner,header));
    }
-   const target=path==='/api/voyage'&&req.method==='GET'&&!header?null:await saves.selected(owner,header);
+   const readOwner=linking&&req.method==='GET'&&header&&header!==session.activeVoyage?await linking.readOwner(owner,header):owner;
+   const target=path==='/api/voyage'&&req.method==='GET'&&!header?null:await saves.selected(readOwner,header);
    if(body.state!==undefined){body.raw=await saves.resolveWire(owner,target,body.state);if(body.rawHash!==digest(body.raw))throw fail('Saved voyage integrity check failed.');}
    if(path==='/api/voyage'){
     if(req.method==='POST'){
@@ -112,12 +124,17 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
     if(batched&&body.raw!==null)throw fail('Account voyages use automatic saving and keep their latest progress.');
     return voyageJson(await saves.checkpoint(owner,body,target));
    }
-   if(path==='/api/checkpoint'&&req.method==='GET')return voyageJson(await saves.readCheckpoint(owner,url.searchParams.get('slot'),target));
-   if(path==='/api/ledger'&&req.method==='GET')return json({entries:await saves.history(owner,url.searchParams.has('before')?Number(url.searchParams.get('before')):undefined,target)});
-   if(/^\/api\/ledger\/[1-9]\d*$/.test(path)&&req.method==='GET')return json(await saves.recorded(owner,Number(path.split('/').pop()),target));
+   if(path==='/api/checkpoint'&&req.method==='GET')return voyageJson(await saves.readCheckpoint(readOwner,url.searchParams.get('slot'),target));
+   if(path==='/api/ledger'&&req.method==='GET')return json({entries:await saves.history(readOwner,url.searchParams.has('before')?Number(url.searchParams.get('before')):undefined,target)});
+   if(/^\/api\/ledger\/[1-9]\d*$/.test(path)&&req.method==='GET')return json(await saves.recorded(readOwner,Number(path.split('/').pop()),target));
    if(path==='/api/backups'&&req.method==='GET')return json({backups:[]});
    throw fail('Not found.',404);
   }catch(error){
+   if(/link_conflict/.test(String(error.message)))return json({error:'A voyage changed after review. Review both latest voyages again; nothing was deleted.',code:'link_conflict'},409);
+   if(/link_proof_required/.test(String(error.message)))return json({error:'Verify both sign-ins again before linking.',code:'link_proof_required'},401);
+   if(/identity_already_linked/.test(String(error.message)))return json({error:'That sign-in is already linked to another account. No progress was changed.'},409);
+   if(/link_confirmation_required/.test(String(error.message)))return json({error:'Choose the voyage to keep and explicitly confirm before linking.'},428);
+   if(/link_storage_limit/.test(String(error.message)))return json({error:'Combined saved history exceeds this account’s storage limit. Nothing was linked or deleted.'},507);
    if(error.snapshot)return saveJson(req,{...error.snapshot,error:error.message},409);
    if(/voyage_archived|restart_conflict|active_voyage_exists/.test(String(error.message)))return json({error:'Your active voyage changed or this voyage is archived. Reload before continuing; archived progress has been preserved.',code:'active_voyage_changed'},409);
    const quota=String(error.message).includes('storage_limit');

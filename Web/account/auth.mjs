@@ -4,7 +4,7 @@ import {identity,cookie,readCookie,digest,equal,suppressSso} from './shared/sso/
 import {fail} from './storage.mjs';
 
 const token=()=>randomBytes(32).toString('hex');
-export function createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit=0,emailMonthlyLimit=0,maxAccounts=10000,captainScope=false,now=Date.now}){
+export function createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit=0,emailMonthlyLimit=0,maxAccounts=10000,captainScope=false,linkedLogins=false,now=Date.now}){
  async function limit(key,maximum,period=600000){
   const bucket=Math.floor(now()/period),hash=digest(key+'|'+bucket);
   const [record]=await sql`INSERT INTO spacetrader_rate_limits(key,count,expires_at) VALUES(${hash},1,to_timestamp(${(now()+period*2)/1000})) ON CONFLICT(key) DO UPDATE SET count=spacetrader_rate_limits.count+1 RETURNING count`;
@@ -18,8 +18,15 @@ export function createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit=0,e
  }
  async function current(req){
   const key=readCookie(req,'captain-session',origin);if(!/^[a-f0-9]{64}$/.test(key))return null;
-  const [row]=captainScope?await sql`SELECT a.id,a.identity,s.authenticated_at,a.active_voyage,c.id AS captain_id FROM spacetrader_sessions s JOIN spacetrader_accounts a ON a.id=s.account_id JOIN spacetrader_captains c ON c.account_id=a.id WHERE s.hash=${digest(key)} AND s.expires_at>now()`:await sql`SELECT a.id,a.identity,s.authenticated_at FROM spacetrader_sessions s JOIN spacetrader_accounts a ON a.id=s.account_id WHERE s.hash=${digest(key)} AND s.expires_at>now()`;
+  const [row]=linkedLogins?await sql`SELECT a.id,s.login_identity AS identity,s.authenticated_at,a.active_voyage,c.id AS captain_id FROM spacetrader_sessions s JOIN spacetrader_accounts a ON a.id=s.account_id JOIN spacetrader_captains c ON c.account_id=a.id WHERE s.hash=${digest(key)} AND s.expires_at>now() AND a.merged_into IS NULL`:captainScope?await sql`SELECT a.id,a.identity,s.authenticated_at,a.active_voyage,c.id AS captain_id FROM spacetrader_sessions s JOIN spacetrader_accounts a ON a.id=s.account_id JOIN spacetrader_captains c ON c.account_id=a.id WHERE s.hash=${digest(key)} AND s.expires_at>now()`:await sql`SELECT a.id,a.identity,s.authenticated_at FROM spacetrader_sessions s JOIN spacetrader_accounts a ON a.id=s.account_id WHERE s.hash=${digest(key)} AND s.expires_at>now()`;
   return row?{key,account:row.id,identity:row.identity,authTime:new Date(row.authenticated_at).getTime(),...(captainScope?{captainId:row.captain_id,activeVoyage:row.active_voyage}:{} )}:null;
+ }
+ async function emailAllowance(email,ip){
+  if(!sendMail||!Number.isSafeInteger(emailDailyLimit)||emailDailyLimit<1||!Number.isSafeInteger(emailMonthlyLimit)||emailMonthlyLimit<1)throw fail('Email verification is unavailable.',503);
+   await limit('email:'+ip,5);await limit('email-account:'+email,5);await limit('email-global-day',emailDailyLimit,86400000);
+   const date=new Date(now()),month=digest('email-month|'+date.getUTCFullYear()+'-'+date.getUTCMonth()),expires=Date.UTC(date.getUTCFullYear(),date.getUTCMonth()+1,2);
+   const [monthly]=await sql`INSERT INTO spacetrader_rate_limits(key,count,expires_at) VALUES(${month},1,to_timestamp(${expires/1000})) ON CONFLICT(key) DO UPDATE SET count=spacetrader_rate_limits.count+1 RETURNING count`;
+   if(monthly.count>emailMonthlyLimit)throw fail('Email sign-in has reached its current sending allowance. Try Ethereum or return later.',429);
  }
  async function handle(req,action,body){
   if(req.method!=='POST')throw fail('Method not allowed.',405);
@@ -31,10 +38,7 @@ export function createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit=0,e
   if(action==='email'){
    if(!sendMail||!Number.isSafeInteger(emailDailyLimit)||emailDailyLimit<1||!Number.isSafeInteger(emailMonthlyLimit)||emailMonthlyLimit<1)throw fail('Email sign-in is not available yet.',503);
    const email=identity(body.email);if(!email.includes('@'))throw fail('Enter an email address.');
-   await limit('email:'+ip,5);await limit('email-account:'+email,5);await limit('email-global-day',emailDailyLimit,86400000);
-   const date=new Date(now()),month=digest('email-month|'+date.getUTCFullYear()+'-'+date.getUTCMonth()),expires=Date.UTC(date.getUTCFullYear(),date.getUTCMonth()+1,2);
-   const [monthly]=await sql`INSERT INTO spacetrader_rate_limits(key,count,expires_at) VALUES(${month},1,to_timestamp(${expires/1000})) ON CONFLICT(key) DO UPDATE SET count=spacetrader_rate_limits.count+1 RETURNING count`;
-   if(monthly.count>emailMonthlyLimit)throw fail('Email sign-in has reached its current sending allowance. Try Ethereum or return later.',429);
+   await emailAllowance(email,ip);
    const challenge=token(),code=String(randomInt(100000000)).padStart(8,'0');
    await sql`DELETE FROM spacetrader_challenges WHERE kind='email' AND identity=${email}`;
    await sql`INSERT INTO spacetrader_challenges(hash,kind,identity,code_hash,expires_at) VALUES(${digest(challenge)},'email',${email},${digest(challenge+':'+code)},now()+interval '10 minutes')`;
@@ -70,5 +74,5 @@ export function createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit=0,e
   }
   throw fail('Not found.',404);
  }
- return {current,establish,handle,limit};
+ return {current,establish,handle,limit,emailAllowance};
 }

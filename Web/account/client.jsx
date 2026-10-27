@@ -6,6 +6,7 @@ import './theme.css';
 import {createSyncTransport,createSaveOutbox} from './sync-transport.mjs';
 import {createBatchTransport} from './batch-transport.mjs';
 import {installJournalReader} from './journal-reader.mjs';
+import {LinkedSignIns} from './linking-client.jsx';
 installJournalReader(window.SpacetraderJournalFeed);
 
 const host=window,MODE='spacetrader.account-save-mode.v1',PIN='spacetrader.account-voyage.v2',NEW='spacetrader.new-charter.v2',PENDING='spacetrader.pending-charter.v2';
@@ -48,7 +49,7 @@ function consumeNewIntent(id){try{const intent=JSON.parse(sessionStorage.getItem
 async function call(path,body,owner=false,voyage=null){
  const headers={'Content-Type':'application/json','X-Spacetrader-Storage':'compact-v1',...(owner?{'X-Spacetrader':'shared-save-v1','X-Spacetrader-Account':account?.account||''}:{}),...(voyage?{'X-Spacetrader-Voyage':voyage}:{})};
  const result=await fetch(path,{method:body===undefined?'GET':'POST',headers,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(30000),...(body===undefined?{}:{body:JSON.stringify(body)})});
- const value=await result.json();if(!result.ok)throw Object.assign(Error(value.error||'The account request could not be completed.'),{status:result.status});return value;
+ const value=await result.json();if(!result.ok)throw Object.assign(Error(value.error||'The account request could not be completed.'),{status:result.status,code:value.code});return value;
 }
 const rawHash=async raw=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw)))).map(v=>v.toString(16).padStart(2,'0')).join('');
 async function status(){account=await call('/api/account/status');configured=account.configured;return account;}
@@ -93,26 +94,26 @@ async function transfer(setProgress){
  await call('/api/import/finish',{id:staged.id},true);
  if(dialog?.open){setPin(account.account,staged.id);setMode('account');location.assign('/play/');}
 }
-function SignIn({onSignedIn}){
- const [email,setEmail]=useState(''),[challenge,setChallenge]=useState(''),[code,setCode]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
+function SignIn({onSignedIn,requiredIdentity=null}){
+ const [email,setEmail]=useState(requiredIdentity?.includes('@')?requiredIdentity:''),[challenge,setChallenge]=useState(''),[code,setCode]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const active=useRef(true);useEffect(()=>()=>{active.current=false;},[]);
  async function run(job){if(busy)return;setBusy(true);setError('');try{await job();}catch(e){setError(e.message||'Sign-in could not be completed.');}finally{setBusy(false);}}
- async function finished(){if(!active.current)return;await status();if(!active.current)return;if(!await handoff())await onSignedIn();}
+ async function finished(){if(!active.current)return;await status();if(!active.current)return;if(requiredIdentity){if(account.label!==requiredIdentity)throw Error('Verify your existing sign-in before continuing.');await onSignedIn();return;}if(!await handoff())await onSignedIn();}
  async function wallet(){
   if(!host.ethereum?.request)throw Error('Open this page in your Ethereum wallet’s browser, or use email here.');
   const timed=promise=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error('The wallet did not respond. You can try again or use email.')),60000))]);
-  const addresses=await timed(host.ethereum.request({method:'eth_requestAccounts'}));if(!addresses?.[0])throw Error('Choose an Ethereum account.');
+  const addresses=await timed(host.ethereum.request({method:'eth_requestAccounts'}));if(!addresses?.[0])throw Error('Choose an Ethereum account.');if(requiredIdentity&&addresses[0].toLowerCase()!==requiredIdentity)throw Error('Choose the wallet already signed in to this account.');
   if(!active.current)return;
   const value=await call('/api/auth/nonce',{}),message=createSiweMessage({address:addresses[0],chainId:1,domain:value.domain,uri:value.uri,nonce:value.nonce,version:'1',issuedAt:new Date(),statement:'Sign in to Spacetrader to save your voyage. This does not authorize a transaction.'});
   const signature=await timed(host.ethereum.request({method:'personal_sign',params:['0x'+Array.from(new TextEncoder().encode(message),v=>v.toString(16).padStart(2,'0')).join(''),addresses[0]]}));
   if(!active.current)return;
   await call('/api/auth/wallet',{message,signature});await finished();
  }
- return <LoginPanel product="Spacetrader" icon="/favicon.svg" title="Continue your voyage" description="Sign in to save your voyage and continue on another device."
-  email={<EmailSignIn email={email} onEmailChange={setEmail} challenge={challenge} code={code} onCodeChange={setCode} busy={busy} disabled={!account?.emailEnabled} onReset={()=>{setChallenge('');setCode('');setError('');}} onSubmit={event=>{event.preventDefault();void run(async()=>{if(challenge){await call('/api/auth/verify-email',{challenge,code});await finished();}else{const result=await call('/api/auth/email',{email});setChallenge(result.challenge);}});}}/>}
-  wallet={<EthereumSignIn busy={busy} onClick={()=>void run(wallet)}/>}
-  notice={error?<p role="alert">{error}</p>:!account?.emailEnabled?<p>Email sign-in is temporarily unavailable. Your device voyage is preserved.</p>:null}
-  footer={<p>Your device voyage stays separate until you choose to transfer it. Email and wallet identities are not automatically merged.</p>}/>;
+ return <LoginPanel product="Spacetrader" icon="/favicon.svg" title={requiredIdentity?"Verify your current sign-in":"Continue your voyage"} description={requiredIdentity?"For account safety, verify your current sign-in again before adding another.":"Sign in to save your voyage and continue on another device."}
+  email={!requiredIdentity||requiredIdentity.includes('@')?<EmailSignIn email={email} onEmailChange={setEmail} challenge={challenge} code={code} onCodeChange={setCode} busy={busy} disabled={!account?.emailEnabled} onReset={()=>{setChallenge('');setCode('');setError('');}} onSubmit={event=>{event.preventDefault();void run(async()=>{if(requiredIdentity&&email.trim().toLowerCase()!==requiredIdentity)throw Error('Use the email already signed in to this account.');if(challenge){await call('/api/auth/verify-email',{challenge,code});await finished();}else{const result=await call('/api/auth/email',{email});setChallenge(result.challenge);}});}}/>:null}
+  wallet={!requiredIdentity||!requiredIdentity.includes('@')?<EthereumSignIn busy={busy} onClick={()=>void run(wallet)}/>:null}
+  notice={error?<p role="alert">{error}</p>:(!requiredIdentity||requiredIdentity.includes('@'))&&!account?.emailEnabled?<p>Email sign-in is temporarily unavailable. Your device voyage is preserved.</p>:null}
+  footer={<p>Your device voyage stays separate until you choose to transfer it. You can link email and Ethereum sign-ins from Account &amp; saves after signing in.</p>}/>;
 }
 function ArchiveJournal({voyage,onBack}){
  const [rows,setRows]=useState([]),[before,setBefore]=useState(null),[more,setMore]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState('');
@@ -122,7 +123,7 @@ function ArchiveJournal({voyage,onBack}){
  return <section className="captain-account-panel"><button onClick={onBack}>Back to saved voyages</button><h2>{voyage.name}</h2><p>Archived voyage · read-only</p><ol className="captain-archive-journal" aria-label="Archived action history">{rows.map(row=>{const record=row.record||host.SpacetraderJournalFeed.prepare(row,null,null,{...host.SpacetraderAccountBridge.journalContext(),activeCaptain:voyage.name});return <li key={row.sequence}><small>{day(row.day)} · #{row.sequence.toLocaleString()}</small>{record.feedRows.map((line,i)=><p key={i}><strong>{line.title}</strong>{' '}{line.text}<small>{line.context}</small></p>)}</li>;})}</ol>{error&&<p role="alert">{error}</p>}{more&&<button disabled={busy} onClick={()=>void load(error&&rows.length===0?null:before)}>{busy?'Loading…':error?'Retry':'Earlier actions'}</button>}{!busy&&!error&&!rows.length&&<p>No recorded actions.</p>}</section>;
 }
 function Account(){
- const [phase,setPhase]=useState('checking'),[error,setError]=useState(''),[library,setLibrary]=useState(null),[device,setDevice]=useState(null),[progress,setProgress]=useState(''),[busy,setBusy]=useState(false),[recoveries,setRecoveries]=useState([]),[archive,setArchive]=useState(null),[restart,setRestart]=useState(null);
+ const [phase,setPhase]=useState('checking'),[error,setError]=useState(''),[library,setLibrary]=useState(null),[device,setDevice]=useState(null),[progress,setProgress]=useState(''),[busy,setBusy]=useState(false),[recoveries,setRecoveries]=useState([]),[archive,setArchive]=useState(null),[restart,setRestart]=useState(null),[linking,setLinking]=useState(false);
  async function refresh(resume=false){
   try{
    const state=await status();
@@ -138,6 +139,7 @@ function Account(){
  async function run(job){if(busy)return;setBusy(true);setError('');try{await job();}catch(e){setError(e.message);}finally{setBusy(false);}}
  async function more(){const next=await call('/api/voyages?after='+encodeURIComponent(library.next),undefined,true);setLibrary(current=>({...next,voyages:[...current.voyages,...next.voyages.filter(v=>!current.voyages.some(prior=>prior.id===v.id))]}));}
  if(phase==='signin')return <SignIn onSignedIn={()=>refresh()}/>;
+ if(linking)return <LinkedSignIns account={account} call={call} onBack={()=>{setLinking(false);void refresh();}} onLinked={()=>{setMode('account');location.assign('/play/');}} reauthenticate={(requiredIdentity,done)=><SignIn requiredIdentity={requiredIdentity} onSignedIn={done}/>}/>;
  if(archive)return <ArchiveJournal voyage={archive} onBack={()=>setArchive(null)}/>;
  const day=value=>host.SpacetraderAccountBridge?.dayLabel?.(value)||'Day '+value,place=value=>host.SpacetraderAccountBridge?.placeLabel?.(value)||value;
  return <section className="captain-account-panel" aria-labelledby="captain-account-title"><div className="captain-account-brand"><img src="/favicon.svg" alt="" width="28" height="28"/><span>Spacetrader</span></div><h2 id="captain-account-title">Saved voyages</h2>
@@ -146,6 +148,7 @@ function Account(){
   {phase==='error'&&<button onClick={()=>void refresh()}>Retry connection</button>}
   {phase==='account'&&<><p className="captain-account-identity">{account.label}</p>
    {recoveries.map(r=><article className="captain-voyage" key={r.key}><h3>Action needs review</h3><p>{r.batch?`${r.batch.events.length} pending actions remain on this device. They could not replace newer progress from another device.`:`An interrupted ${r.body.action.type.replaceAll('-',' ')} action could not replace newer progress saved on another device.`} Your account keeps the latest confirmed voyage.</p><button disabled={busy} onClick={()=>void run(async()=>{const blob=new Blob([JSON.stringify(r)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='spacetrader-pending-action.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);})}>Download pending actions</button><button disabled={busy} onClick={()=>void run(async()=>{await saveOutbox.clear(account.account,r.voyage);if(r.batch)location.assign('/play/');else await refresh();})}>Keep latest account progress</button></article>)}
+   {account.linkedLogins&&<button disabled={busy} className="captain-account-secondary" onClick={()=>void run(async()=>{if(host.SpacetraderAccountBridge&&!host.SpacetraderAccountBridge.canSwitch())throw Error('Finish the current encounter before linking sign-ins.');await host.SpacetraderAccountBridge?.settled();setLinking(true);})}>Email &amp; Ethereum sign-ins</button>}
    <div className="captain-voyage-list" aria-label="Account voyages">{library?.voyages.length?library.voyages.map(v=><article className="captain-voyage" key={v.id} aria-label={'Voyage: '+v.name}>
     <h3>{v.name}</h3><p>{day(v.day)} · {place(v.location)}</p><p className="captain-account-note">{v.sequence.toLocaleString()} actions{library?.singleActiveVoyage?v.readOnly?' · Archived · read-only':' · Active voyage':cloudActive&&getPin(account.account)===v.id?' · Current voyage':''}</p>
     {v.readOnly?<button disabled={busy} onClick={()=>setArchive(v)}>View archived journal</button>:<button disabled={busy} onClick={()=>void run(()=>chooseVoyage(v.id))}>Load voyage</button>}
