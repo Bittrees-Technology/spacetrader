@@ -158,7 +158,6 @@ function Account(){
    {device?.profile.created&&(!library?.singleActiveVoyage||!library.selected)&&<button disabled={busy} className="captain-account-secondary" onClick={()=>void run(()=>transfer(setProgress))}>Transfer device voyage &amp; history</button>}
    {progress&&<p role="status">{progress}</p>}
    <p className="captain-account-note">{library?.singleActiveVoyage?'One active voyage belongs to this captain ID. Restarting keeps earlier voyages and their journals as read-only archives.':'Each voyage keeps its latest progress, journal and complete action history. Starting another voyage preserves the earlier ones.'}</p>
-   {library&&<p className="captain-account-note">Account storage: {(library.usedBytes/1048576).toFixed(1)} of {(library.limitBytes/1048576).toFixed(0)} MiB across all voyages.</p>}
    <button disabled={busy} className="captain-account-secondary" onClick={()=>void run(async()=>{await host.SpacetraderAccountBridge?.settled();await call('/api/auth/logout',{});setMode('device');location.assign('/play/');})}>Sign out &amp; return to device voyage</button>
   </>}
   {error&&<p role="alert">{error}</p>}
