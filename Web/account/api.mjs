@@ -98,7 +98,10 @@ export function createApi({env=process.env,sql,parse=engine.parse,verifyWallet,s
     return json({...result,batchSaves:true,checkpointLimit:0,componentStorage:true,...(singleActive?{singleActiveVoyage:true,captainId:session.captainId}:{} )});
    }
    if(path==='/api/voyages'&&req.method==='GET')return json(await saves.library(owner,url.searchParams.get('after')));
-   if(path==='/api/voyages/new'&&req.method==='POST')return json(await saves.createVoyage(owner,{operation:body.operation,version:body.version,raw:JSON.stringify(engine.fresh()),restartFrom:body.restartFrom,revision:body.revision}));
+   if(path==='/api/voyages/new'&&req.method==='POST'){
+    if(scoreArchives&&body.restartFrom!==null&&body.retention!=='final-score-v1')throw fail('Reload Spacetrader before restarting. Finished voyages now keep only final net worth; their saved game and journal are deleted.',428);
+    return json(await saves.createVoyage(owner,{operation:body.operation,version:body.version,raw:JSON.stringify(engine.fresh()),restartFrom:body.restartFrom,revision:body.revision}));
+   }
    if(path==='/api/voyages/select'&&req.method==='POST')return json(await saves.choose(owner,body));
    if(path==='/api/import/start'&&req.method==='POST')return json(await saves.startImport(owner,body));
    if(path==='/api/import/batch'&&req.method==='POST')return json(await saves.importBatch(owner,body));

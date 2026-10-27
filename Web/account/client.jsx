@@ -42,7 +42,7 @@ async function newVoyage(expected=null){
  }
  let pending;try{pending=JSON.parse(sessionStorage.getItem(PENDING)||'null');}catch{}
  if(pending?.account!==account.account){pending={account:account.account,operation:crypto.randomUUID()};sessionStorage.setItem(PENDING,JSON.stringify(pending));}
- let result;try{result=await call('/api/voyages/new',{operation:pending.operation,version:host.SpacetraderAccountBridge?.version||'web',...restart},true);}catch(error){if(error.status===409)sessionStorage.removeItem(PENDING);throw error;}
+ let result;try{result=await call('/api/voyages/new',{operation:pending.operation,version:host.SpacetraderAccountBridge?.version||'web',retention:'final-score-v1',...restart},true);}catch(error){if(error.status===409)sessionStorage.removeItem(PENDING);throw error;}
  setPin(account.account,result.id);setMode('account');sessionStorage.setItem(NEW,JSON.stringify({account:account.account,id:result.id}));sessionStorage.removeItem(PENDING);location.assign('/play/');
 }
 function consumeNewIntent(id){try{const intent=JSON.parse(sessionStorage.getItem(NEW)||'null');if(intent?.account===account?.account&&intent.id===id){sessionStorage.removeItem(NEW);return true;}}catch{}return false;}
