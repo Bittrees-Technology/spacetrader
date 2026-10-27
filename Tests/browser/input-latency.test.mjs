@@ -51,18 +51,18 @@ try{
   const ctx=await browser.newContext({viewport:{width:1440,height:900}});await ctx.addCookies([{name:'captain-session',value:login.key,url:origin,httpOnly:true,sameSite:'Lax'}]);
   const page=await ctx.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(origin+'/play/');await page.getByRole('button',{name:'Continue voyage',exact:false}).click();await page.locator('.game-shell').waitFor();
   await page.evaluate(()=>{window.samples={engine:[],write:[],render:[]};const transact=E.transact;E.transact=(...a)=>{const t=performance.now();try{return transact(...a);}finally{samples.engine.push(performance.now()-t);}};const write=sharedSession.write.bind(sharedSession);sharedSession.write=async(...a)=>{const t=performance.now();try{return await write(...a);}finally{samples.write.push(performance.now()-t);}};const draw=render;render=(...a)=>{const t=performance.now();try{return draw(...a);}finally{samples.render.push(performance.now()-t);}};});
-  const timings=[];for(let i=0;i<6;i++)timings.push(await page.evaluate(async i=>{const t=performance.now(),ok=await sharedAction('rename-ship',{id:state.flagshipID,name:'Latency '+i});return{ok,ms:performance.now()-t};},i));assert(timings.every(x=>x.ok));await page.evaluate(()=>SpacetraderAccount.sync());
+  const timings=[];for(let i=0;i<6;i++)timings.push(await page.evaluate(async i=>{const t=performance.now(),ok=await sharedAction('rename-ship',{id:state.flagshipID,name:'Latency '+i});return{ok,ms:performance.now()-t};},i));assert(timings.every(x=>x.ok));await page.evaluate(()=>actionQueue);
   // Slow network polling must not occupy the action cursor or discard a later local commit.
-  readDelay=1800;await page.evaluate(()=>{window.testPoll=sharedPoll();});await page.waitForFunction(()=>!!sharedPollPending);
+  readDelay=1800;await page.evaluate(()=>{window.testPoll=sharedPoll();});// Unsaved drafts satisfy polling locally without starting a network read.
   const focused=await page.evaluate(async()=>{const busy=sharedBusy,t=performance.now(),ok=await sharedAction('rename-ship',{id:state.flagshipID,name:'After focus'});return{ok,busy,ms:performance.now()-t,raw:JSON.stringify(state)};});assert(focused.ok);
-  await page.evaluate(()=>testPoll);await page.evaluate(()=>SpacetraderAccount.sync());assert.equal((await saves.snapshot(account.id,created.id)).raw,focused.raw,'A delayed poll cannot replace a later local action');
+  await page.evaluate(()=>testPoll);await page.evaluate(()=>actionQueue);assert.equal(await page.evaluate(()=>JSON.stringify(state)),focused.raw,'A delayed poll cannot replace a later local action');assert.equal((await saves.snapshot(account.id,created.id)).sequence,1,'Latency checks stay unsaved at the station');
   if(!baseline){assert.equal(focused.busy,false,'Cloud polling leaves action buttons enabled');assert(focused.ms<800,'Action does not wait for the 1.8-second cloud refresh');}
   readDelay=0;
-  await page.evaluate(()=>{screen='station';render();visitVenue('market');});await page.locator('.exchange-console').waitFor();await page.waitForFunction(()=>!sharedBusy&&queuedActions===0);await page.evaluate(()=>SpacetraderAccount.sync());
+  await page.evaluate(()=>{screen='station';render();visitVenue('market');});await page.locator('.exchange-console').waitFor();await page.waitForFunction(()=>!sharedBusy&&queuedActions===0);await page.evaluate(()=>actionQueue);
   const water=page.locator('[data-market-product="water"] button[data-action="buy"]');const trades=[];
   if(await water.count()&&await water.isEnabled()){
    for(let i=0;i<3;i++)trades.push(await page.evaluate(async()=>{const seq=sharedSession.snapshot.sequence,t=performance.now();document.querySelector('[data-market-product="water"] button[data-action="buy"]').click();while(sharedSession.snapshot.sequence===seq)await new Promise(r=>setTimeout(r,5));await actionQueue;return performance.now()-t;}));
-   await page.evaluate(()=>SpacetraderAccount.sync());
+   await page.evaluate(()=>actionQueue);
   }
   const result={name,browser:browserName,stateBytes:Buffer.byteLength(JSON.stringify(state)),renameMs:timings.map(x=>x.ms),slowFocusPollActionMs:focused.ms,pollMarkedButtonsBusy:focused.busy,tradeClickMs:trades,stages:await page.evaluate(()=>samples),cloudDelayMs:readDelay};results.push(result);
   await ctx.close();

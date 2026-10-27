@@ -152,7 +152,7 @@ def build():
         if app.count(expected) != 1:
             raise ValueError('Review public charter navigation')
     app = app.replace(creator_head, "modalHead('Your independent charter',false)+ '<p>'+btn('Back to menu','public-menu')+'</p>'")
-    app = app.replace(close_start, close_start + "if(window.SpacetraderAccount?.isCloud()&&journey&&!journey.preview&&!journey.release)return;if(publicStartMenu&&!force&&modalKind==='menu')return;if(!force&&modalKind==='creator'&&!state.profile.created){publicReturnToMenu();return;}")
+    app = app.replace(close_start, close_start + "if(journey&&!journey.preview&&!journey.release)return;if(publicStartMenu&&!force&&modalKind==='menu')return;if(!force&&modalKind==='creator'&&!state.profile.created){publicReturnToMenu();return;}")
     app = app.replace(loaded_notice, "saveFeedback=state.profile.created?`Loaded ${state.profile.name} · day ${state.day}. ${sharedSession?.snapshot?.restoreActions===false?'Journal history is retained.':'Your previous voyage is kept.'}`:'Ready to create your captain. Your previous voyage is kept.';")
     modal_bounds = 'bounds=mainModalBounds(main?.getBoundingClientRect(),width,height)'
     if app.count(modal_bounds) != 1:
@@ -180,8 +180,9 @@ def build():
             raise ValueError('Review the public entry-menu adapter: '+old)
         app=app.replace(old,new)
     app="'use strict';\n"+(SITE/'start-menu.js').read_text()+'\n'+app
-    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:async()=>{await actionQueue;await window.SpacetraderAccount?.sync();},current:()=>({voyage:sharedSession?.snapshot?.voyage||null,revision:sharedSession?.snapshot?.revision||null}),inTransit:()=>Boolean(journey&&!journey.preview||state?.voyage||state?.battle),journalContext:()=>journalFeedContext(),version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
+    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:async()=>{await actionQueue;const s=window.SpacetraderAccount?.syncStatus();if(s?.unsaved||s?.pending)throw Error('Depart and finish saving before changing accounts or voyages.');},current:()=>({voyage:sharedSession?.snapshot?.voyage||null,revision:sharedSession?.snapshot?.revision||null}),inTransit:()=>Boolean(journey&&!journey.preview&&modalKind==='journey'&&$('modal').open&&!document.hidden&&!document.querySelector('#captain-account-dialog[open]')),journalContext:()=>journalFeedContext(),version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
     app+="\nwindow.addEventListener('spacetrader-sync-status',()=>{if(window.SpacetraderAccount?.isCloud()){saveState=sharedStatus();updateSaveLabel();}});\n"
+    app=app.replace("saveState='Recording action…'","saveState=window.SpacetraderAccount?.isCloud()?'Unsaved progress':'Recording action…'")
     app+='\n'+(SITE/'transit-saving.js').read_text()+'\n'
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')

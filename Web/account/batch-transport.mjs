@@ -6,7 +6,9 @@ const uuid=()=>crypto.randomUUID();
 const response=value=>new Response(JSON.stringify(value),{status:200,headers:{'Content-Type':'application/json'}});
 const tail=record=>({...record.batch.base,...record.batch.latest,raw:record.body.raw,batchSaves:true,checkpointLimit:0,pending:record.batch.events.length});
 export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:initial,onStatus=()=>{},onConflict=()=>{},isHidden=()=>false,deferStationActions=false,inTransit=()=>false,receipt,hash=defaultHash,delay=2500,schedule=setTimeout,cancel=clearTimeout}){
- let voyage=initial,current=null,enabled=false,inFlight=null,timer=null,retries=0,disposed=false,blocked=false,lastError=null,draft=null,promoting=null,status={pending:0,unsaved:0,syncing:false,conflict:false,error:null};
+ let voyage=initial,current=null,enabled=false,inFlight=null,timer=null,retries=0,disposed=false,blocked=false,lastError=null,draft=null,draftParent=null,promoting=null,status={pending:0,unsaved:0,syncing:false,conflict:false,error:null};
+ const canSave=()=>!deferStationActions||inTransit()&&!isHidden();
+ const travelRequired=()=>Error('Depart and keep the travel screen open to save this station visit.');
  function notify(record,error=blocked?lastError:null){status={pending:record?.batch?.events.length||0,unsaved:draft?.batch.events.length||0,syncing:Boolean(inFlight)||Boolean(promoting),conflict:record?.status==='conflict',error:error?.message||null};onStatus(status);}
  function plan(record){
   let core=splitState(record.batch.base.raw).core,frame=splitState(record.batch.base.raw).component,raw,events=[];
@@ -22,11 +24,11 @@ export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:in
   if(!events.length)throw Error('This action exceeds the background save limit. Your device progress is retained.');
   return {request:{id:flight?.id||uuid(),parent:record.batch.base.revision,events},raw,count:events.length,revision:events.at(-1).rawHash+':'+(record.batch.base.sequence+events.length)};
  }
- function later(ms=delay){if(disposed||blocked||draft||timer!==null)return;timer=schedule(()=>{timer=null;void flush().catch(()=>{});},ms);}
+ function later(ms=delay){if(disposed||blocked||draft||timer!==null||!canSave())return;timer=schedule(()=>{timer=null;void flush().catch(()=>{});},ms);}
  async function promote(){
   if(promoting)return promoting;if(!draft)return;
   const proposed=draft;
-  promoting=outbox.change(owner,voyage,existing=>{if(existing)throw Error('Another tab has a pending save. Keep this tab open and finish that save before retrying.');return proposed;}).then(record=>{draft=null;notify(record);}).finally(()=>{promoting=null;});
+  promoting=outbox.change(owner,voyage,existing=>{if(!canSave())throw travelRequired();if((existing?.batch?.latest.revision||null)!==draftParent)throw Error('Another tab has a pending save. Keep this tab open and finish that save before retrying.');return proposed;}).then(record=>{draft=null;draftParent=null;notify(record);}).finally(()=>{promoting=null;});
   return promoting;
  }
  async function enqueue(body){
@@ -39,15 +41,16 @@ export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:in
   const previous=splitState(base.raw),next=splitState(body.raw),sameComponent=next.component===previous.component,oldRef=previous.component===null?null:prior?.batch?.events.at(-1)?.component??await hash(previous.component),ref=sameComponent?oldRef:next.component===null?null:await hash(next.component),rawHash=await hash(body.raw);
   const event={action:body.action,created:Date.now(),rawHash,patch:stateDelta(previous.core,next.core),component:ref,...(ref!==oldRef&&ref!==null?{part:next.component}:{})};
   if(joinState(applyStateDelta(previous.core,event.patch),next.component)!==body.raw)throw Error('The device save failed its integrity check.');
-  const deferred=Boolean(draft)||deferStationActions&&!inTransit()&&!prior,update=existing=>{
+  const battleAction=body.action.type.startsWith('battle-')||body.action.type==='resolve',departure=body.action.type==='depart',eventLimit=deferStationActions?(battleAction?4096:departure?512:511):32;
+  const deferred=Boolean(draft)||deferStationActions&&!canSave(),update=existing=>{
    if(existing?.status==='conflict')throw Error('Pending actions need review in Account & saves before continuing.');
    if(existing&&!existing.batch||existing?.batch&&existing.batch.latest.revision!==base.revision)throw Error('Another tab recorded a newer action. Reload before continuing.');
    const value=existing||{created:Date.now(),status:'pending',batch:{base:{...base,raw:base.raw},events:[],latest:{revision:base.revision,sequence:base.sequence},flight:null}};
-   if(value.batch.events.length>=(deferStationActions?512:32))throw Error('Pending actions are full. Use Save now before continuing.');
+   if(value.batch.events.length>=eventLimit)throw Error('Pending actions are full. Depart to save before continuing.');
    const sequence=base.sequence+1;
    return {...value,body:{raw:body.raw,action:body.action},batch:{...value.batch,events:[...value.batch.events,event],latest:{revision:rawHash+':'+sequence,sequence}}};
   };
-  let record;if(deferred){record=update(prior);if(bytes(JSON.stringify(record))>16*1024*1024)throw Error('Unsaved progress is full. Use Save now before continuing.');draft=record;}else record=await outbox.change(owner,voyage,update);
+  let record;if(deferred){record=update(prior);if(bytes(JSON.stringify(record))>(battleAction||departure?16:12)*1024*1024)throw Error('Unsaved progress is full. Depart to save before continuing.');if(!draft)draftParent=prior?.batch?.latest.revision||null;draft=record;}else record=await outbox.change(owner,voyage,update);
   current=tail(record);notify(record);if(isHidden()&&timer!==null){cancel(timer);timer=null;}later(isHidden()||record.batch.events.length>=16?0:delay);return response(current);
  }
  async function perform(){
@@ -58,6 +61,9 @@ export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:in
    if(!record.batch.flight){const proposed=plan(record);record=await outbox.change(owner,voyage,value=>value?.batch&&!value.batch.flight?{...value,batch:{...value.batch,flight:{id:proposed.request.id,count:proposed.count,revision:proposed.revision}}}:value);if(!record?.batch)continue;}
    const flight=plan(record);notify(record);
    const body=JSON.stringify(flight.request);
+   // Logical flight/battle state and a durable retry are not permission to save.
+   // Check again immediately before every request, including split batches.
+   if(!canSave())throw travelRequired();
    // Keep small in-flight saves alive across navigation. Larger batches stay in the durable outbox;
    // browsers cap keepalive bodies at 64 KiB, shared across outstanding requests.
    const result=await send('/api/voyage/batch',{method:'POST',credentials:'same-origin',cache:'no-store',keepalive:bytes(body)<=60_000,headers:{'Content-Type':'application/json','X-Spacetrader':'shared-save-v1','X-Spacetrader-Storage':'compact-v1','X-Spacetrader-Account':owner,'X-Spacetrader-Voyage':voyage},body}),value=await result.json();
@@ -80,6 +86,7 @@ export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:in
   }
  }
  function flush(){
+  if(!canSave())return Promise.reject(travelRequired());
   if(inFlight)return inFlight;if(blocked)return Promise.reject(lastError||Error('Sync needs attention.'));if(!voyage||disposed)return Promise.resolve(current);
   if(timer!==null){cancel(timer);timer=null;}
   inFlight=perform().catch(async error=>{lastError=error;blocked=[400,401,403,404,413,428,507].includes(error.status);const record=await outbox.get(owner,voyage);notify(record,error);if(record?.batch&&record.status!=='conflict'&&![400,401,403,404,413,428,507].includes(error.status))later([3000,10000,30000,60000][Math.min(retries++,3)]);throw error;}).finally(()=>{inFlight=null;status={...status,syncing:false};onStatus(status);});return inFlight;
@@ -90,7 +97,7 @@ export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:in
   if(isRead&&!current&&voyage){const pending=await outbox.get(owner,voyage);if(pending?.batch){enabled=true;current=tail(pending);notify(pending);if(pending.status==='conflict')onConflict();else later(0);return response(current);}}
   if(options.method==='POST'&&path==='/api/voyage'&&enabled)return enqueue(JSON.parse(options.body));
   if(isRead&&enabled){const pending=await outbox.get(owner,voyage);if(pending?.batch){later(0);return response(tail(pending));}}
-  else if(enabled&&path.startsWith('/api/ledger')&&draft){return draftHistory(path);}
+  else if(enabled&&path.startsWith('/api/ledger')&&(draft||deferStationActions&&await outbox.get(owner,voyage))){return draftHistory(path,draft||await outbox.get(owner,voyage));}
   else if(enabled){await request.flush();const remaining=await outbox.get(owner,voyage);if(remaining?.batch)throw Error('Sync pending progress before opening account history or changing voyages.');}
   const cursor=current;
   const result=await fallback(path,options),value=await result.clone().json();
@@ -98,8 +105,8 @@ export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:in
   if(result.ok&&isRead){voyage=value.voyage||voyage;enabled=Boolean(value.batchSaves);current={...current,...value};if(voyage){const pending=await outbox.get(owner,voyage);if(pending?.batch){enabled=true;current=tail(pending);notify(pending);if(pending.status==='conflict')onConflict();else later(0);return response(current);}}}
   return result;
  }
- async function draftHistory(path){
-  const retained=draft,base=retained.batch.base,before=Number(new URL(path,'http://local').searchParams.get('before')||Number.MAX_SAFE_INTEGER),requested=Number(path.split('/')[3]),entries=[];
+ async function draftHistory(path,retained){
+  const base=retained.batch.base,before=Number(new URL(path,'http://local').searchParams.get('before')||Number.MAX_SAFE_INTEGER),requested=Number(path.split('/')[3]),entries=[];
   let core=splitState(base.raw).core,frame=splitState(base.raw).component,previous=base.raw;
   for(let i=0;i<retained.batch.events.length;i++){
    const event=retained.batch.events[i],sequence=base.sequence+i+1;core=applyStateDelta(core,event.patch);frame=event.component===null?null:event.part===undefined?frame:event.part;const raw=joinState(core,frame);
@@ -113,6 +120,6 @@ export function createBatchTransport({fallback,fetch:send,outbox,owner,voyage:in
   if(entries.length<31){const result=await fallback('/api/ledger?before='+Math.min(before,base.sequence+1),{});if(!result.ok)return result;entries.push(...(await result.json()).entries);}
   return response({entries:entries.slice(0,31)});
  }
- request.flush=async()=>{blocked=false;lastError=null;await promote();const record=voyage?await outbox.get(owner,voyage):null,target=record?.batch?.latest.sequence||0;await flush();while(voyage){const pending=await outbox.get(owner,voyage);if(!pending?.batch||pending.batch.base.sequence>=target)return current;await flush();}};
- request.recover=()=>draft?Promise.resolve(current):flush();request.status=()=>status;request.dispose=()=>{disposed=true;if(timer!==null)cancel(timer);};return request;
+ request.flush=async()=>{if(!canSave()){if(draft||voyage&&await outbox.get(owner,voyage))throw travelRequired();return current;}blocked=false;lastError=null;await promote();const record=voyage?await outbox.get(owner,voyage):null,target=record?.batch?.latest.sequence||0;await flush();while(voyage){const pending=await outbox.get(owner,voyage);if(!pending?.batch||pending.batch.base.sequence>=target)return current;await flush();}};
+ request.recover=()=>draft||!canSave()?Promise.resolve(current):flush();request.status=()=>status;request.dispose=()=>{disposed=true;if(timer!==null)cancel(timer);};return request;
 }
