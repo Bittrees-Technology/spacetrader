@@ -1,5 +1,5 @@
 'use strict';
-const assert=require('node:assert/strict'),{viewport,modalBounds,keepFieldVisible}=require('../../Web/play-layout');
+const assert=require('node:assert/strict'),{viewport,modalBounds,keepFieldVisible,preserveScroll}=require('../../Web/play-layout');
 function visible(bounds,w,h,view){
  const box=viewport(w,h,view);
  assert(bounds.width>0&&bounds.height>0);
@@ -27,4 +27,16 @@ const field={matches:()=>true,parentElement:pane,getBoundingClientRect:()=>({top
 keepFieldVisible({activeElement:field,getElementById:()=>dialog},()=>({overflowY:'auto'}));
 assert.equal(pane.scrollTop,84,'focused fields move inside the scrolling panel, without scrolling the page');
 keepFieldVisible({activeElement:field,getElementById:()=>dialog},()=>({overflowY:'auto'}));assert.equal(pane.scrollTop,84,'already visible fields do not jump');
+let sheet={scrollTop:879,scrollLeft:0};
+const popout={dataset:{presentation:'1'},isConnected:true,scrollTop:12,scrollLeft:0,querySelectorAll:()=>[sheet]};
+assert.equal(preserveScroll(popout,()=>{sheet={scrollTop:0,scrollLeft:0};popout.scrollTop=0;return 'updated';}),'updated');
+assert.equal(sheet.scrollTop,879,'replacing a phone sheet retains its position');
+assert.equal(popout.scrollTop,12,'the dialog itself retains its position');
+preserveScroll(popout,()=>{popout.dataset.presentation='2';sheet.scrollTop=0;popout.scrollTop=0;});
+assert.equal(sheet.scrollTop,0,'opening a different page uses its own starting position');
+sheet.scrollTop=425;
+assert.throws(()=>preserveScroll(popout,()=>{sheet.scrollTop=0;throw Error('Rejected action');}),/Rejected action/);
+assert.equal(sheet.scrollTop,425,'a rejected update does not lose the current position');
+assert.equal(preserveScroll(null,()=>42),42,'an update without a popout still runs');
 console.log('PASS responsive layout: repeated rotation, phone landscape, keyboard resize/pan, safe areas and preserved pinch zoom.');
+console.log('PASS in-place scroll restoration, new-page navigation and update return/error handling.');

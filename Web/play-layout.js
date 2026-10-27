@@ -38,6 +38,21 @@
    if(pane===dialog)break;
   }
  }
+ function preserveScroll(dialog,update){
+  if(!dialog)return update();
+  // Compact popouts scroll the whole sheet; desktop panels retain their own
+  // positions in the game UI. Remember the sheet before its children are replaced.
+  const presentation=dialog.dataset.presentation;
+  const positions=[dialog,...dialog.querySelectorAll('.establishment-layout')].map(el=>({top:el.scrollTop,left:el.scrollLeft}));
+  try{return update();}
+  finally{
+   // A newly opened page owns its initial position; never carry an old sheet into it.
+   if(dialog.isConnected&&dialog.dataset.presentation===presentation){
+    const panes=[dialog,...dialog.querySelectorAll('.establishment-layout')];
+    for(let i=panes.length-1;i>=0;i--){const position=positions[i];if(position){panes[i].scrollTop=position.top;panes[i].scrollLeft=position.left;}}
+   }
+  }
+ }
  function install(host){
   let frame=0;
   function update(){
@@ -55,7 +70,7 @@
   host.document.addEventListener('focusin',schedule);
   schedule();
  }
- const api={viewport,modalBounds,safeInsets,keepFieldVisible,install};
+ const api={viewport,modalBounds,safeInsets,keepFieldVisible,preserveScroll,install};
  if(typeof module!=='undefined')module.exports=api;
  root.SpacetraderPlayLayout=api;
  if(root.document)root.document.addEventListener('DOMContentLoaded',()=>install(root),{once:true});

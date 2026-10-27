@@ -123,6 +123,16 @@ def build():
         if source.is_file() and source.suffix in {'.html', '.js', '.css', '.svg', '.png', '.jpg', '.jpeg', '.avif', '.webp', '.ogg', '.mp3', '.wav', '.txt'}:
             clone(source, Path('play') / source.relative_to(browser))
     app = (browser / 'app.js').read_text()
+    # Phone/tablet popouts use one outer scrolling sheet. Preserve that owner
+    # around in-place redraws as well as the desktop panels handled by app.js.
+    for name in ['refreshVisitModal', 'refreshMarketConsole', 'refreshMarketAfterTrade',
+                 'refreshDockServices', 'refreshWarehouseConsole']:
+        marker = 'function ' + name + '('
+        if app.count(marker) != 1:
+            raise ValueError('Review the public scroll-preservation adapter: ' + name)
+        wrapper = ('function ' + name + '(...args){return SpacetraderPlayLayout.preserveScroll('
+                   "$('modal'),()=>" + name + 'Content(...args));}\nfunction ' + name + 'Content(')
+        app = app.replace(marker, wrapper)
     for patch in json.loads((SITE/'compact-ui.json').read_text()):
         if app.count(patch['old'])!=1:
             raise ValueError('Review compact account save presentation adapter.')
