@@ -95,7 +95,7 @@ function sharedPoll(){
  sharedPollPending=runSharedPoll().finally(()=>{sharedPollPending=null;});return sharedPollPending;
 }
 async function runSharedPoll(){
- sharedBusy=true;try{const previous=sharedSession.snapshot?.revision,oldSlots=slots,value=await sharedSession.read();if(value.revision!==previous)acceptShared(value,true);else {sharedSlots(value);saveState=sharedStatus();updateSaveLabel();if((Object.keys(oldSlots).length!==Object.keys(slots).length||Object.keys(slots).some(k=>slots[k]!==oldSlots[k]))&&modalKind==='utility'&&tab==='Saves')showUtility('Saves');}}catch(error){saveState='Save failed — reconnect to continue';updateSaveLabel();}finally{sharedBusy=false;}
+ const background=Boolean(sharedSession.snapshot?.batchSaves);if(!background)sharedBusy=true;try{const previous=sharedSession.snapshot?.revision,oldSlots=slots,value=await sharedSession.read();if(value.revision!==previous)acceptShared(value,true);else {sharedSlots(value);saveState=sharedStatus();updateSaveLabel();if((Object.keys(oldSlots).length!==Object.keys(slots).length||Object.keys(slots).some(k=>slots[k]!==oldSlots[k]))&&modalKind==='utility'&&tab==='Saves')showUtility('Saves');}}catch(error){if(!background)saveState='Save failed — reconnect to continue';updateSaveLabel();}finally{if(!background)sharedBusy=false;}
 }
 function ensureSharedWatchers(){
  if(sharedWatching)return;sharedWatching=true;
@@ -122,8 +122,8 @@ function sharedAction(type,args,onFailure=()=>{}){
  const epoch=actionEpoch;return queueSharedChange(async()=>{
   if(epoch!==actionEpoch){const error=Error('Newer progress was loaded. Select your next action again.');onFailure(error);toast(error.message);return false;}
   if(saveState.startsWith('Save failed')){const error=Error('Reconnect before continuing; your recorded progress is preserved.');onFailure(error);toast(error.message);return false;}
-  // Polling and writes share one transport cursor. A focus refresh cannot overtake this action.
-  if(sharedPollPending)await sharedPollPending;
+  // Account reads cannot replace a cursor changed by a newer local action.
+  if(sharedPollPending&&!sharedSession.snapshot?.batchSaves)await sharedPollPending;
   if(epoch!==actionEpoch)return false;
   let next;try{next=E.transact(state,type,args);}catch(error){onFailure(error);toast(error.message);return false;}
   sharedBusy=true;let candidate;

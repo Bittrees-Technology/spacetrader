@@ -152,7 +152,7 @@ def build():
         if app.count(expected) != 1:
             raise ValueError('Review public charter navigation')
     app = app.replace(creator_head, "modalHead('Your independent charter',false)+ '<p>'+btn('Back to menu','public-menu')+'</p>'")
-    app = app.replace(close_start, close_start + "if(publicStartMenu&&!force&&modalKind==='menu')return;if(!force&&modalKind==='creator'&&!state.profile.created){publicReturnToMenu();return;}")
+    app = app.replace(close_start, close_start + "if(window.SpacetraderAccount?.isCloud()&&journey&&!journey.preview&&!journey.release)return;if(publicStartMenu&&!force&&modalKind==='menu')return;if(!force&&modalKind==='creator'&&!state.profile.created){publicReturnToMenu();return;}")
     app = app.replace(loaded_notice, "saveFeedback=state.profile.created?`Loaded ${state.profile.name} · day ${state.day}. ${sharedSession?.snapshot?.restoreActions===false?'Journal history is retained.':'Your previous voyage is kept.'}`:'Ready to create your captain. Your previous voyage is kept.';")
     modal_bounds = 'bounds=mainModalBounds(main?.getBoundingClientRect(),width,height)'
     if app.count(modal_bounds) != 1:
@@ -180,8 +180,9 @@ def build():
             raise ValueError('Review the public entry-menu adapter: '+old)
         app=app.replace(old,new)
     app="'use strict';\n"+(SITE/'start-menu.js').read_text()+'\n'+app
-    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:async()=>{await actionQueue;await window.SpacetraderAccount?.sync();},version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
+    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:async()=>{await actionQueue;await window.SpacetraderAccount?.sync();},inTransit:()=>Boolean(journey&&!journey.preview||state?.voyage||state?.battle),journalContext:()=>journalFeedContext(),version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
     app+="\nwindow.addEventListener('spacetrader-sync-status',()=>{if(window.SpacetraderAccount?.isCloud()){saveState=sharedStatus();updateSaveLabel();}});\n"
+    app+='\n'+(SITE/'transit-saving.js').read_text()+'\n'
     write('play/app.js', app)
     clone(SITE / 'onboarding.css', 'play/onboarding.css')
     clone(SITE / 'play-viewport.css', 'play/play-viewport.css')
@@ -194,6 +195,10 @@ def build():
     if index.count(ledger_script) != 1:
         raise ValueError('Review browser save-safety initialization order')
     index = index.replace(ledger_script, ledger_script + '<script defer src="browser-save-safety.js?v=' + public_revision + '"></script>')
+    shared_script = '<script defer src="shared-save.js?v=0.72.257"></script>'
+    if index.count(shared_script) != 1:
+        raise ValueError('Review shared save-client cache version')
+    index = index.replace(shared_script, '<script defer src="shared-save.js?v=' + sha((browser/'shared-save.js').read_bytes())[:12] + '"></script>')
     account_revision=sha(b''.join(p.read_bytes() for p in sorted((SITE/'account').rglob('*')) if p.is_file() and 'node_modules' not in p.parts))[:12]
     index = index.replace('<script defer src="app.js?', '<script defer src="play-layout.js?v=' + public_revision + '"></script><script defer src="account-client.js?v='+account_revision+'"></script><script defer src="app.js?')
     index = index.replace('width=device-width, initial-scale=1', 'width=device-width, initial-scale=1, viewport-fit=cover')

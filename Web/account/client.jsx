@@ -167,11 +167,13 @@ host.openBrowserVoyageLedger=async options=>{
   const cached={};
   const send=(path,options)=>fetch(path,{...options,credentials:'same-origin',cache:'no-store',signal:AbortSignal.timeout(30000)});
   const legacy=createSyncTransport({fetch:send,owner,voyage,outbox:saveOutbox,onVoyage:id=>{voyage=id;setPin(owner,id);},onConflict:()=>{setTimeout(open,0);}});
-  const cloudFetch=createBatchTransport({fallback:legacy,fetch:send,owner,voyage,outbox:saveOutbox,isHidden:()=>document.hidden,onConflict:()=>{setTimeout(open,0);},onStatus:()=>{host.dispatchEvent(new Event('spacetrader-sync-status'));}});cloudSync=cloudFetch;
+  const inTransit=()=>Boolean(host.SpacetraderAccountBridge?.inTransit());
+  const cloudFetch=createBatchTransport({fallback:legacy,fetch:send,owner,voyage,outbox:saveOutbox,deferStationActions:true,inTransit,receipt:(meta,after,before)=>host.SpacetraderJournalFeed.prepare(meta,JSON.parse(after),JSON.parse(before),host.SpacetraderAccountBridge.journalContext()),isHidden:()=>document.hidden,onConflict:()=>{setTimeout(open,0);},onStatus:()=>{host.dispatchEvent(new Event('spacetrader-sync-status'));}});cloudSync=cloudFetch;
   const syncBeforeSleep=()=>{
    // Start existing work immediately, then include any action still completing its device write.
-   void cloudFetch.flush().catch(()=>{});
-   void host.SpacetraderAccountBridge?.settled().catch(()=>{});
+   // Station changes intentionally remain unsaved until transit or Save now.
+   if(inTransit()){void cloudFetch.flush().catch(()=>{});void host.SpacetraderAccountBridge?.settled().catch(()=>{});}
+   else void cloudFetch.recover().catch(()=>{});
   };
   host.addEventListener('online',syncBeforeSleep);
   host.addEventListener('pagehide',syncBeforeSleep);
@@ -196,6 +198,6 @@ host.openBrowserVoyageLedger=async options=>{
  if(new URLSearchParams(location.search).get('account')==='1')setTimeout(open,0);
  return localRequest;
 };
-host.SpacetraderAccount={open,newVoyage,consumeNewIntent,isCloud:()=>cloudActive,useDevice:()=>setMode('device'),sync:()=>cloudSync?.flush(),syncStatus:()=>cloudSync?.status(),saveStatus:()=>{const s=cloudSync?.status();return s?.conflict?'Saved on device · sync needs review':s?.pending?s.error?'Saved on device · sync delayed':'Saved on device · syncing':'Account progress · synced';}};
+host.SpacetraderAccount={open,newVoyage,consumeNewIntent,isCloud:()=>cloudActive,useDevice:()=>setMode('device'),sync:()=>cloudSync?.flush(),syncStatus:()=>cloudSync?.status(),saveStatus:()=>{const s=cloudSync?.status();return s?.conflict?'Saved on device · sync needs review':s?.unsaved?'Unsaved station progress · '+s.unsaved+' actions':s?.pending?s.error?'Saved on device · sync delayed':'Saving voyage…':'Account progress · synced';}};
 const deviceHealth=host.spacetraderSaveHealthHTML;
-host.spacetraderSaveHealthHTML=()=>cloudActive?'<details class="browser-save-health"><summary>Account save storage</summary><p>Actions save on this device immediately and synchronize with your account in short batches. Each voyage keeps its latest progress and full journal.</p><button type="button" data-spacetrader-account>Account &amp; saves</button></details>':deviceHealth?.()||'';
+host.spacetraderSaveHealthHTML=()=>cloudActive?'<details class="browser-save-health"><summary>Account save storage</summary><p>Station actions save together during travel. Use Menu → Save now to save sooner. Closing before either save loses unsaved station actions. Completed saves retain each action in your journal.</p><button type="button" data-spacetrader-account>Account &amp; saves</button></details>':deviceHealth?.()||'';
