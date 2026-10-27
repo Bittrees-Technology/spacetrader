@@ -337,7 +337,10 @@ def build():
     accounts=subprocess.run(['node','Web/account/build.mjs'],cwd=ROOT,capture_output=True,text=True)
     if accounts.returncode:raise RuntimeError(accounts.stdout+accounts.stderr)
     csp = "default-src 'self'; script-src 'self' " + ' '.join(hashes) + "; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
-    routes = [{'src': '/(.*)', 'headers': {'X-Content-Type-Options': 'nosniff',
+    routes = [{'src': '/administration/?', 'dest': '/api/role-administration'},
+              {'src': '/api/project-admin/.*', 'dest': '/api/role-administration'},
+              {'src': '/api/shared-roles-health', 'dest': '/api/role-administration'},
+              {'src': '/(.*)', 'headers': {'X-Content-Type-Options': 'nosniff',
                'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY',
                'Content-Security-Policy': csp, 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'}, 'continue': True},
               {'src': '/api/(.*)', 'dest': '/api/index'},
@@ -353,7 +356,8 @@ def build():
     receipt = {'version': 1, 'mode': 'public-browser-with-account-saves', 'gameVersion': re.search(r'application-version" content="([^"]+)', index)[1],
                'balance': pointer['revision'], 'engineSHA256': sha((browser / 'engine.js').read_bytes()),
                'bytes': sum(p.stat().st_size for p in STATIC.rglob('*') if p.is_file()), 'files': built,
-               'accountFunctionSHA256':sha((OUTPUT/'functions/api/index.func/index.cjs').read_bytes())}
+               'accountFunctionSHA256':sha((OUTPUT/'functions/api/index.func/index.cjs').read_bytes()),
+               'roleAdministrationFunctionSHA256':sha((OUTPUT/'functions/api/role-administration.func/index.cjs').read_bytes())}
     (OUTPUT / 'build-manifest.json').write_text(json.dumps(receipt, indent=2) + '\n')
     print(json.dumps({k: v for k, v in receipt.items() if k != 'files'} | {'fileCount': len(built)}, indent=2))
 

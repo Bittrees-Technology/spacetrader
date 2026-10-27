@@ -31,5 +31,8 @@ if(process.argv.includes('--link-test')||process.argv.includes('--link-ui-test')
  await build({...common,platform:'browser',target:'es2022',format:'iife',minify:true,entryPoints:[join(directory,'client.jsx')],outfile:join(output,'static/play/account-client.js')});
  await build({...common,platform:'node',target:'node24',format:'cjs',entryPoints:[join(directory,'api.mjs')],outfile:join(fn,'index.cjs')});
  await writeFile(join(fn,'.vc-config.json'),JSON.stringify({runtime:'nodejs24.x',handler:'index.cjs',launcherType:'Nodejs',shouldAddHelpers:true,maxDuration:60})+'\n');
+ const roleFn=join(output,'functions/api/role-administration.func');await mkdir(roleFn,{recursive:true});
+ await build({...common,platform:'node',target:'node24',format:'cjs',entryPoints:[join(root,'Web/roles-administration/api.mjs')],outfile:join(roleFn,'index.cjs')});
+ await writeFile(join(roleFn,'.vc-config.json'),JSON.stringify({runtime:'nodejs24.x',handler:'index.cjs',launcherType:'Nodejs',shouldAddHelpers:true,maxDuration:60})+'\n');
  console.log('Built canonical themed login and isolated account-save function with existing pinned dependencies.');
 }
