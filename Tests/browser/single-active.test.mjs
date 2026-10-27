@@ -5,6 +5,7 @@ import engine from '../../Browser/engine.js';
 import {createAuth} from '../../Web/account/auth.mjs';
 import {createStorage} from '../../Web/account/storage.mjs';
 import {createApi} from '../../Web/account/api.mjs';
+import {digest} from '../../Web/account/codec.mjs';
 
 let db;
 (async()=>{
@@ -44,7 +45,23 @@ let db;
  await assert.rejects(sql`UPDATE spacetrader_captains SET account_id=${other}::uuid WHERE id=${captain}::uuid`,/permission denied/);
  const final=await store.createVoyage(owner,{raw:raw('Third voyage'),operation:'restricted-restart',restartFrom:c.id,revision:latest.revision});assert.equal(final.captainId,captain);assert.equal((await store.library(owner)).voyages.filter(v=>!v.readOnly).length,1);
  assert.equal((await call('/api/voyages/new',restart)).status,409,'Old operation retries never reactivate an archived replacement');
+ // Exercise the actual table grants, rather than only the guarded application RPCs.
+ await assert.rejects(sql`INSERT INTO spacetrader_journal_chunks(voyage_id,first_sequence,last_sequence,digest,payload) VALUES(${c.id}::uuid,8000,8000,${'a'.repeat(64)},'blocked')`,/voyage_archived/);
+ await assert.rejects(sql`UPDATE spacetrader_journal_chunks SET payload='blocked' WHERE voyage_id=${c.id}::uuid`,/voyage_archived/);
+ await assert.rejects(sql`INSERT INTO spacetrader_entries(voyage_id,sequence,operation,digest,codec,payload,event,summary,created_ms) SELECT voyage_id,8000,'blocked-direct',digest,codec,payload,event,summary,created_ms FROM spacetrader_entries WHERE voyage_id=${b.id}::uuid LIMIT 1`,/voyage_archived/);
+ // Empty-account imports may stage journal/checkpoint data before activation.
+ const importRaw=raw('Transferred captain'),staged=await store.startImport(other,{source:'empty-account-import',total:1,hash:digest(importRaw)});
+ await store.importBatch(other,{id:staged.id,records:[{key:'auto',raw:importRaw,revision:null,action:{id:'import-create',type:'create',args:{name:'Transferred captain'},version:'test'}}]});
+ await store.finishImport(other,{id:staged.id,slots:{slot1:importRaw}});
+ assert.equal((await store.library(other)).selected,staged.id);
+ assert.equal((await store.snapshot(other,staged.id)).raw,importRaw);
+ // A second abandoned import is frozen once any voyage becomes active.
+ const pendingLogin=await auth.establish('pending-import@example.invalid'),pendingOwner=(await auth.current(req(pendingLogin.key))).account;
+ const pending=await store.startImport(pendingOwner,{source:'pending-import',total:1,hash:digest(importRaw)});
+ await store.createVoyage(pendingOwner,{raw:raw('New instead of import'),operation:'replace-pending',restartFrom:null,revision:null});
+ await assert.rejects(sql`INSERT INTO spacetrader_journal_chunks(voyage_id,first_sequence,last_sequence,digest,payload) VALUES(${pending.id}::uuid,1,1,${'a'.repeat(64)},'blocked')`,/voyage_archived/);
+
  await db.exec('RESET ROLE');const sums=await sql`SELECT (SELECT sum(stored_bytes) FROM spacetrader_accounts) AS accounts,(SELECT bytes FROM spacetrader_storage_usage) AS total`;assert.equal(Number(sums[0].accounts),Number(sums[0].total));
- const result={passed:true,captainIdStableAcrossRestarts:true,legacyVoyagesPreserved:true,oneWritableVoyage:true,archiveWritesRejected:true,archiveReactivationRejected:true,staleRestartRejected:true,interruptedRestartIdempotent:true,crossAccountIsolation:true,guestImportCannotReplaceActive:true,restrictedRuntimeRestart:true,runtimeCannotRebindCaptains:true,storageCountersConserved:true,migrationIdempotent:true};await mkdir('Research/SingleVoyage-2026-10-27',{recursive:true});await writeFile('Research/SingleVoyage-2026-10-27/backend-tests.json',JSON.stringify(result,null,2)+'\n');console.log('PASS '+JSON.stringify(result));
+ const result={passed:true,captainIdStableAcrossRestarts:true,legacyVoyagesPreserved:true,oneWritableVoyage:true,archiveWritesRejected:true,archiveReactivationRejected:true,staleRestartRejected:true,interruptedRestartIdempotent:true,crossAccountIsolation:true,guestImportCannotReplaceActive:true,restrictedRuntimeRestart:true,runtimeCannotRebindCaptains:true,directArchivedJournalWritesRejected:true,emptyAccountImportPreserved:true,abandonedImportFrozen:true,storageCountersConserved:true,migrationIdempotent:true};await mkdir('Research/SingleVoyage-2026-10-27',{recursive:true});await writeFile('Research/SingleVoyage-2026-10-27/backend-tests.json',JSON.stringify(result,null,2)+'\n');console.log('PASS '+JSON.stringify(result));
  await db.close();db=null;
 })().catch(async e=>{await db?.close();console.error(String(e.stack||e).slice(0,5000));process.exitCode=1;});

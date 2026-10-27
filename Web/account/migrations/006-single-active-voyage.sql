@@ -55,14 +55,17 @@ END $$;
 DROP TRIGGER IF EXISTS spacetrader_account_active_guard ON spacetrader_accounts;
 CREATE TRIGGER spacetrader_account_active_guard BEFORE UPDATE OF active_voyage ON spacetrader_accounts FOR EACH ROW EXECUTE FUNCTION spacetrader_account_active_guard();
 
--- Pending guest imports legitimately stage slots before activation. The app blocks
--- imports into an account with an active voyage; the SQL guard also checks that.
+-- Every payload table uses this guard, including legacy entries and compact
+-- journals. Pending guest imports may stage only while the account is empty.
+-- Lock in the same order as save/restart RPCs so a direct write cannot race an archive.
 CREATE OR REPLACE FUNCTION spacetrader_checkpoint_active_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,spacetrader,pg_temp AS $$
-DECLARE target uuid;active uuid;v spacetrader_voyages;
+DECLARE target uuid;active uuid;owner_id uuid;v spacetrader_voyages;
 BEGIN
  IF TG_OP='DELETE' THEN target=OLD.voyage_id;ELSE target=NEW.voyage_id;END IF;
- SELECT * INTO v FROM spacetrader_voyages WHERE id=target;
- SELECT active_voyage INTO active FROM spacetrader_accounts WHERE id=v.account_id;
+ PERFORM 1 FROM spacetrader_storage_usage WHERE singleton FOR UPDATE;
+ SELECT account_id INTO owner_id FROM spacetrader_voyages WHERE id=target;
+ SELECT active_voyage INTO active FROM spacetrader_accounts WHERE id=owner_id FOR UPDATE;
+ SELECT * INTO v FROM spacetrader_voyages WHERE id=target FOR UPDATE;
  IF v.id IS NULL OR v.archived_at IS NOT NULL OR(active IS DISTINCT FROM target AND NOT(active IS NULL AND v.import_total IS NOT NULL AND v.completed_at IS NULL)) THEN RAISE EXCEPTION 'voyage_archived';END IF;
  IF TG_OP='UPDATE' AND NEW.voyage_id<>OLD.voyage_id THEN RAISE EXCEPTION 'voyage_archived';END IF;
  IF TG_OP='DELETE' THEN RETURN OLD;ELSE RETURN NEW;END IF;
@@ -71,6 +74,16 @@ DROP TRIGGER IF EXISTS spacetrader_checkpoint_active_guard ON spacetrader_checkp
 CREATE TRIGGER spacetrader_checkpoint_active_guard BEFORE INSERT OR UPDATE OR DELETE ON spacetrader_checkpoints FOR EACH ROW EXECUTE FUNCTION spacetrader_checkpoint_active_guard();
 DROP TRIGGER IF EXISTS spacetrader_slot_active_guard ON spacetrader_snapshot_slots;
 CREATE TRIGGER spacetrader_slot_active_guard BEFORE INSERT OR UPDATE OR DELETE ON spacetrader_snapshot_slots FOR EACH ROW EXECUTE FUNCTION spacetrader_checkpoint_active_guard();
+
+DROP TRIGGER IF EXISTS spacetrader_entries_active_guard ON spacetrader_entries;
+CREATE TRIGGER spacetrader_entries_active_guard BEFORE INSERT OR UPDATE OR DELETE ON spacetrader_entries FOR EACH ROW EXECUTE FUNCTION spacetrader_checkpoint_active_guard();
+DROP TRIGGER IF EXISTS spacetrader_journal_active_guard ON spacetrader_journal_chunks;
+CREATE TRIGGER spacetrader_journal_active_guard BEFORE INSERT OR UPDATE OR DELETE ON spacetrader_journal_chunks FOR EACH ROW EXECUTE FUNCTION spacetrader_checkpoint_active_guard();
+DROP TRIGGER IF EXISTS spacetrader_archive_active_guard ON spacetrader_journal_archives;
+CREATE TRIGGER spacetrader_archive_active_guard BEFORE INSERT OR UPDATE OR DELETE ON spacetrader_journal_archives FOR EACH ROW EXECUTE FUNCTION spacetrader_checkpoint_active_guard();
+DROP TRIGGER IF EXISTS spacetrader_component_active_guard ON spacetrader_world_components;
+CREATE TRIGGER spacetrader_component_active_guard BEFORE INSERT OR UPDATE OR DELETE ON spacetrader_world_components FOR EACH ROW EXECUTE FUNCTION spacetrader_checkpoint_active_guard();
+
 
 CREATE OR REPLACE FUNCTION spacetrader_restart_voyage(
  owner_id uuid,expected uuid,parent text,op text,hash text,packed text,action jsonb,details jsonb,
@@ -97,8 +110,8 @@ BEGIN
  IF account.stored_bytes+additional>max_account OR total+additional>max_total THEN RAISE EXCEPTION 'storage_limit';END IF;
  INSERT INTO spacetrader_voyages(account_id,sequence,revision,head_payload,head_digest,completed_at,creation_key)
  VALUES(owner_id,1,hash||':1',packed,hash,now(),op) RETURNING * INTO voyage;
- INSERT INTO spacetrader_entries(voyage_id,sequence,operation,digest,codec,payload,event,summary,created_ms) VALUES(voyage.id,1,op,hash,'full',packed,action,details,created);
  UPDATE spacetrader_accounts SET active_voyage=voyage.id,stored_bytes=stored_bytes+additional WHERE id=owner_id;
+ INSERT INTO spacetrader_entries(voyage_id,sequence,operation,digest,codec,payload,event,summary,created_ms) VALUES(voyage.id,1,op,hash,'full',packed,action,details,created);
  UPDATE spacetrader_storage_usage SET bytes=bytes+additional WHERE singleton;
  RETURN jsonb_build_object('id',voyage.id,'captainId',voyage.captain_id,'archived',expected,'replayed',false);
 END $$;
