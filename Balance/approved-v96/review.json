@@ -1,0 +1,107 @@
+{
+  "authorization": "User requested more warehouse capacity with both cost and storage scaling by tier.",
+  "date": "2026-10-27",
+  "baseline": "v95",
+  "scope": "Replace repeated 10-tonne purchases with sequential 20/80/240/800/2400-tonne storage tiers at all nine existing sites. Volume is 4 cubic metres per tonne. Cumulative station-base price multipliers 1/5/18/65/240; upgrade charges only the difference. Preserve old capacity, cargo, signed leases and actual property basis. Peregrine reduction stays capped at 5000 credits per upgrade. No recurring rent, time or XP grants. New warehouses use explicit current packaging; legacy registers retain normal parsing migration.",
+  "regressions": [
+    {
+      "suite": "warehouse-ammunition",
+      "passed": true,
+      "result": "11 typed warehouse ammunition scenarios passed."
+    },
+    {
+      "suite": "warehouse-lease-ui",
+      "passed": true,
+      "result": "6 warehouse lease UI scenarios passed."
+    },
+    {
+      "suite": "warehouse-leases",
+      "passed": true,
+      "result": "21 warehouse lease scenarios passed."
+    },
+    {
+      "suite": "warehouse-sales",
+      "passed": true,
+      "result": "15 direct warehouse sale scenarios passed."
+    },
+    {
+      "suite": "warehouse-selection",
+      "passed": true,
+      "result": "11 selected warehouse transfer and conservation scenarios passed."
+    },
+    {
+      "suite": "warehouse-selection-layout",
+      "passed": true,
+      "result": "PASS 18 warehouse station/direction views use active fleet automatically; no selector, reserve exclusion, full/empty/unowned capacity and read-only rendering."
+    },
+    {
+      "suite": "warehouse-tiers",
+      "passed": true,
+      "result": "6 warehouse tier scenarios passed."
+    },
+    {
+      "suite": "warehouse-unavailable",
+      "passed": true,
+      "result": "7 warehouse availability UI scenarios passed."
+    },
+    {
+      "suite": "warehouses",
+      "passed": true,
+      "result": "24 local warehouse scenarios passed."
+    },
+    {
+      "suite": "lease-calendar-regression",
+      "passed": true,
+      "result": "4 lease calendar regression scenarios passed."
+    },
+    {
+      "suite": "market-returns",
+      "passed": true,
+      "result": "10 same-day market return scenarios passed."
+    },
+    {
+      "suite": "market-storage",
+      "passed": true,
+      "result": "17 market destination and compact-control scenarios passed."
+    },
+    {
+      "suite": "production-chains",
+      "passed": true,
+      "result": "12 production chain scenarios passed."
+    },
+    {
+      "suite": "exchange-pricing",
+      "passed": true,
+      "result": "7 on-demand exchange pricing scenarios passed."
+    },
+    {
+      "suite": "commercial-standing",
+      "passed": true,
+      "result": "11 commercial standing scenarios passed."
+    }
+  ],
+  "referenceComparison": {
+    "bankingModelUnchanged": true,
+    "bankingSourceSHA256": "0ca6d99660ea545a1abe9aa4c168a828572615bbe2ceb6267955b44760488bbe",
+    "comparisons": {
+      "goods.json": "all existing reference figures unchanged",
+      "formulas.json": "all existing reference figures unchanged",
+      "bonding-curves.json": "all existing reference figures unchanged"
+    },
+    "bankingSourceBytes": 16553
+  },
+  "pricingAudit": {
+    "passed": true,
+    "years": 100,
+    "days": 37440,
+    "stationDayQuotes": 62300160
+  },
+  "balanceConsiderations": [
+    "Largest storage holds about eleven 220-tonne ship holds; early storage doubles from 10 to 20 tonnes at the previous first-bay price.",
+    "Meridian step prices 3500/14000/45500/164500/612500 credits; all tiers together cost 840000 credits. Regional station base fees retained.",
+    "Tenant term pricing and one-contract-per-route controls retained; larger storage creates no automatic recurring payout.",
+    "Stale confirmed quotes fail atomically rather than silently charging for another tier.",
+    "Existing goods quotes, supply, demand, price statistics and banking model source unchanged."
+  ],
+  "limitations": "Automated arithmetic, economic and UI checks cannot establish long-term player preference for storage pricing."
+}

@@ -113,8 +113,9 @@ card('Hull repairs','Discounts combine multiplicatively; the repaired integrity 
      [('h','current integrity percentage'),('u','unit repair cost'),('dₛ, d꜀','service and captain discounts'),('ε','rounding guard: 10⁻⁸')],
      eq(val('d'),diff(val(1),mul(fence(diff(val(1),sub('d','s'))),fence(diff(val(1),sub('d','c')))))),
      eq(val('C'),fn('max',val(0),fn('ceil',diff(mul(fence(diff(val(100),val('h'))),val('u'),fence(diff(val(1),val('d')))),val('ε'))))))
-card('Warehouse purchase','Eligible reductions are applied before the captain’s discount and rounding.',
-     [('F','base bay fee'),('Rₚ, Rₕ','eligible project and hull reductions'),('d','captain warehouse discount'),('ε','rounding guard: 10⁻⁹')],
+card('Warehouse tier upgrade','The difference between cumulative tier costs sets the fee; eligible reductions apply before rounding.',
+     [('B','station base fee'),('L(q)','cumulative cost multiplier at capacity q'),('F','additional-space fee'),('Rₚ, Rₕ','eligible project and hull reductions'),('d','captain warehouse discount'),('ε','rounding guard: 10⁻⁹')],
+     eq(val('F'),mul(val('B'),fence(diff(fn('L',sub('q','next')),fn('L',sub('q','current')))))),
      eq(val('C'),fn('max',val(1),fn('ceil',diff(mul(fence(diff(diff(val('F'),sub('R','p')),sub('R','h'))),fence(diff(val(1),val('d')))),val('ε'))))))
 card('Warehouse lease return','The ordinary lease combines a time-proportional property return and a capped cargo component.',
      [('A','allocated property value'),('V','cargo value'),('t','term in game days')],

@@ -1,7 +1,7 @@
 {
   "modelVersion": "0.72.239",
-  "approvedRevision": "v95",
-  "engineSHA256": "85d5b149e0e4773d4dbcefa03d8144117a42ab673734446b655e761b108ff7f1",
+  "approvedRevision": "v96",
+  "engineSHA256": "09bc8702ed93eefa2087b1bd95401dc20604b9ef5d8258a7ed25a4fe8e561e7a",
   "scope": "Exhaustive actual-engine public bank quotes for every valid saved game day. Existing signed fixed agreements may retain different legacy rates. Each minimum and maximum may occur on different days; ranges are not simultaneous offers.",
   "firstDay": 0,
   "lastDay": 365249,
