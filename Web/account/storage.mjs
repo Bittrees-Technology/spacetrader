@@ -71,7 +71,7 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false,e
  async function history(owner,before=Number.MAX_SAFE_INTEGER,target=null){
   if(!Number.isSafeInteger(before)||before<1)throw fail('Invalid action-history page.');
   const rows=await sql`SELECT e.sequence,e.event,e.summary,e.created_ms FROM spacetrader_entries e JOIN spacetrader_voyages v ON v.id=e.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND e.sequence<${before} ORDER BY e.sequence DESC LIMIT 31`;
-  const legacy=rows.map(r=>({sequence:Number(r.sequence),type:r.event.type,args:r.event.args,created:Number(r.created_ms),...r.summary}));
+  const legacy=rows.map(r=>({...r.summary,sequence:Number(r.sequence),type:r.event.type,args:r.event.args,created:Number(r.created_ms)}));
   if(!compact)return legacy;
   const chunks=await sql`SELECT c.first_sequence,c.last_sequence,c.digest,c.payload FROM spacetrader_journal_chunks c JOIN spacetrader_voyages v ON v.id=c.voyage_id JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=coalesce(${target}::uuid,a.active_voyage) AND c.first_sequence<${before} AND c.last_sequence>=greatest(1,least(${before},v.sequence+1)-31) ORDER BY c.first_sequence DESC LIMIT 31`;
   const recent=chunks.flatMap(c=>readChunk(c).filter(r=>r.r.sequence<before).map(r=>({sequence:r.r.sequence,type:r.a[0],day:r.r.day,record:expandRecord(r)})));
