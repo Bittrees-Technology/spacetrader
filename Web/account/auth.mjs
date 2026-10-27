@@ -69,7 +69,9 @@ export function createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit=0,e
    const result=await establish(identity(parsed.address));return {body:{ok:true},...result,cookies:[...result.cookies,cookie('captain-nonce','',0,origin)]};
   }
   if(action==='logout'){
-   const key=readCookie(req,'captain-session',origin);if(key)await sql`DELETE FROM spacetrader_sessions WHERE hash=${digest(key)}`;
+   const key=readCookie(req,'captain-session',origin);
+   if(key&&linkedLogins){const session=await current(req);await sql`DELETE FROM spacetrader_link_challenges WHERE session_hash=${digest(key)} OR(result->>'account'=${session?.account||null})`;}
+   if(key)await sql`DELETE FROM spacetrader_sessions WHERE hash=${digest(key)}`;
    return {body:{ok:true},cookies:[cookie('captain-session','',0,origin),cookie('captain-sso-skip','1',604800,origin),cookie('captain-sso-published','',0,origin)]};
   }
   throw fail('Not found.',404);
