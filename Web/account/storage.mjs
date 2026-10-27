@@ -5,7 +5,7 @@ import {digest,full,pack,unpack,inflate,boundedRaw} from './codec.mjs';
 import {journalRecord,expandRecord,readChunk,extendChunk} from './compact.mjs';
 
 export const fail=(message,status=400)=>Object.assign(Error(message),{status});
-export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false,efficient=false,archiveReads=efficient}){
+export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false,efficient=false,archiveReads=efficient,singleActive=false}){
  if(!Number.isSafeInteger(accountLimit)||!Number.isSafeInteger(totalLimit)||accountLimit<2_000_000||totalLimit<accountLimit)throw Error('A reviewed save-storage budget is required.');
  const binaryStore=createEfficient(sql),readArchives=archiveReads||efficient;
  const valid=raw=>{boundedRaw(raw);return parse(raw);};
@@ -132,14 +132,23 @@ export function createStorage(sql,{parse,accountLimit,totalLimit,compact=false,e
   const [row]=await sql`SELECT v.id FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id WHERE a.id=${owner} AND v.id=${id}::uuid AND v.sequence>0 AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id)`;
   if(!row)throw fail('That voyage is unavailable.',404);return row.id;
  }
- async function choose(owner,{id}){await selected(owner,id);const [row]=await sql`SELECT spacetrader_select_voyage(${owner}::uuid,${id}::uuid) AS selected`;if(!row.selected)throw fail('That voyage is unavailable.',404);return {id};}
- async function createVoyage(owner,{raw,operation,version='web'}){
+ async function choose(owner,{id}){await selected(owner,id);const [row]=await sql`SELECT spacetrader_select_voyage(${owner}::uuid,${id}::uuid) AS selected`;if(!row.selected)throw fail(singleActive?'That voyage is archived. Continue your active voyage or view its journal.':'That voyage is unavailable.',singleActive?409:404);return {id};}
+ async function createVoyage(owner,{raw,operation,version='web',restartFrom,revision}){
   const state=valid(raw),event=action({id:operation,type:'new-voyage',args:{},version}),hash=digest(raw),summary={name:state.profile.name,created:state.profile.created,day:state.day,location:state.location,credits:state.credits,fleet:state.fleet.length+1};
+  if(singleActive){
+   if(restartFrom!==null&&!uuid(restartFrom)||restartFrom!==null&&typeof revision!=='string'||restartFrom===null&&revision!==null)throw fail('Reload the account before confirming a restart.',428);
+   const [row]=await sql`SELECT spacetrader_restart_voyage(${owner}::uuid,${restartFrom}::uuid,${revision},${event.id},${hash},${full(raw)},${JSON.stringify(event)}::jsonb,${JSON.stringify(summary)}::jsonb,${Date.now()},${accountLimit},${totalLimit}) AS result`;return row.result;
+  }
   const [row]=await sql`SELECT spacetrader_create_voyage(${owner}::uuid,${event.id},${hash},${full(raw)},${JSON.stringify(event)}::jsonb,${JSON.stringify(summary)}::jsonb,${Date.now()},${accountLimit},${totalLimit}) AS result`;
   return row.result;
  }
  async function library(owner,after=null){
   if(after!==null)await selected(owner,after);
+  if(singleActive){
+   const rows=await sql`SELECT v.id,v.sequence,v.revision,v.captain_id,v.archived_at,v.created_at,v.updated_at,coalesce(v.compact_summary,e.summary) AS summary,e.event->>'type' AS type FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id LEFT JOIN spacetrader_entries e ON e.voyage_id=v.id AND e.sequence=v.sequence WHERE a.id=${owner} AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id) AND (${after}::uuid IS NULL OR (v.created_at,v.id)<(SELECT x.created_at,x.id FROM spacetrader_voyages x WHERE x.id=${after}::uuid AND x.account_id=${owner})) ORDER BY v.created_at DESC,v.id DESC LIMIT 21`;
+   const [account]=await sql`SELECT a.active_voyage,a.stored_bytes,c.id AS captain_id,v.revision FROM spacetrader_accounts a JOIN spacetrader_captains c ON c.account_id=a.id LEFT JOIN spacetrader_voyages v ON v.id=a.active_voyage WHERE a.id=${owner}`;
+   return {singleActiveVoyage:true,captainId:account?.captain_id,selected:account?.active_voyage||null,selectedRevision:account?.revision||null,voyages:rows.slice(0,20).map(r=>({id:r.id,captainId:r.captain_id,name:r.summary?.created===false?'New captain':r.summary?.name||'Captain',day:r.summary?.day||0,location:r.summary?.location,sequence:Number(r.sequence),revision:r.revision,archivedAt:r.archived_at,readOnly:r.id!==account?.active_voyage,created:r.created_at,updated:r.updated_at})),next:rows.length>20?rows[19].id:null,usedBytes:Number(account?.stored_bytes||0),limitBytes:accountLimit};
+  }
   const rows=await sql`SELECT v.id,v.sequence,v.created_at,v.updated_at,coalesce(v.compact_summary,e.summary) AS summary,e.event->>'type' AS type,(SELECT count(*)::int FROM spacetrader_checkpoints c WHERE c.voyage_id=v.id AND c.current AND c.payload IS NOT NULL AND NOT EXISTS(SELECT 1 FROM spacetrader_snapshot_slots n WHERE n.voyage_id=v.id AND n.slot=c.slot))+(SELECT count(*)::int FROM spacetrader_snapshot_slots n WHERE n.voyage_id=v.id AND n.payload IS NOT NULL) AS checkpoints FROM spacetrader_voyages v JOIN spacetrader_accounts a ON a.id=v.account_id LEFT JOIN spacetrader_entries e ON e.voyage_id=v.id AND e.sequence=v.sequence WHERE a.id=${owner} AND (v.import_total IS NULL OR v.completed_at IS NOT NULL OR a.active_voyage=v.id) AND (${after}::uuid IS NULL OR (v.created_at,v.id)<(SELECT x.created_at,x.id FROM spacetrader_voyages x WHERE x.id=${after}::uuid AND x.account_id=${owner})) ORDER BY v.created_at DESC,v.id DESC LIMIT 21`;
   const [account]=await sql`SELECT active_voyage,stored_bytes FROM spacetrader_accounts WHERE id=${owner}`;
   return {voyages:rows.slice(0,20).map(r=>({id:r.id,name:r.summary.created===false||r.summary.created===undefined&&r.type==='new-voyage'?'New captain':r.summary.name,day:r.summary.day,location:r.summary.location,sequence:Number(r.sequence),created:r.created_at,updated:r.updated_at,checkpoints:r.checkpoints})),next:rows.length>20?rows[19].id:null,selected:account?.active_voyage||null,usedBytes:Number(account?.stored_bytes||0),limitBytes:accountLimit};

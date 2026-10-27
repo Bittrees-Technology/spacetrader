@@ -26,3 +26,5 @@ dialog.spacetrader-account{box-sizing:border-box;width:min(440px,calc(100vw - 24
 .captain-voyage p{margin:0 0 8px}
 .spacetrader-account :is(button,input,a):focus-visible{outline:3px solid #d5ae68;outline-offset:3px}
 @media(max-width:480px){.spacetrader-account .bt-login-context{padding:0 24px 24px}.captain-account-panel{padding:24px}}
+
+.captain-archive-journal{list-style:none;padding:0}.captain-archive-journal li{border-bottom:1px solid #506774;padding:12px 0}.captain-archive-journal p{margin:4px 0;font-size:14px;line-height:1.5}.captain-archive-journal small{display:block;color:#b8ccd6;font-size:12px}

@@ -4,7 +4,7 @@ import {identity,cookie,readCookie,digest,equal,suppressSso} from './shared/sso/
 import {fail} from './storage.mjs';
 
 const token=()=>randomBytes(32).toString('hex');
-export function createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit=0,emailMonthlyLimit=0,maxAccounts=10000,now=Date.now}){
+export function createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit=0,emailMonthlyLimit=0,maxAccounts=10000,captainScope=false,now=Date.now}){
  async function limit(key,maximum,period=600000){
   const bucket=Math.floor(now()/period),hash=digest(key+'|'+bucket);
   const [record]=await sql`INSERT INTO spacetrader_rate_limits(key,count,expires_at) VALUES(${hash},1,to_timestamp(${(now()+period*2)/1000})) ON CONFLICT(key) DO UPDATE SET count=spacetrader_rate_limits.count+1 RETURNING count`;
@@ -18,8 +18,8 @@ export function createAuth({sql,origin,sendMail,verifyWallet,emailDailyLimit=0,e
  }
  async function current(req){
   const key=readCookie(req,'captain-session',origin);if(!/^[a-f0-9]{64}$/.test(key))return null;
-  const [row]=await sql`SELECT a.id,a.identity,s.authenticated_at FROM spacetrader_sessions s JOIN spacetrader_accounts a ON a.id=s.account_id WHERE s.hash=${digest(key)} AND s.expires_at>now()`;
-  return row?{key,account:row.id,identity:row.identity,authTime:new Date(row.authenticated_at).getTime()}:null;
+  const [row]=captainScope?await sql`SELECT a.id,a.identity,s.authenticated_at,a.active_voyage,c.id AS captain_id FROM spacetrader_sessions s JOIN spacetrader_accounts a ON a.id=s.account_id JOIN spacetrader_captains c ON c.account_id=a.id WHERE s.hash=${digest(key)} AND s.expires_at>now()`:await sql`SELECT a.id,a.identity,s.authenticated_at FROM spacetrader_sessions s JOIN spacetrader_accounts a ON a.id=s.account_id WHERE s.hash=${digest(key)} AND s.expires_at>now()`;
+  return row?{key,account:row.id,identity:row.identity,authTime:new Date(row.authenticated_at).getTime(),...(captainScope?{captainId:row.captain_id,activeVoyage:row.active_voyage}:{} )}:null;
  }
  async function handle(req,action,body){
   if(req.method!=='POST')throw fail('Method not allowed.',405);

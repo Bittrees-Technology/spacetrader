@@ -163,3 +163,16 @@ The128MiB aggregate cap has not been raised. Ten-thousand-captain capacity still
 needs mixed-workload, concurrent-user and provider-budget review; compressed
 payload projections are not PostgreSQL/provider invoice estimates. Freed pages,
 WAL and provider backup/history retention can delay physical billing reductions.
+
+
+## One active voyage per captain
+
+Migration 006 introduces a server-created stable captain UUID, independently stored from sign-in credentials, and binds every active or archived voyage to it. The account currently owns one captain. `SPACETRADER_SINGLE_ACTIVE_VOYAGE=1` enables the matching scoped authentication query, API and account UI after 006 and its grants are verified. Login proof continues through canonical shared SSO; no new sign-in form, credential or app privilege is introduced.
+
+Starting a replacement requires the exact current voyage ID and revision. The SQL function locks global usage, account and old voyage, rechecks that cursor, creates the replacement and archives the old head in the same transaction. Operation IDs replay without creating another charter. An old operation cannot reactivate its now-archived result. Triggers make archived heads and checkpoint slots read-only even for old write paths; the selection function can select only the current active voyage. Existing non-active completed voyages are marked as archives without rewriting their worlds or journals. No data is deleted. One-time captain rows and UUID/archive metadata add a small amount of bounded database metadata; existing storage limits and counters for saved payloads are unchanged.
+
+Account status identifies the active voyage and captain. Fresh tabs follow this server selection, rather than an older tab/device preference. Old pending saves remain available for review/download; they never attach to the replacement. Archive journals use owned read-only history requests and never replace the playable state. Device-voyage import is available only to an account without an active voyage; an import cannot replace a continuing captain implicitly. Device-only and Mac behavior stays separate.
+
+Future NFT integration should bind the canonical chain/contract/token tuple to this captain UUID and resolve verified current ownership at every protected operation. Its active voyage and archives already share that identity. This release does not mint tokens, accept token IDs as authentication, verify NFT ownership, implement transfers, or authorize an agent. NFT transfers and recipient accounts with an existing captain need a separately reviewed atomic ownership handoff. Preserve the stable captain UUID and all journal associations when implementing it.
+
+Roll out 006 through the existing database owner with bounded locks, verify guards/grants and preserved heads, then enable the flag on the matching backend/client deployment. Turning the API flag off does not make archived rows writable: the database policy remains in force. Rollbacks must retain 006 compatibility, including explicit restarts; do not restore the old ability to select multiple writable voyages. The Spacetrader release owner remains responsible for deployment and live synthetic acceptance.

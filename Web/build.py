@@ -180,7 +180,7 @@ def build():
             raise ValueError('Review the public entry-menu adapter: '+old)
         app=app.replace(old,new)
     app="'use strict';\n"+(SITE/'start-menu.js').read_text()+'\n'+app
-    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:async()=>{await actionQueue;await window.SpacetraderAccount?.sync();},inTransit:()=>Boolean(journey&&!journey.preview||state?.voyage||state?.battle),journalContext:()=>journalFeedContext(),version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
+    app+="\nwindow.SpacetraderAccountBridge={canSwitch:()=>!sharedBusy&&!queuedActions&&(publicStartMenu||!state?.battle&&!journey),settled:async()=>{await actionQueue;await window.SpacetraderAccount?.sync();},current:()=>({voyage:sharedSession?.snapshot?.voyage||null,revision:sharedSession?.snapshot?.revision||null}),inTransit:()=>Boolean(journey&&!journey.preview||state?.voyage||state?.battle),journalContext:()=>journalFeedContext(),version:GAME_VERSION,dayLabel:date,placeLabel:stationLabel};\n"
     app+="\nwindow.addEventListener('spacetrader-sync-status',()=>{if(window.SpacetraderAccount?.isCloud()){saveState=sharedStatus();updateSaveLabel();}});\n"
     app+='\n'+(SITE/'transit-saving.js').read_text()+'\n'
     write('play/app.js', app)

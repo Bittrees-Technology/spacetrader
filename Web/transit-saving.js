@@ -1,6 +1,8 @@
 // Public account play: station actions are volatile until transit or Save now.
 (function(){
  const account=()=>window.SpacetraderAccount?.isCloud(),locked=()=>account()&&journey&&!journey.preview;
+ const originalConfirm=confirmNew;
+ confirmNew=function(){if(!account()||!window.SpacetraderAccount.singleActive())return originalConfirm();openModal('new',modalHead('Restart your voyage?',true,true)+'<p>Your current voyage will become a read-only archive. Its journal is preserved. The new active voyage stays with the same captain ID.</p><div class="actions">'+btn('Archive and restart','new-confirm','',false,'primary')+btn('Keep current voyage','close')+'</div>');positionMainModal();};
  const originalMenu=gameMenuHTML;
  gameMenuHTML=function(){return originalMenu().replace('Sync now','Save now');};
  const originalShow=showJourney;
