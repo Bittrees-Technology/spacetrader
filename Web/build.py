@@ -133,6 +133,27 @@ def build():
         wrapper = ('function ' + name + '(...args){return SpacetraderPlayLayout.preserveScroll('
                    "$('modal'),()=>" + name + 'Content(...args));}\nfunction ' + name + 'Content(')
         app = app.replace(marker, wrapper)
+    # Back from a child page restores its exact establishment, including the
+    # mobile sheet; rebuilding the same settings page retains its position too.
+    wrappers = {
+        'showEstablishment': "SpacetraderPlayLayout.returnParent($('modal'),state.location+'|'+venueID,()=>showEstablishmentContent(...args))",
+        **{name: "SpacetraderPlayLayout.openChild($('modal'),state.location+'|'+venueID,modalKind==='establishment',()=>" + name + 'Content(...args))'
+           for name in ['showMarketPrice', 'showPatrolReport', 'showPortrait', 'showFinancial']},
+        'showAudioSettings': "modalKind==='audio'?SpacetraderPlayLayout.preserveScroll($('modal'),()=>showAudioSettingsContent(...args),true):showAudioSettingsContent(...args)",
+        'showShipBattleProfile': "modalKind==='battle-profile'&&$('modal').querySelector('[data-profile-field]')?.dataset.ship===args[0]?SpacetraderPlayLayout.preserveScroll($('modal'),()=>showShipBattleProfileContent(...args),true):showShipBattleProfileContent(...args)",
+    }
+    for name, expression in wrappers.items():
+        marker = 'function ' + name + '('
+        if app.count(marker) != 1:
+            raise ValueError('Review the public return-position adapter: ' + name)
+        app = app.replace(marker, 'function ' + name + '(...args){return ' + expression + ';}\nfunction ' + name + 'Content(')
+    profile_start = 'async function resetShipBattleProfile(id){'
+    profile_saved = "if(label)label.textContent='Ship defaults saved.';"
+    if app.count(profile_start) != 1 or app.count(profile_saved) != 1:
+        raise ValueError('Review the public battle-profile completion adapter')
+    app = app.replace(profile_start, profile_start + "const publicProfileScroll=SpacetraderPlayLayout.captureScroll($('modal'),true);")
+    # The saved message changes the page height after the settings redraw.
+    app = app.replace(profile_saved, profile_saved + "SpacetraderPlayLayout.restoreScroll($('modal'),publicProfileScroll,true);")
     for patch in json.loads((SITE/'compact-ui.json').read_text()):
         if app.count(patch['old'])!=1:
             raise ValueError('Review compact account save presentation adapter.')

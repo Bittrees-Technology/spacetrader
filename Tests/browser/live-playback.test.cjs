@@ -1,12 +1,41 @@
 'use strict';
-const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),E=require('../../Browser/engine'),{ready,start}=require('./combat-v2-balance.cjs');const src=fs.readFileSync('Browser/app.js','utf8');let passed=0;
-function rig(){let state=start(ready('osprey',3,3),2);let timers=new Map(),id=0,events=[],changes=[],listener={};const c={E,state,screen:'battle',modalKind:'',battleActor:state.flagshipID,battleTarget:'hostile-0',battleOrderPending:false,battleFeedback:'',sharedBusy:false,document:{hidden:false,addEventListener:(event,fn)=>listener[event]=fn},window:{addEventListener:(event,fn)=>listener[event]=fn},setTimeout:(fn,ms)=>{timers.set(++id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),toast:m=>events.push(m),syncBattleControlState:()=>{},refreshBattleControls:()=>events.push('refresh'),showBattleReport:()=>events.push('report')};vm.createContext(c);vm.runInContext(src.slice(src.indexOf('let liveRunning='),src.indexOf('function liveBattleMarkup()')),c);c.act=async(type,args)=>{changes.push({type,args});c.state=E.transact(c.state,type,args);return true;};const run=code=>vm.runInContext(code,c);return {c,timers,changes,events,listener,run};}
-async function test(n,f){await f();passed++;console.log('PASS '+n);}
+const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),E=require('../../Browser/engine'),{ready,start}=require('./combat-v2-balance.cjs');
+const src=fs.readFileSync('Browser/app.js','utf8');let passed=0;
+function rig(){
+ const timers=new Map(),events=[],changes=[],listener={};let id=0;
+ const c={E,state:start(ready('osprey',3,3),2),screen:'battle',modalKind:'',battleActor:'',battleTarget:'hostile-0',battleOrderPending:false,battleFeedback:'',sharedBusy:false,performance:{now:()=>0},document:{hidden:false,addEventListener:(event,fn)=>listener[event]=fn},window:{addEventListener:(event,fn)=>listener[event]=fn},setTimeout:(fn,ms)=>{timers.set(++id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),toast:m=>events.push(m),syncBattleControlState:()=>{},refreshBattleControls:()=>events.push('refresh')};
+ c.battleActor=c.state.flagshipID;vm.createContext(c);
+ vm.runInContext(src.slice(src.indexOf('let liveTickPending='),src.indexOf('function liveBattleMarkup()')),c);
+ c.act=async(type,args)=>{changes.push({type,args});c.state=E.transact(c.state,type,args);return true;};
+ return {c,timers,changes,events,listener,run:code=>vm.runInContext(code,c)};
+}
+async function engage(r){await r.c.handleLiveBattleControl({dataset:{action:'live-start'}});}
+async function test(name,run){await run();passed++;console.log('PASS '+name);}
 (async()=>{
-await test('playback starts only on Engage and schedules one bounded exchange at the selected speed',async()=>{const r=rig();assert(!r.run('liveRunning'));assert.equal(r.timers.size,0);await r.c.handleLiveBattleControl({dataset:{action:'live-start'}});assert(r.c.state.battle.live);assert.equal(r.changes.length,1);assert.equal(r.timers.size,1);assert.equal([...r.timers.values()][0].ms,4000);await r.c.handleLiveBattleControl({dataset:{action:'live-speed',value:'2'}});assert.equal(r.timers.size,1);assert.equal([...r.timers.values()][0].ms,2000);r.c.pauseLiveBattle('Test pause');assert.equal(r.timers.size,0);assert(!r.run('liveRunning'));});
-await test('duplicate playback ticks cannot submit while recording; a failure stops further playback',async()=>{const r=rig();r.c.state=E.transact(r.c.state,'battle-plan',r.c.liveToken());let release;r.c.act=async(type,args)=>{r.changes.push({type,args});await new Promise(resolve=>release=resolve);return false;};const first=r.c.advanceLiveBattle();await r.c.advanceLiveBattle();assert.equal(r.changes.length,1);release();await first;assert(!r.run('liveRunning'));assert(!r.run('livePending'));assert.equal(r.timers.size,0);});
-await test('a menu/focus pause while the initial plan is saving never starts a subsequent exchange',async()=>{const r=rig();let release;r.c.act=async(type,args)=>{r.changes.push({type,args});await new Promise(resolve=>release=resolve);r.c.state=E.transact(r.c.state,type,args);return true;};const first=r.c.handleLiveBattleControl({dataset:{action:'live-start'}});r.c.pauseLiveBattle('Menu opened');r.c.modalKind='utility';release();await first;assert.equal(r.changes.length,1);assert(!r.run('liveRunning'));assert.equal(r.timers.size,0);});
-await test('single exchange keeps playback paused; hidden pages do not advance',async()=>{const r=rig();await r.c.handleLiveBattleControl({dataset:{action:'live-step'}});assert.equal(r.c.state.battle.round,2);assert(!r.run('liveRunning'));assert.equal(r.timers.size,0);const count=r.changes.length;r.c.document.hidden=true;await r.c.advanceLiveBattle();assert.equal(r.changes.length,count);});
-await test('opening pages, adopting a remote save and restoring recorded progress explicitly pause playback',()=>{assert(src.slice(src.indexOf('function openModal('),src.indexOf('function openModal(')+180).includes('pauseLiveBattle'));for(const name of ['acceptShared','publishLoaded']){const a=src.indexOf('function '+name+'('),b=src.indexOf('\nfunction ',a+1);assert(src.slice(a,b).includes('pauseLiveBattle'),name);}assert(src.includes("window.addEventListener('blur',()=>pauseLiveBattle"));assert(src.includes("if(document.hidden)pauseLiveBattle"));});
-console.log(passed+' live playback safety scenarios passed.');
-})().catch(error=>{console.error(error.message);process.exitCode=1;});
+ await test('Engage starts one continuous 500ms clock; repeated Engage cannot duplicate it',async()=>{
+  const r=rig();assert(!r.run('liveRunning'));assert.equal(r.timers.size,0);await engage(r);
+  assert(r.c.state.battle.live.engaged);assert.equal(r.c.state.battle.live.edition,2);
+  assert.equal(r.changes.length,1);assert.equal(r.timers.size,1);assert.equal([...r.timers.values()][0].ms,500);
+  await engage(r);assert.equal(r.changes.length,1);assert.equal(r.timers.size,1);
+ });
+ await test('pending exchanges serialize and a failed acknowledgement stops the clock',async()=>{
+  const r=rig();await engage(r);r.changes.length=0;let release;
+  r.c.act=async(type,args)=>{r.changes.push({type,args});await new Promise(resolve=>release=resolve);return false;};
+  const first=r.c.advanceLiveBattle();await r.c.advanceLiveBattle();assert.equal(r.changes.length,1);
+  release();await first;assert(!r.run('liveRunning'));assert(!r.run('livePending'));assert(!r.run('liveTickPending'));assert.equal(r.timers.size,0);
+ });
+ await test('opening a page or backgrounding does not tactically pause an engaged battle',async()=>{
+  const r=rig();await engage(r);r.c.modalKind='utility';r.c.pauseLiveBattle('Paused while a page is open.');
+  assert(r.run('liveRunning'));assert.equal(r.timers.size,1);r.c.document.hidden=true;r.c.pauseLiveBattle('Game moved to background');
+  const step=r.c.state.battle.live.step;await r.c.advanceLiveBattle();assert.equal(r.c.state.battle.live.step,step+1);assert(r.run('liveRunning'));
+ });
+ await test('reconnecting schedules the next exchange without a backlog of elapsed ticks',async()=>{
+  const r=rig();await engage(r);r.c.pauseLiveBattle('Paused after loading recorded progress.');assert.equal(r.timers.size,0);
+  const step=r.c.state.battle.live.step;r.c.resumeRecordedBattle();assert(r.run('liveRunning'));assert.equal(r.timers.size,1);assert.equal(r.c.state.battle.live.step,step);assert.equal([...r.timers.values()][0].ms,500);
+ });
+ await test('transport errors release pending controls and leave a reconnect fault',async()=>{
+  const r=rig();await engage(r);r.c.act=async()=>{throw Error('Disconnected');};await r.c.advanceLiveBattle();
+  assert(!r.run('liveRunning'));assert(r.run('liveFault'));assert(!r.run('livePending'));assert(!r.run('liveTickPending'));assert(!r.c.battleOrderPending);assert.equal(r.timers.size,0);assert(r.events.includes('Disconnected'));
+ });
+ console.log(passed+' current continuous-playback scenarios passed.');
+})().catch(error=>{console.error(error.stack);process.exitCode=1;});

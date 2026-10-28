@@ -38,29 +38,51 @@
    if(pane===dialog)break;
   }
  }
- function preserveScroll(dialog,update){
-  if(!dialog)return update();
-  // Compact popouts scroll the whole sheet; desktop panels retain their own
-  // positions in the game UI. Remember the sheet before its children are replaced.
-  const presentation=dialog.dataset.presentation;
-  const positions=[dialog,...dialog.querySelectorAll('.establishment-layout')].map(el=>({top:el.scrollTop,left:el.scrollLeft}));
+ const panelSelectors='.establishment-layout,.visit-people,.visit-services,.utility-content,.fleet-register-list,.fleet-register-detail,.registry-content,.registry-list,.dock-content,.exchange-list,.warehouse-list,.audio-settings';
+ function captureScroll(dialog,panels=false){
+  if(!dialog)return null;
+  const selector=panels?panelSelectors:'.establishment-layout';
+  return {presentation:dialog.dataset.presentation,selector,positions:[dialog,...dialog.querySelectorAll(selector)].map(el=>({top:el.scrollTop,left:el.scrollLeft}))};
+ }
+ function restoreScroll(dialog,snapshot,replace=false){
+  if(!snapshot||!dialog?.isConnected||!replace&&dialog.dataset.presentation!==snapshot.presentation)return;
+  const panes=[dialog,...dialog.querySelectorAll(snapshot.selector)];
+  for(let i=panes.length-1;i>=0;i--){const position=snapshot.positions[i];if(position){panes[i].scrollTop=position.top;panes[i].scrollLeft=position.left;}}
+ }
+ function preserveScroll(dialog,update,replace=false){
+  // In-place redraws retain the compact sheet. Explicit same-page rebuilds
+  // also retain their inner panels, without changing new-page navigation.
+  const snapshot=captureScroll(dialog,replace);
   try{return update();}
-  finally{
-   // A newly opened page owns its initial position; never carry an old sheet into it.
-   if(dialog.isConnected&&dialog.dataset.presentation===presentation){
-    const panes=[dialog,...dialog.querySelectorAll('.establishment-layout')];
-    for(let i=panes.length-1;i>=0;i--){const position=positions[i];if(position){panes[i].scrollTop=position.top;panes[i].scrollLeft=position.left;}}
-   }
-  }
+  finally{restoreScroll(dialog,snapshot,replace);}
+ }
+ let parentScroll=null;
+ function openChild(dialog,key,fromEstablishment,update){
+  const previous=parentScroll;
+  const snapshot=fromEstablishment?captureScroll(dialog,true):previous?.key===key&&previous.presentation===dialog?.dataset.presentation?previous.snapshot:null;
+  const result=update();
+  parentScroll=snapshot?{key,snapshot,presentation:dialog.dataset.presentation}:null;
+  return result;
+ }
+ function returnParent(dialog,key,update){
+  const previous=parentScroll;parentScroll=null;
+  const valid=dialog?.open&&previous?.key===key&&previous.presentation===dialog.dataset.presentation;
+  const result=update();
+  if(valid)restoreScroll(dialog,previous.snapshot,true);
+  return result;
  }
  function install(host){
-  let frame=0;
+  let frame=0,previousViewport='';
   function update(){
    frame=0;
    const view=viewport(host.innerWidth,host.innerHeight,host.visualViewport);
    host.document.documentElement.style.setProperty('--play-height',Math.floor(view.bottom-view.top)+'px');
    host.positionMainModal?.();
-   keepFieldVisible(host.document);
+   const currentViewport=[host.innerWidth,host.innerHeight,view.left,view.top,view.right,view.bottom].join(':');
+   // Keyboard/rotation changes need field visibility correction. Merely
+   // restoring focus after an action must respect preventScroll.
+   if(currentViewport!==previousViewport)keepFieldVisible(host.document);
+   previousViewport=currentViewport;
   }
   function schedule(){if(!frame)frame=host.requestAnimationFrame(update);}
   host.addEventListener('resize',schedule,{passive:true});
@@ -70,7 +92,7 @@
   host.document.addEventListener('focusin',schedule);
   schedule();
  }
- const api={viewport,modalBounds,safeInsets,keepFieldVisible,preserveScroll,install};
+ const api={viewport,modalBounds,safeInsets,keepFieldVisible,captureScroll,restoreScroll,preserveScroll,openChild,returnParent,install};
  if(typeof module!=='undefined')module.exports=api;
  root.SpacetraderPlayLayout=api;
  if(root.document)root.document.addEventListener('DOMContentLoaded',()=>install(root),{once:true});
