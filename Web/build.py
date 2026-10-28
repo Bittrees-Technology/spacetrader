@@ -123,6 +123,12 @@ def build():
         if source.is_file() and source.suffix in {'.html', '.js', '.css', '.svg', '.png', '.jpg', '.jpeg', '.avif', '.webp', '.ogg', '.mp3', '.wav', '.txt'}:
             clone(source, Path('play') / source.relative_to(browser))
     app = (browser / 'app.js').read_text()
+    # A new Exchange visit starts with fleet cargo in either trade mode.
+    # In-visit redraws and Back from price details retain the chosen inventory.
+    market_entry = "if(id==='market')marketQuantities.clear();"
+    if app.count(market_entry) != 1:
+        raise ValueError('Review the public Exchange opening inventory adapter')
+    app = app.replace(market_entry, "if(id==='market'){marketSourcesByPort.set(state.location,'fleet');marketDestinationsByPort.set(state.location,'fleet');marketQuantities.clear();}")
     # Phone/tablet popouts use one outer scrolling sheet. Preserve that owner
     # around in-place redraws as well as the desktop panels handled by app.js.
     for name in ['refreshVisitModal', 'refreshMarketConsole', 'refreshMarketAfterTrade',
