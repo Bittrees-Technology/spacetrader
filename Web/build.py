@@ -233,18 +233,18 @@ def build():
     index = (browser / 'index.html').read_text()
     index = index.replace('connect-src \'self\' ipc: http://ipc.localhost', "connect-src 'self'")
     public_revision = sha(app.encode() + (SITE / 'onboarding.css').read_bytes() + (SITE / 'play-viewport.css').read_bytes() + (SITE / 'browser-save-safety.js').read_bytes() + (SITE / 'play-layout.js').read_bytes())[:12]
-    ledger_script = '<script defer src="browser-ledger.js?v=0.72.257"></script>'
+    ledger_script = '<script defer src="browser-ledger.js?v=0.72.258"></script>'
     if index.count(ledger_script) != 1:
         raise ValueError('Review browser save-safety initialization order')
     index = index.replace(ledger_script, ledger_script + '<script defer src="browser-save-safety.js?v=' + public_revision + '"></script>')
-    shared_script = '<script defer src="shared-save.js?v=0.72.257"></script>'
+    shared_script = '<script defer src="shared-save.js?v=0.72.258"></script>'
     if index.count(shared_script) != 1:
         raise ValueError('Review shared save-client cache version')
     index = index.replace(shared_script, '<script defer src="shared-save.js?v=' + sha((browser/'shared-save.js').read_bytes())[:12] + '"></script>')
     account_revision=sha(b''.join(p.read_bytes() for p in sorted((SITE/'account').rglob('*')) if p.is_file() and 'node_modules' not in p.parts))[:12]
     index = index.replace('<script defer src="app.js?', '<script defer src="play-layout.js?v=' + public_revision + '"></script><script defer src="account-client.js?v='+account_revision+'"></script><script defer src="app.js?')
     index = index.replace('width=device-width, initial-scale=1', 'width=device-width, initial-scale=1, viewport-fit=cover')
-    index = index.replace('app.js?v=0.72.257', 'app.js?v=' + public_revision)
+    index = index.replace('app.js?v=0.72.258', 'app.js?v=' + public_revision)
     index = index.replace('</head>', '<link rel="stylesheet" href="onboarding.css?v=' + public_revision + '"><link rel="stylesheet" href="play-viewport.css?v=' + public_revision + '"><link rel="stylesheet" href="account-client.css?v='+account_revision+'"><meta name="description" content="Trade goods, defend your cargo from raiders and build a fleet across the solar system in Spacetrader."></head>')
     write('play/index.html', index)
     for license_file in sorted((SITE / 'account/licenses').glob('*.txt')):

@@ -1,7 +1,7 @@
 {
   "modelVersion": "0.72.239",
-  "approvedRevision": "v96",
-  "engineSHA256": "09bc8702ed93eefa2087b1bd95401dc20604b9ef5d8258a7ed25a4fe8e561e7a",
+  "approvedRevision": "v97",
+  "engineSHA256": "2e066ddd6cbc8f38083227610b7da34d3155323ef2d08e78a1eb7fa80e79bf72",
   "scope": "Exhaustive actual-engine public bank quotes for every valid saved game day. Existing signed fixed agreements may retain different legacy rates. Each minimum and maximum may occur on different days; ranges are not simultaneous offers.",
   "firstDay": 0,
   "lastDay": 365249,
@@ -955,5 +955,9 @@
     }
   ],
   "stockPricingSHA256": "c9b952bfd05f677fb5b0429c0d811e775c54bd6444d569e47cde3d16f29cadd1",
-  "mode": "reference"
+  "mode": "reference",
+  "sourceReview": {
+    "date": "2026-10-28",
+    "reason": "Banking code and every non-purchase engine branch are byte-identical to v96; prior exhaustive calendar endpoints retained and revalidated by the Guide exporter."
+  }
 }

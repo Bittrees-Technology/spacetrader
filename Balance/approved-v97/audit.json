@@ -1,0 +1,1429 @@
+{
+  "version": 1,
+  "engineSHA256": "2e066ddd6cbc8f38083227610b7da34d3155323ef2d08e78a1eb7fa80e79bf72",
+  "years": 100,
+  "requestedDays": 36525,
+  "elapsedGameYears": 102.50513347022587,
+  "cyclePaddingDays": 915,
+  "days": 37440,
+  "stations": 26,
+  "goods": 64,
+  "stationDayQuotes": 62300160,
+  "repeatComparisons": 59904000,
+  "periodDays": 1440,
+  "completeCycles": 26,
+  "elapsedSeconds": 121.170223042,
+  "mismatches": [],
+  "checks": [
+    {
+      "item": "water",
+      "product": "Water ice",
+      "limits": {
+        "credits": {
+          "minimum": -22,
+          "maximum": 16,
+          "displayMinimum": -22,
+          "displayMaximum": 16,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -19.469026548672563,
+          "maximum": 17.204301075268823,
+          "displayMinimum": -19.469026548672566,
+          "displayMaximum": 17.20430107526882,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "food",
+      "product": "Staple provisions",
+      "limits": {
+        "credits": {
+          "minimum": -49,
+          "maximum": 41,
+          "displayMinimum": -49,
+          "displayMaximum": 41,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.753623188405797,
+          "maximum": 17.903930131004376,
+          "displayMinimum": -17.753623188405797,
+          "displayMaximum": 17.903930131004365,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "metals",
+      "product": "Refined metal stock",
+      "limits": {
+        "credits": {
+          "minimum": -287,
+          "maximum": 250,
+          "displayMinimum": -287,
+          "displayMaximum": 250,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.607361963190183,
+          "maximum": 18.504811250925247,
+          "displayMinimum": -17.607361963190186,
+          "displayMaximum": 18.50481125092524,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "electronics",
+      "product": "Electronics",
+      "limits": {
+        "credits": {
+          "minimum": -1349,
+          "maximum": 1159,
+          "displayMinimum": -1349,
+          "displayMaximum": 1159,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.30374551051821,
+          "maximum": 17.883042740317844,
+          "displayMinimum": -17.303745510518215,
+          "displayMaximum": 17.883042740317855,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "medicine",
+      "product": "Medical supplies",
+      "limits": {
+        "credits": {
+          "minimum": -858,
+          "maximum": 736,
+          "displayMinimum": -858,
+          "displayMaximum": 736,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.211634904714145,
+          "maximum": 17.739214268498426,
+          "displayMinimum": -17.211634904714142,
+          "displayMaximum": 17.739214268498433,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "machinery",
+      "product": "Machinery",
+      "limits": {
+        "credits": {
+          "minimum": -554,
+          "maximum": 476,
+          "displayMinimum": -554,
+          "displayMaximum": 476,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.366771159874606,
+          "maximum": 17.962264150943398,
+          "displayMinimum": -17.36677115987461,
+          "displayMaximum": 17.962264150943398,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "oxygen",
+      "product": "Breathing oxygen",
+      "limits": {
+        "credits": {
+          "minimum": -24,
+          "maximum": 18,
+          "displayMinimum": -24,
+          "displayMaximum": 18,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.266187050359715,
+          "maximum": 15.384615384615374,
+          "displayMinimum": -17.26618705035971,
+          "displayMaximum": 15.384615384615385,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "textiles",
+      "product": "Habitat textiles",
+      "limits": {
+        "credits": {
+          "minimum": -69,
+          "maximum": 57,
+          "displayMinimum": -69,
+          "displayMaximum": 57,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.389548693586697,
+          "maximum": 16.10169491525424,
+          "displayMinimum": -16.389548693586697,
+          "displayMaximum": 16.101694915254235,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "polymers",
+      "product": "Industrial polymers",
+      "limits": {
+        "credits": {
+          "minimum": -70,
+          "maximum": 58,
+          "displayMinimum": -70,
+          "displayMaximum": 58,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.58767772511849,
+          "maximum": 16.384180790960446,
+          "displayMinimum": -16.587677725118482,
+          "displayMaximum": 16.38418079096045,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "fertilizer",
+      "product": "Greenhouse nutrients",
+      "limits": {
+        "credits": {
+          "minimum": -166,
+          "maximum": 139,
+          "displayMinimum": -166,
+          "displayMaximum": 139,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.11650485436893,
+          "maximum": 15.97701149425288,
+          "displayMinimum": -16.116504854368934,
+          "displayMaximum": 15.977011494252874,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "ceramics",
+      "product": "Technical ceramics",
+      "limits": {
+        "credits": {
+          "minimum": -332,
+          "maximum": 282,
+          "displayMinimum": -332,
+          "displayMaximum": 282,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.443784051510647,
+          "maximum": 16.61756040070712,
+          "displayMinimum": -16.443784051510647,
+          "displayMaximum": 16.61756040070713,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "coolants",
+      "product": "Thermal fluids",
+      "limits": {
+        "credits": {
+          "minimum": -635,
+          "maximum": 539,
+          "displayMinimum": -635,
+          "displayMaximum": 539,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.133130081300816,
+          "maximum": 16.239831274480252,
+          "displayMinimum": -16.133130081300813,
+          "displayMaximum": 16.239831274480267,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "produce",
+      "product": "Greenhouse produce",
+      "limits": {
+        "credits": {
+          "minimum": -251,
+          "maximum": 208,
+          "displayMinimum": -251,
+          "displayMaximum": 208,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.687499999999998,
+          "maximum": 15.294117647058814,
+          "displayMinimum": -15.687499999999998,
+          "displayMaximum": 15.294117647058824,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "tools",
+      "product": "Precision tools",
+      "limits": {
+        "credits": {
+          "minimum": -1946,
+          "maximum": 1655,
+          "displayMinimum": -1946,
+          "displayMaximum": 1655,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.200466200466202,
+          "maximum": 16.356987546946034,
+          "displayMinimum": -16.200466200466202,
+          "displayMaximum": 16.356987546946037,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "optics",
+      "product": "Survey optics",
+      "limits": {
+        "credits": {
+          "minimum": -2915,
+          "maximum": 2560,
+          "displayMinimum": -2915,
+          "displayMaximum": 2560,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.640929334120301,
+          "maximum": 16.199455799531727,
+          "displayMinimum": -15.6409293341203,
+          "displayMaximum": 16.199455799531734,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "pharmaceuticals",
+      "product": "Biopharmaceuticals",
+      "limits": {
+        "credits": {
+          "minimum": -3621,
+          "maximum": 3003,
+          "displayMinimum": -3621,
+          "displayMaximum": 3003,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.586260330578517,
+          "maximum": 15.192755236264288,
+          "displayMinimum": -15.586260330578513,
+          "displayMaximum": 15.192755236264292,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "cultures",
+      "product": "Research cultures",
+      "limits": {
+        "credits": {
+          "minimum": -5689,
+          "maximum": 4813,
+          "displayMinimum": -5689,
+          "displayMaximum": 4813,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.649757922535212,
+          "maximum": 15.594219803006748,
+          "displayMinimum": -15.649757922535212,
+          "displayMaximum": 15.59421980300674,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "reactor-parts",
+      "product": "Reactor assemblies",
+      "limits": {
+        "credits": {
+          "minimum": -7098,
+          "maximum": 6043,
+          "displayMinimum": -7098,
+          "displayMaximum": 6043,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.597943128378677,
+          "maximum": 15.654223764992349,
+          "displayMinimum": -15.597943128378674,
+          "displayMaximum": 15.65422376499236,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "superconductors",
+      "product": "Cryogenic conductors",
+      "limits": {
+        "credits": {
+          "minimum": -11023,
+          "maximum": 9306,
+          "displayMinimum": -11023,
+          "displayMaximum": 9306,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.517484092572776,
+          "maximum": 15.427718832891246,
+          "displayMinimum": -15.517484092572781,
+          "displayMaximum": 15.427718832891246,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "isotopes",
+      "product": "Certified isotopes",
+      "limits": {
+        "credits": {
+          "minimum": -14025,
+          "maximum": 11775,
+          "displayMinimum": -14025,
+          "displayMaximum": 11775,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.788051737529972,
+          "maximum": 15.625,
+          "displayMinimum": -15.78805173752997,
+          "displayMaximum": 15.625,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "aggregate",
+      "product": "Graded mineral aggregate",
+      "limits": {
+        "credits": {
+          "minimum": -16,
+          "maximum": 12,
+          "displayMinimum": -16,
+          "displayMaximum": 12,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.97752808988764,
+          "maximum": 15.999999999999993,
+          "displayMinimum": -17.97752808988764,
+          "displayMaximum": 16,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "carbon",
+      "product": "Carbon feedstock",
+      "limits": {
+        "credits": {
+          "minimum": -37,
+          "maximum": 29,
+          "displayMinimum": -37,
+          "displayMaximum": 29,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.050691244239637,
+          "maximum": 15.934065934065945,
+          "displayMinimum": -17.050691244239633,
+          "displayMaximum": 15.934065934065933,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "glass",
+      "product": "Construction glass",
+      "limits": {
+        "credits": {
+          "minimum": -55,
+          "maximum": 45,
+          "displayMinimum": -55,
+          "displayMaximum": 45,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.27218934911243,
+          "maximum": 15.789473684210531,
+          "displayMinimum": -16.272189349112427,
+          "displayMaximum": 15.789473684210526,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "filters",
+      "product": "Life-support filters",
+      "limits": {
+        "credits": {
+          "minimum": -209,
+          "maximum": 177,
+          "displayMinimum": -209,
+          "displayMaximum": 177,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.201550387596896,
+          "maximum": 16.283348666053364,
+          "displayMinimum": -16.2015503875969,
+          "displayMaximum": 16.283348666053357,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "seals",
+      "product": "Pressure seals",
+      "limits": {
+        "credits": {
+          "minimum": -133,
+          "maximum": 111,
+          "displayMinimum": -133,
+          "displayMaximum": 111,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.121212121212125,
+          "maximum": 15.948275862068972,
+          "displayMinimum": -16.12121212121212,
+          "displayMaximum": 15.948275862068966,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "lubricants",
+      "product": "Vacuum lubricants",
+      "limits": {
+        "credits": {
+          "minimum": -405,
+          "maximum": 343,
+          "displayMinimum": -405,
+          "displayMaximum": 343,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.09058402860548,
+          "maximum": 16.148775894538602,
+          "displayMinimum": -16.090584028605484,
+          "displayMaximum": 16.148775894538606,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "shielding",
+      "product": "Radiation shielding panels",
+      "limits": {
+        "credits": {
+          "minimum": -1005,
+          "maximum": 857,
+          "displayMinimum": -1005,
+          "displayMaximum": 857,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.317584023380416,
+          "maximum": 16.544401544401556,
+          "displayMinimum": -16.31758402338042,
+          "displayMaximum": 16.544401544401545,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "solar-cells",
+      "product": "Photovoltaic cells",
+      "limits": {
+        "credits": {
+          "minimum": -1524,
+          "maximum": 1335,
+          "displayMinimum": -1524,
+          "displayMaximum": 1335,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.928093645484953,
+          "maximum": 16.510017313875824,
+          "displayMinimum": -15.92809364548495,
+          "displayMaximum": 16.510017313875835,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "batteries",
+      "product": "Station battery modules",
+      "limits": {
+        "credits": {
+          "minimum": -2404,
+          "maximum": 2041,
+          "displayMinimum": -2404,
+          "displayMaximum": 2041,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.036288439730505,
+          "maximum": 16.131836863736957,
+          "displayMinimum": -16.036288439730505,
+          "displayMaximum": 16.131836863736957,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "hydrogen",
+      "product": "Liquid hydrogen",
+      "limits": {
+        "credits": {
+          "minimum": -86,
+          "maximum": 70,
+          "displayMinimum": -86,
+          "displayMaximum": 70,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.31878557874763,
+          "maximum": 15.73033707865168,
+          "displayMinimum": -16.318785578747626,
+          "displayMaximum": 15.730337078651685,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "catalysts",
+      "product": "Industrial catalysts",
+      "limits": {
+        "credits": {
+          "minimum": -4686,
+          "maximum": 3979,
+          "displayMinimum": -4686,
+          "displayMaximum": 3979,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.018322280713747,
+          "maximum": 16.112573395424178,
+          "displayMinimum": -16.018322280713747,
+          "displayMaximum": 16.112573395424175,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "bioreactors",
+      "product": "Bioreactor modules",
+      "limits": {
+        "credits": {
+          "minimum": -9001,
+          "maximum": 7621,
+          "displayMinimum": -9001,
+          "displayMaximum": 7621,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.78818122818404,
+          "maximum": 15.793836652643357,
+          "displayMinimum": -15.788181228184033,
+          "displayMaximum": 15.793836652643359,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "iron-ore",
+      "product": "Iron ore concentrate",
+      "limits": {
+        "credits": {
+          "minimum": -26,
+          "maximum": 20,
+          "displayMinimum": -26,
+          "displayMaximum": 20,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.774193548387096,
+          "maximum": 15.267175572519086,
+          "displayMinimum": -16.7741935483871,
+          "displayMaximum": 15.267175572519085,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "nickel-ore",
+      "product": "Nickel ore concentrate",
+      "limits": {
+        "credits": {
+          "minimum": -48,
+          "maximum": 41,
+          "displayMinimum": -48,
+          "displayMaximum": 41,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.841584158415845,
+          "maximum": 15.95330739299612,
+          "displayMinimum": -15.841584158415841,
+          "displayMaximum": 15.953307392996107,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "cobalt-ore",
+      "product": "Cobalt ore concentrate",
+      "limits": {
+        "credits": {
+          "minimum": -75,
+          "maximum": 63,
+          "displayMinimum": -75,
+          "displayMaximum": 63,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.991471215351815,
+          "maximum": 15.909090909090917,
+          "displayMinimum": -15.991471215351813,
+          "displayMaximum": 15.909090909090908,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "silicate-ore",
+      "product": "Silicate concentrate",
+      "limits": {
+        "credits": {
+          "minimum": -17,
+          "maximum": 13,
+          "displayMinimum": -17,
+          "displayMaximum": 13,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.000000000000004,
+          "maximum": 15.294117647058814,
+          "displayMinimum": -17,
+          "displayMaximum": 15.294117647058824,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "magnesium-ore",
+      "product": "Magnesium minerals",
+      "limits": {
+        "credits": {
+          "minimum": -32,
+          "maximum": 26,
+          "displayMinimum": -32,
+          "displayMaximum": 26,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.49484536082474,
+          "maximum": 15.853658536585357,
+          "displayMinimum": -16.49484536082474,
+          "displayMaximum": 15.853658536585366,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "aluminum-ore",
+      "product": "Alumina concentrate",
+      "limits": {
+        "credits": {
+          "minimum": -29,
+          "maximum": 24,
+          "displayMinimum": -29,
+          "displayMaximum": 24,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.860465116279066,
+          "maximum": 16.551724137931046,
+          "displayMinimum": -16.86046511627907,
+          "displayMaximum": 16.551724137931036,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "titanium-ore",
+      "product": "Titanium minerals",
+      "limits": {
+        "credits": {
+          "minimum": -61,
+          "maximum": 52,
+          "displayMinimum": -61,
+          "displayMaximum": 52,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.223404255319153,
+          "maximum": 16.403785488959,
+          "displayMinimum": -16.22340425531915,
+          "displayMaximum": 16.40378548895899,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "copper-ore",
+      "product": "Copper ore concentrate",
+      "limits": {
+        "credits": {
+          "minimum": -44,
+          "maximum": 38,
+          "displayMinimum": -44,
+          "displayMaximum": 38,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.23616236162362,
+          "maximum": 16.59388646288209,
+          "displayMinimum": -16.236162361623617,
+          "displayMaximum": 16.593886462882097,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "sulfur",
+      "product": "Industrial sulfur",
+      "limits": {
+        "credits": {
+          "minimum": -31,
+          "maximum": 25,
+          "displayMinimum": -31,
+          "displayMaximum": 25,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.93989071038251,
+          "maximum": 16.233766233766247,
+          "displayMinimum": -16.939890710382514,
+          "displayMaximum": 16.233766233766232,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "iron",
+      "product": "Iron billets",
+      "limits": {
+        "credits": {
+          "minimum": -73,
+          "maximum": 61,
+          "displayMinimum": -73,
+          "displayMaximum": 61,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.258351893095767,
+          "maximum": 16.13756613756614,
+          "displayMinimum": -16.258351893095767,
+          "displayMaximum": 16.137566137566136,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "nickel",
+      "product": "Refined nickel",
+      "limits": {
+        "credits": {
+          "minimum": -562,
+          "maximum": 478,
+          "displayMinimum": -562,
+          "displayMaximum": 478,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.993170176437111,
+          "maximum": 16.10512129380053,
+          "displayMinimum": -15.993170176437108,
+          "displayMaximum": 16.10512129380054,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "cobalt",
+      "product": "Refined cobalt",
+      "limits": {
+        "credits": {
+          "minimum": -854,
+          "maximum": 730,
+          "displayMinimum": -854,
+          "displayMaximum": 730,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.629575402635432,
+          "maximum": 15.753129046180403,
+          "displayMinimum": -15.629575402635432,
+          "displayMaximum": 15.753129046180407,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "silicon",
+      "product": "Industrial silicon",
+      "limits": {
+        "credits": {
+          "minimum": -189,
+          "maximum": 159,
+          "displayMinimum": -189,
+          "displayMaximum": 159,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.39202081526453,
+          "maximum": 16.391752577319597,
+          "displayMinimum": -16.392020815264527,
+          "displayMaximum": 16.391752577319586,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "aluminum",
+      "product": "Aluminum billets",
+      "limits": {
+        "credits": {
+          "minimum": -120,
+          "maximum": 100,
+          "displayMinimum": -120,
+          "displayMaximum": 100,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.282225237449122,
+          "maximum": 16.103059581320455,
+          "displayMinimum": -16.28222523744912,
+          "displayMaximum": 16.10305958132045,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "magnesium",
+      "product": "Refined magnesium",
+      "limits": {
+        "credits": {
+          "minimum": -309,
+          "maximum": 279,
+          "displayMinimum": -309,
+          "displayMaximum": 279,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -27.688172043010752,
+          "maximum": 34.31734317343174,
+          "displayMinimum": -27.688172043010752,
+          "displayMaximum": 34.31734317343174,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "copper",
+      "product": "Refined copper",
+      "limits": {
+        "credits": {
+          "minimum": -232,
+          "maximum": 194,
+          "displayMinimum": -232,
+          "displayMaximum": 194,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.13351877607788,
+          "maximum": 15.980230642504111,
+          "displayMinimum": -16.133518776077885,
+          "displayMaximum": 15.980230642504118,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "titanium",
+      "product": "Refined titanium",
+      "limits": {
+        "credits": {
+          "minimum": -445,
+          "maximum": 379,
+          "displayMinimum": -445,
+          "displayMaximum": 379,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.870185449358065,
+          "maximum": 15.984816533108393,
+          "displayMinimum": -15.87018544935806,
+          "displayMaximum": 15.984816533108393,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "silver",
+      "product": "Silver bullion",
+      "limits": {
+        "credits": {
+          "minimum": -1371,
+          "maximum": 1163,
+          "displayMinimum": -1371,
+          "displayMaximum": 1163,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.986473880597018,
+          "maximum": 16.05688250724837,
+          "displayMinimum": -15.986473880597016,
+          "displayMaximum": 16.05688250724838,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "gold",
+      "product": "Gold bullion",
+      "limits": {
+        "credits": {
+          "minimum": -2674,
+          "maximum": 2270,
+          "displayMinimum": -2674,
+          "displayMaximum": 2270,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.970853491011173,
+          "maximum": 16.05261296937981,
+          "displayMinimum": -15.97085349101117,
+          "displayMaximum": 16.05261296937982,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "platinum",
+      "product": "Platinum-group metals",
+      "limits": {
+        "credits": {
+          "minimum": -3345,
+          "maximum": 2839,
+          "displayMinimum": -3345,
+          "displayMaximum": 2839,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.979553814551185,
+          "maximum": 16.05950899423012,
+          "displayMinimum": -15.979553814551187,
+          "displayMaximum": 16.059508994230118,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "uranium-ore",
+      "product": "Uranium concentrate",
+      "limits": {
+        "credits": {
+          "minimum": -915,
+          "maximum": 771,
+          "displayMinimum": -915,
+          "displayMaximum": 771,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.805838659526684,
+          "maximum": 15.731483370740662,
+          "displayMinimum": -15.805838659526689,
+          "displayMaximum": 15.731483370740666,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "liquid-water",
+      "product": "Purified liquid water",
+      "limits": {
+        "credits": {
+          "minimum": -22,
+          "maximum": 16,
+          "displayMinimum": -22,
+          "displayMaximum": 16,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.886178861788615,
+          "maximum": 15.533980582524265,
+          "displayMinimum": -17.88617886178862,
+          "displayMaximum": 15.53398058252427,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "nitrogen",
+      "product": "Industrial nitrogen",
+      "limits": {
+        "credits": {
+          "minimum": -28,
+          "maximum": 21,
+          "displayMinimum": -28,
+          "displayMaximum": 21,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.867469879518072,
+          "maximum": 14.893617021276606,
+          "displayMinimum": -16.867469879518072,
+          "displayMaximum": 14.893617021276595,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "helium",
+      "product": "Industrial helium",
+      "limits": {
+        "credits": {
+          "minimum": -158,
+          "maximum": 130,
+          "displayMinimum": -158,
+          "displayMaximum": 130,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.205128205128204,
+          "maximum": 15.757575757575747,
+          "displayMinimum": -16.205128205128204,
+          "displayMaximum": 15.757575757575756,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "argon",
+      "product": "Industrial argon",
+      "limits": {
+        "credits": {
+          "minimum": -59,
+          "maximum": 49,
+          "displayMinimum": -59,
+          "displayMaximum": 49,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.388888888888886,
+          "maximum": 16.171617161716178,
+          "displayMinimum": -16.38888888888889,
+          "displayMaximum": 16.17161716171617,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "methane",
+      "product": "Liquid methane",
+      "limits": {
+        "credits": {
+          "minimum": -41,
+          "maximum": 32,
+          "displayMinimum": -41,
+          "displayMaximum": 32,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.73469387755102,
+          "maximum": 15.458937198067634,
+          "displayMinimum": -16.73469387755102,
+          "displayMaximum": 15.458937198067632,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "ethane",
+      "product": "Liquid ethane",
+      "limits": {
+        "credits": {
+          "minimum": -52,
+          "maximum": 41,
+          "displayMinimum": -52,
+          "displayMaximum": 41,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.149068322981364,
+          "maximum": 15.01831501831501,
+          "displayMinimum": -16.149068322981368,
+          "displayMaximum": 15.018315018315018,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "ammonia",
+      "product": "Liquid ammonia",
+      "limits": {
+        "credits": {
+          "minimum": -63,
+          "maximum": 55,
+          "displayMinimum": -63,
+          "displayMaximum": 55,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -15.829145728643212,
+          "maximum": 16.32047477744807,
+          "displayMinimum": -15.829145728643216,
+          "displayMaximum": 16.320474777448073,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "carbon-dioxide",
+      "product": "Industrial carbon dioxide",
+      "limits": {
+        "credits": {
+          "minimum": -23,
+          "maximum": 17,
+          "displayMinimum": -23,
+          "displayMaximum": 17,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.16417910447762,
+          "maximum": 15.04424778761062,
+          "displayMinimum": -17.16417910447761,
+          "displayMaximum": 15.04424778761062,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "brines",
+      "product": "Mineral brines",
+      "limits": {
+        "credits": {
+          "minimum": -25,
+          "maximum": 19,
+          "displayMinimum": -25,
+          "displayMaximum": 19,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.24137931034483,
+          "maximum": 15.573770491803284,
+          "displayMinimum": -17.24137931034483,
+          "displayMaximum": 15.573770491803279,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "sodium-salts",
+      "product": "Industrial sodium salts",
+      "limits": {
+        "credits": {
+          "minimum": -24,
+          "maximum": 18,
+          "displayMinimum": -24,
+          "displayMaximum": 18,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -17.266187050359715,
+          "maximum": 15.384615384615374,
+          "displayMinimum": -17.26618705035971,
+          "displayMaximum": 15.384615384615385,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    },
+    {
+      "item": "carbonates",
+      "product": "Industrial carbonates",
+      "limits": {
+        "credits": {
+          "minimum": -27,
+          "maximum": 21,
+          "displayMinimum": -27,
+          "displayMaximum": 21,
+          "matches": true
+        },
+        "percent": {
+          "minimum": -16.770186335403725,
+          "maximum": 15.441176470588225,
+          "displayMinimum": -16.77018633540373,
+          "displayMaximum": 15.441176470588236,
+          "matches": true
+        }
+      },
+      "statisticsMatchCycleModel": true,
+      "dailyPriceSnapshotsMatchCycle": true
+    }
+  ],
+  "passed": true,
+  "model": "Daily buy and sell price curves pool separate station-day observations across one full cycle. Existing gross margin columns compare independent station/day quote pairs before travel costs. Repeated cycles add verification, not independent price phases."
+}

@@ -1,0 +1,52 @@
+{
+  "authorization": "User requested automatic travelling-fleet membership for purchased ships, with berthing only by explicit choice.",
+  "date": "2026-10-28",
+  "baseline": "v96",
+  "scope": "Newly purchased factory hulls and registry repurchases join the travelling fleet atomically while retaining the current flagship. Explicit berth controls remain available; existing owned hull assignments are preserved. Hull prices, stock, fuel/store allocations, fittings, delivery costs and every generic pricing/production formula remain unchanged.",
+  "referenceComparison": {
+    "goods.json": {
+      "changedMetadataKeys": [
+        "engineSHA256",
+        "generatedAt",
+        "approval"
+      ],
+      "allReferenceValuesUnchanged": true
+    },
+    "formulas.json": {
+      "changedMetadataKeys": [
+        "engineSHA256",
+        "approval"
+      ],
+      "allReferenceValuesUnchanged": true
+    },
+    "bonding-curves.json": {
+      "changedMetadataKeys": [
+        "engineSHA256",
+        "approval"
+      ],
+      "allReferenceValuesUnchanged": true
+    }
+  },
+  "engineScope": {
+    "onlyPurchaseBranchesChanged": true,
+    "baselineSHA256": "09bc8702ed93eefa2087b1bd95401dc20604b9ef5d8258a7ed25a4fe8e561e7a",
+    "candidateSHA256": "2e066ddd6cbc8f38083227610b7da34d3155323ef2d08e78a1eb7fa80e79bf72",
+    "allOtherEngineCodeSHA256": "e6faed6bb3ebd0de83f9508e9b356f01ca5ec9bcd10061f2ff2ca2ed3bf48d2b"
+  },
+  "pricingAudit": {
+    "passed": true,
+    "years": 100,
+    "stationDayQuotes": 62300160
+  },
+  "regressions": [
+    "purchase-fleet: seven scenarios and all available station/hull combinations",
+    "registry stock/progression, historical receipt, full fitting sale/repurchase and conservation tests",
+    "Browser purchase/berth/repurchase and desktop source verification recorded in Research/PurchasedFleet-2026-10-28"
+  ],
+  "balanceConsiderations": [
+    "Fleet cargo, fuel requirements, battle participation and qualifying specialist access now include the purchased hull immediately.",
+    "Quarter-tank fuel and existing repair requirements still apply.",
+    "The 32-hull registry limit, prices and station stock remain enforced."
+  ],
+  "limitations": "This changes the default fleet assignment only; the old three legacy fleet fixtures still require independent stock/experience and historical-unit updates."
+}

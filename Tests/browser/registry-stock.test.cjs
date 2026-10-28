@@ -3,7 +3,7 @@ const fs=require('fs'),assert=require('node:assert/strict'),E=require('../../Bro
 function test(name,fn){fn();count++;console.log('PASS '+name);}
 function ready(){const s=E.transact(E.fresh(),'create',{name:'Registry review',background:'engineer',temperament:'measured'});s.castSeed='8859274016311557';s.credits=10000000;s.debt=0;return s;}
 function xp(s,n){s.profile.xp={commerce:n,navigation:0,engineering:0,diplomacy:0};return s;}
-function at(s,pid){s.location=pid;s.visited=[...new Set([...s.visited,pid])];return s;}
+function at(s,pid){s.location=pid;for(const v of s.fleet.filter(v=>v.escort))v.location=pid;s.visited=[...new Set([...s.visited,pid])];return s;}
 function stocked(id){const s=xp(ready(),10000),ports=E.supplierDirectory().filter(p=>p.ships.includes(id));for(let cycle=0;cycle<192;cycle++)for(const p of ports){s.day=cycle*30;at(s,p.port);if(E.shipMarket(s).ships.includes(id))return s;}throw Error('No stock window for '+id);}
 function reject(s,type,args,pattern){const raw=JSON.stringify(s);assert.throws(()=>E.transact(s,type,args),pattern);assert.equal(JSON.stringify(s),raw);}
 test('all 20 classes have specialized ports; Kepler no longer lists every hull',()=>{const ports=E.supplierDirectory();assert.equal(new Set(ports.flatMap(p=>p.ships)).size,20);assert(E.portFacilities('earth-high').ships.length<10);assert(!E.portFacilities('earth-high').ships.includes('condor'));assert(E.portFacilities('ceres').ships.includes('sanderling'));assert(E.portFacilities('iapetus').ships.includes('condor'));for(const p of ports.filter(p=>!p.spaceport)){assert.deepEqual(E.shipMarket(at(ready(),p.port)).ships,[]);}});

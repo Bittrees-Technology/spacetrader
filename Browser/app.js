@@ -1,5 +1,5 @@
 'use strict';
-const GAME_VERSION='0.72.257';
+const GAME_VERSION='0.72.258';
 let careerMailPage=0;
 const J=SpacetraderJournalFeed;
 const E=Heliocline, $=id=>document.getElementById(id), native=!!window.webkit?.messageHandlers?.game;
@@ -1286,7 +1286,7 @@ function registryPanel(){
  if(registryMode==='buy'){
   const choices=[...factory.map(sh=>({key:'registry-new:'+sh.id,v:registryPreviewHull('registry-new:'+sh.id),offer:E.shipOffer(state,sh.id),fresh:true})),...resales.map(r=>({key:r.id,v:r.vessel,offer:r,fresh:false}))].sort((a,b)=>a.offer.price-b.offer.price||a.v.name.localeCompare(b.v.name)||a.key.localeCompare(b.key)),q=choices.find(o=>o.key===registryBuySelection)||choices[0];registryBuySelection=q?.key||'';selected=q?.v;
   content=q?`${registryShipList(choices.map(o=>({...o,price:o.offer.price,detail:o.fresh?'New · '+o.offer.remaining+' available':'Previously owned'})),q.key,'Available ships')}${registryInspection(q.v)}`:'<p class="registry-empty">No ships available at this registry.</p>';
-  if(q)transaction=`<div class="registry-transaction"><div><small>${q.fresh?'New hull · '+q.offer.remaining+' available':'Previously owned · 1 available'}</small><strong>${fmt(q.offer.price)} cr</strong></div>${btn('Purchase ship',q.fresh?'purchase-ship':'purchase-registry-ship',`data-id="${esc(q.fresh?q.v.shipID:q.v.id)}" data-price="${q.offer.price}"`,!q.offer.canBuy,'primary')}</div><p class="registry-transaction-note">${esc(q.offer.buyReason||q.offer.reason||(q.fresh?'Berthed here with 25% fuel. Your flagship is retained.':'Condition, fittings and stores retained.'))}</p>`;
+  if(q)transaction=`<div class="registry-transaction"><div><small>${q.fresh?'New hull · '+q.offer.remaining+' available':'Previously owned · 1 available'}</small><strong>${fmt(q.offer.price)} cr</strong></div>${btn('Purchase ship',q.fresh?'purchase-ship':'purchase-registry-ship',`data-id="${esc(q.fresh?q.v.shipID:q.v.id)}" data-price="${q.offer.price}"`,!q.offer.canBuy,'primary')}</div><p class="registry-transaction-note">${esc(q.offer.buyReason||q.offer.reason||(q.fresh?'Joins the travelling fleet with 25% fuel. Your flagship is retained.':'Joins the travelling fleet; condition, fittings and stores retained.'))}</p>`;
  }else{
   const choices=local.map(v=>({key:v.id,v,price:E.registrySale(state,v.id).salePrice,detail:v.id===state.flagshipID?'Flagship':v.escort?'Escort':'Berthed'})).sort((a,b)=>a.price-b.price||a.v.name.localeCompare(b.v.name)||a.key.localeCompare(b.key)),v=choices.find(o=>o.key===outfitID)?.v||choices[0]?.v;outfitID=v?.id||'';selected=v;
   content=v?`${registryShipList(choices,v.id,registryMode==='sell'?'Ships to sell · sale proceeds':'Ships to upgrade')}${registryInspection(v)}`:'<p class="registry-empty">No owned ships at this station.</p>';
