@@ -53,7 +53,8 @@ pages = {name: Page((STATIC / name).read_text()) for name in seo.PAGES}
 titles, descriptions, link_count = set(), set(), 0
 broken_fragments = []
 config = json.loads((STATIC.parent / 'config.json').read_text())
-csp = config['routes'][0]['headers']['Content-Security-Policy']
+public_headers = next(route['headers'] for route in config['routes'] if route['src'] == '/(.*)')
+csp = public_headers['Content-Security-Policy']
 for name, page in pages.items():
     url, expected_title, description = seo.PAGES[name]
     assert page.title == expected_title, name
