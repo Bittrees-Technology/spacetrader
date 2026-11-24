@@ -380,6 +380,7 @@ def build():
     analytics_csp = csp.replace("script-src 'self' ", "script-src 'self' https://insights.bittrees.org/consent.js https://www.googletagmanager.com/gtag/ ")
     analytics_csp = analytics_csp.replace("style-src 'self' ", "style-src 'self' https://insights.bittrees.org/consent.css ")
     analytics_csp = analytics_csp.replace("connect-src 'self';", "connect-src 'self' https://*.google-analytics.com/g/collect;")
+    analytics_csp = analytics_csp.replace("frame-ancestors", "frame-src https://insights.bittrees.org/analytics-preferences.html; frame-ancestors")
     routes = [{'src': '/administration/?', 'dest': '/api/role-administration'},
               {'src': '/api/project-admin/.*', 'dest': '/api/role-administration'},
               {'src': '/api/shared-roles-health', 'dest': '/api/role-administration'},

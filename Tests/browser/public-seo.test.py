@@ -63,6 +63,7 @@ for name, page in pages.items():
     consent_tags = [a for t,a in page.links if t == 'script' and a.get('data-google-analytics-only') == 'true']
     assert bool(consent_tags) == (url in ['/', '/guide/']), url
     assert ('https://www.googletagmanager.com/gtag/' in csp) == bool(consent_tags), url
+    assert ('frame-src https://insights.bittrees.org/analytics-preferences.html' in csp) == bool(consent_tags), url
     assert page.title == expected_title, name
     assert page.title not in titles and description not in descriptions, name
     titles.add(page.title);descriptions.add(description)
