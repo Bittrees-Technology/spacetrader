@@ -54,9 +54,15 @@ titles, descriptions, link_count = set(), set(), 0
 broken_fragments = []
 config = json.loads((STATIC.parent / 'config.json').read_text())
 public_headers = next(route['headers'] for route in config['routes'] if route['src'] == '/(.*)')
-csp = public_headers['Content-Security-Policy']
 for name, page in pages.items():
     url, expected_title, description = seo.PAGES[name]
+    policies = [r['headers']['Content-Security-Policy'] for r in config['routes']
+                if 'Content-Security-Policy' in r.get('headers', {}) and re.fullmatch(r['src'], url)]
+    assert len(policies) == 1, url
+    csp = policies[0]
+    consent_tags = [a for t,a in page.links if t == 'script' and a.get('data-google-analytics-only') == 'true']
+    assert bool(consent_tags) == (url in ['/', '/guide/']), url
+    assert ('https://www.googletagmanager.com/gtag/' in csp) == bool(consent_tags), url
     assert page.title == expected_title, name
     assert page.title not in titles and description not in descriptions, name
     titles.add(page.title);descriptions.add(description)

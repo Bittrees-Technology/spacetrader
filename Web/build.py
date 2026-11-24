@@ -365,6 +365,9 @@ def build():
         if name == 'play/index.html':
             text = text.replace("script-src 'self';", "script-src 'self' " + source + ';')
             text = text.replace('<noscript>Spacetrader needs JavaScript to run its local simulation. It makes no external requests.</noscript>', '<noscript><main id="main"><h1>Play Spacetrader</h1><p>Enable JavaScript to create your captain, trade goods and explore the solar system. Progress saves in this browser on this device.</p><p><a href="/guide/">Read the game guide</a> or <a href="/">return to the main site</a>.</p></main></noscript>')
+        if name in ['index.html', 'guide/index.html']:
+            analytics = '<script defer src="https://insights.bittrees.org/consent.js" data-insights-site="bittrees-captain" data-google-analytics-only="true"></script>'
+            text = text.replace('</head>', analytics + '</head>')
         text = text.replace('</head>', '<link rel="stylesheet" href="/search.css"></head>')
         write(name, text)
     write('404.html', '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/landing.css"><title>Page not found · Spacetrader</title><main style="padding:40px"><h1>Page not found</h1><p><a href="/">Return to Spacetrader</a></p></main></html>')
@@ -374,12 +377,17 @@ def build():
     accounts=subprocess.run(['node','Web/account/build.mjs'],cwd=ROOT,capture_output=True,text=True)
     if accounts.returncode:raise RuntimeError(accounts.stdout+accounts.stderr)
     csp = "default-src 'self'; script-src 'self' " + ' '.join(hashes) + "; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+    analytics_csp = csp.replace("script-src 'self' ", "script-src 'self' https://insights.bittrees.org/consent.js https://www.googletagmanager.com/gtag/ ")
+    analytics_csp = analytics_csp.replace("style-src 'self' ", "style-src 'self' https://insights.bittrees.org/consent.css ")
+    analytics_csp = analytics_csp.replace("connect-src 'self';", "connect-src 'self' https://*.google-analytics.com/g/collect;")
     routes = [{'src': '/administration/?', 'dest': '/api/role-administration'},
               {'src': '/api/project-admin/.*', 'dest': '/api/role-administration'},
               {'src': '/api/shared-roles-health', 'dest': '/api/role-administration'},
               {'src': '/(.*)', 'headers': {'X-Content-Type-Options': 'nosniff',
                'Referrer-Policy': 'no-referrer', 'X-Frame-Options': 'DENY',
-               'Content-Security-Policy': csp, 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'}, 'continue': True},
+               'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'}, 'continue': True},
+              {'src': '/(?:guide/)?', 'headers': {'Content-Security-Policy': analytics_csp}, 'continue': True},
+              {'src': '/(?!(?:guide/)?$).*', 'headers': {'Content-Security-Policy': csp}, 'continue': True},
               {'src': '/api/(.*)', 'dest': '/api/index'},
               {'src': '/index.html', 'status': 308, 'headers': {'Location': '/'}},
               *[{'src': '/' + s + '/index.html', 'status': 308, 'headers': {'Location': '/' + s + '/'}} for s in ['play', 'guide', 'characters', 'ships', 'goods']],
